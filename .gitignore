@@ -11,10 +11,7 @@ build/
 .env.*.local
 
 # Google credentials
-*credentials*.json
-service-account*.json
 ssh/
-*.json
 
 # IDE
 .vscode/

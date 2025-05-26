@@ -7,11 +7,19 @@ let sheetsClient: any = null;
 
 export async function getAuthClient(): Promise<GoogleAuth> {
   if (!authClient) {
-    authClient = new GoogleAuth({
-      scopes: GOOGLE_SHEETS_SCOPES,
-      projectId: process.env.GOOGLE_PROJECT_ID,
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
-    });
+    const options: any = {
+      scopes: GOOGLE_SHEETS_SCOPES
+    };
+    
+    if (process.env.GOOGLE_PROJECT_ID) {
+      options.projectId = process.env.GOOGLE_PROJECT_ID;
+    }
+    
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      options.keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    }
+    
+    authClient = new GoogleAuth(options);
   }
   return authClient;
 }
