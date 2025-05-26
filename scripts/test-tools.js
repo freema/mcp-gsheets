@@ -12,7 +12,7 @@ const env = {
 };
 
 // Launch MCP server
-const server = spawn('node', ['dist/index.js'], { env });
+const server = spawn('npx', ['tsx', 'src/index.ts'], { env });
 
 // Create interface for reading/writing
 const rl = readline.createInterface({

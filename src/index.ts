@@ -1,12 +1,27 @@
 #!/usr/bin/env node
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+
+// Load .env file in development mode
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    const { config } = await import('dotenv');
+    const result = config();
+    if (result.parsed) {
+      console.error('📋 Loaded .env file for development');
+    }
+  } catch (error) {
+    // dotenv is optional, ignore if not installed
+  }
+}
+
+import { Server } from '@modelcontextprotocol/sdk/server/index';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
-  ReadResourceRequestSchema
-} from '@modelcontextprotocol/sdk/types.js';
+  ReadResourceRequestSchema,
+  CallToolRequest
+} from '@modelcontextprotocol/sdk/types';
 
 import { validateAuth } from './utils/google-auth.js';
 
@@ -89,7 +104,7 @@ async function main() {
   });
 
   // Handle tool execution
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
     const { name, arguments: args } = request.params;
     
     const handler = toolHandlers.get(name);

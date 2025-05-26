@@ -58,11 +58,11 @@ export async function handleInsertSheet(input: any) {
       }
     });
     
-    const addedSheet = response.data.replies?.[0]?.addSheet?.properties;
+    const addedSheet = response.data.replies && response.data.replies[0] && response.data.replies[0].addSheet ? response.data.replies[0].addSheet.properties : undefined;
     return formatSheetOperationResponse('Sheet inserted', {
-      sheetId: addedSheet?.sheetId,
-      title: addedSheet?.title,
-      index: addedSheet?.index
+      sheetId: addedSheet ? addedSheet.sheetId : undefined,
+      title: addedSheet ? addedSheet.title : undefined,
+      index: addedSheet ? addedSheet.index : undefined
     });
   } catch (error) {
     return handleError(error);

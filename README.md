@@ -19,9 +19,6 @@ cd mcp-gsheets
 
 # Install dependencies
 npm install
-
-# Build the project
-npm run build
 ```
 
 ### 3. Google Cloud Setup
@@ -67,8 +64,8 @@ If you prefer manual configuration, add to your Claude Desktop config:
 {
   "mcpServers": {
     "gsheets": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
+      "command": "npx",
+      "args": ["tsx", "/absolute/path/to/mcp-gsheets/src/index.ts"],
       "env": {
         "GOOGLE_PROJECT_ID": "your-project-id",
         "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
@@ -95,8 +92,10 @@ cp .env.example .env
 
 2. Run in development mode:
 ```bash
-npm run dev  # Watch mode with auto-reload
+npm run dev  # Watch mode with auto-reload (automatically loads .env file)
 ```
+
+Note: The development mode automatically loads environment variables from `.env` file in the project root.
 
 ### Testing Methods
 
@@ -151,14 +150,13 @@ Interactive command-line tool for testing specific operations.
 - Verify spreadsheet ID from URL
 - Format: `https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID]/edit`
 
-**Build errors**
+**TypeScript errors**
 ```bash
-# Clean build
-rm -rf dist/
-npm run build
-
 # Check TypeScript errors
 npx tsc --noEmit
+
+# Run directly without build
+npm start
 ```
 
 ## 🔍 Finding IDs

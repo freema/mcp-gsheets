@@ -33,15 +33,15 @@ async function main() {
 
   // Get project path
   const projectPath = path.resolve(__dirname, '..');
-  const distPath = path.join(projectPath, 'dist', 'index.js');
+  const indexPath = path.join(projectPath, 'src', 'index.ts');
 
-  // Check if built
-  if (!fs.existsSync(distPath)) {
-    console.log(`${colors.red}❌ Project not built! Run 'npm run build' first.${colors.reset}`);
+  // Check if source exists
+  if (!fs.existsSync(indexPath)) {
+    console.log(`${colors.red}❌ Source file not found at: ${indexPath}${colors.reset}`);
     process.exit(1);
   }
 
-  console.log(`${colors.green}✓ Found built server at: ${distPath}${colors.reset}\n`);
+  console.log(`${colors.green}✓ Found server source at: ${indexPath}${colors.reset}\n`);
 
   // Get Google Cloud info
   console.log(`${colors.bright}Google Cloud Setup:${colors.reset}`);
@@ -69,8 +69,8 @@ async function main() {
   const mcpConfig = {
     mcpServers: {
       gsheets: {
-        command: "node",
-        args: [distPath],
+        command: "npx",
+        args: ["tsx", indexPath],
         env: {
           GOOGLE_PROJECT_ID: projectId,
           GOOGLE_APPLICATION_CREDENTIALS: absoluteCredPath

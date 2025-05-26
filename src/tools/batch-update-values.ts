@@ -61,10 +61,12 @@ export async function handleBatchUpdateValues(input: any) {
       }
     });
     
-    const totalUpdatedCells = response.data.responses?.reduce(
-      (sum: number, resp: any) => sum + (resp.updatedCells || 0), 
-      0
-    ) || 0;
+    const totalUpdatedCells = response.data.responses 
+      ? response.data.responses.reduce(
+          (sum: number, resp: any) => sum + (resp.updatedCells || 0), 
+          0
+        )
+      : 0;
     
     return formatUpdateResponse(totalUpdatedCells);
   } catch (error) {

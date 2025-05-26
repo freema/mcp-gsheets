@@ -24,7 +24,7 @@ export function formatValuesResponse(values: any[][], range?: string): ToolRespo
   const formattedData = {
     range: range,
     rowCount: values.length,
-    columnCount: values[0]?.length || 0,
+    columnCount: values[0] ? values[0].length : 0,
     values: values
   };
   
@@ -34,8 +34,8 @@ export function formatValuesResponse(values: any[][], range?: string): ToolRespo
 export function formatBatchValuesResponse(valueRanges: any[]): ToolResponse {
   const formattedData = valueRanges.map(vr => ({
     range: vr.range,
-    rowCount: vr.values?.length || 0,
-    columnCount: vr.values?.[0]?.length || 0,
+    rowCount: vr.values ? vr.values.length : 0,
+    columnCount: vr.values && vr.values[0] ? vr.values[0].length : 0,
     values: vr.values || []
   }));
   
@@ -48,17 +48,17 @@ export function formatBatchValuesResponse(valueRanges: any[]): ToolResponse {
 export function formatSpreadsheetMetadata(metadata: any): ToolResponse {
   const formattedData = {
     spreadsheetId: metadata.spreadsheetId,
-    title: metadata.properties?.title,
-    locale: metadata.properties?.locale,
-    timeZone: metadata.properties?.timeZone,
-    sheets: metadata.sheets?.map((sheet: any) => ({
-      sheetId: sheet.properties?.sheetId,
-      title: sheet.properties?.title,
-      index: sheet.properties?.index,
-      rowCount: sheet.properties?.gridProperties?.rowCount,
-      columnCount: sheet.properties?.gridProperties?.columnCount,
-      tabColor: sheet.properties?.tabColor
-    }))
+    title: metadata.properties ? metadata.properties.title : undefined,
+    locale: metadata.properties ? metadata.properties.locale : undefined,
+    timeZone: metadata.properties ? metadata.properties.timeZone : undefined,
+    sheets: metadata.sheets ? metadata.sheets.map((sheet: any) => ({
+      sheetId: sheet.properties ? sheet.properties.sheetId : undefined,
+      title: sheet.properties ? sheet.properties.title : undefined,
+      index: sheet.properties ? sheet.properties.index : undefined,
+      rowCount: sheet.properties && sheet.properties.gridProperties ? sheet.properties.gridProperties.rowCount : undefined,
+      columnCount: sheet.properties && sheet.properties.gridProperties ? sheet.properties.gridProperties.columnCount : undefined,
+      tabColor: sheet.properties ? sheet.properties.tabColor : undefined
+    })) : undefined
   };
   
   return formatSuccessResponse(formattedData);
@@ -99,7 +99,7 @@ export function formatSpreadsheetCreatedResponse(spreadsheet: any): ToolResponse
   return formatSuccessResponse({
     spreadsheetId: spreadsheet.spreadsheetId,
     spreadsheetUrl: spreadsheet.spreadsheetUrl,
-    title: spreadsheet.properties?.title
+    title: spreadsheet.properties ? spreadsheet.properties.title : undefined
   }, 'Spreadsheet created successfully');
 }
 

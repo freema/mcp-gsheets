@@ -49,11 +49,11 @@ export async function handleDuplicateSheet(input: any) {
       }
     });
     
-    const duplicatedSheet = response.data.replies?.[0]?.duplicateSheet?.properties;
+    const duplicatedSheet = response.data.replies && response.data.replies[0] && response.data.replies[0].duplicateSheet ? response.data.replies[0].duplicateSheet.properties : undefined;
     return formatSheetOperationResponse('Sheet duplicated', {
-      newSheetId: duplicatedSheet?.sheetId,
-      title: duplicatedSheet?.title,
-      index: duplicatedSheet?.index
+      newSheetId: duplicatedSheet ? duplicatedSheet.sheetId : undefined,
+      title: duplicatedSheet ? duplicatedSheet.title : undefined,
+      index: duplicatedSheet ? duplicatedSheet.index : undefined
     });
   } catch (error) {
     return handleError(error);
