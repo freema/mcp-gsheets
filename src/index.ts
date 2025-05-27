@@ -13,15 +13,15 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-import { Server } from '@modelcontextprotocol/sdk/server/index';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
   CallToolRequest
-} from '@modelcontextprotocol/sdk/types';
+} from '@modelcontextprotocol/sdk/types.js';
 
 import { validateAuth } from './utils/google-auth.js';
 
@@ -133,7 +133,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  console.error('Google Sheets MCP server running on stdio');
+  console.info('Google Sheets MCP server running on stdio');
 }
 
 main().catch((error) => {

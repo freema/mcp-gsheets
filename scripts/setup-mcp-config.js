@@ -5,6 +5,7 @@ import path from 'path';
 import readline from 'readline';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,20 +29,64 @@ function question(query) {
   return new Promise(resolve => rl.question(query, resolve));
 }
 
+function detectNodePath() {
+  try {
+    // First try to get current Node.js path
+    const nodeVersion = process.version;
+    console.log(`${colors.green}✓ Detected Node.js version: ${nodeVersion}${colors.reset}`);
+    
+    // Check if using nvm
+    const nvmDir = process.env.NVM_DIR;
+    if (nvmDir) {
+      // Try to get the current version from nvm
+      try {
+        const currentVersion = execSync('nvm current', { encoding: 'utf8' }).trim();
+        const nodePath = path.join(nvmDir, 'versions', 'node', currentVersion, 'bin', 'node');
+        if (fs.existsSync(nodePath)) {
+          console.log(`${colors.green}✓ Using nvm Node.js at: ${nodePath}${colors.reset}`);
+          return nodePath;
+        }
+      } catch (e) {
+        // Fall through to process.execPath
+      }
+    }
+    
+    // Use the current Node.js executable path
+    console.log(`${colors.green}✓ Using Node.js at: ${process.execPath}${colors.reset}`);
+    return process.execPath;
+  } catch (error) {
+    console.log(`${colors.yellow}⚠️  Could not detect Node.js path, using default${colors.reset}`);
+    return 'node';
+  }
+}
+
 async function main() {
   console.log(`${colors.bright}${colors.blue}🚀 MCP Google Sheets Configuration Setup${colors.reset}\n`);
 
   // Get project path
   const projectPath = path.resolve(__dirname, '..');
-  const indexPath = path.join(projectPath, 'src', 'index.ts');
+  const distIndexPath = path.join(projectPath, 'dist', 'index.js');
 
-  // Check if source exists
-  if (!fs.existsSync(indexPath)) {
-    console.log(`${colors.red}❌ Source file not found at: ${indexPath}${colors.reset}`);
+  // Check if we need to build first
+  const srcIndexPath = path.join(projectPath, 'src', 'index.ts');
+  if (!fs.existsSync(distIndexPath) && fs.existsSync(srcIndexPath)) {
+    console.log(`${colors.yellow}⚠️  Dist file not found. Building project...${colors.reset}`);
+    try {
+      execSync('npm run build', { cwd: projectPath, stdio: 'inherit' });
+      console.log(`${colors.green}✓ Build completed${colors.reset}\n`);
+    } catch (error) {
+      console.log(`${colors.red}❌ Build failed. Please run 'npm run build' manually${colors.reset}`);
+      process.exit(1);
+    }
+  }
+
+  if (!fs.existsSync(distIndexPath)) {
+    console.log(`${colors.red}❌ Dist file not found at: ${distIndexPath}${colors.reset}`);
+    console.log(`${colors.yellow}Please run 'npm run build' first${colors.reset}`);
     process.exit(1);
   }
 
-  console.log(`${colors.green}✓ Found server source at: ${indexPath}${colors.reset}\n`);
+  console.log(`${colors.green}✓ Found server dist at: ${distIndexPath}${colors.reset}\n`);
 
   // Get Google Cloud info
   console.log(`${colors.bright}Google Cloud Setup:${colors.reset}`);
@@ -65,12 +110,37 @@ async function main() {
     console.log(`${colors.yellow}⚠️  Could not read service account email${colors.reset}\n`);
   }
 
+  // Detect Node.js path
+  const nodePath = detectNodePath();
+  
+  // Ask user about Node.js configuration
+  console.log(`\n${colors.bright}Node.js Configuration:${colors.reset}`);
+  console.log(`1. Use detected Node.js: ${nodePath}`);
+  console.log(`2. Specify custom Node.js path`);
+  console.log(`3. Use system default (node)`);
+  
+  const nodeChoice = await question('\nSelect option (1-3): ');
+  let finalNodePath = nodePath;
+  
+  switch (nodeChoice) {
+    case '2':
+      finalNodePath = await question('Enter full path to Node.js executable: ');
+      if (!fs.existsSync(finalNodePath)) {
+        console.log(`${colors.yellow}⚠️  Path not found, using detected path${colors.reset}`);
+        finalNodePath = nodePath;
+      }
+      break;
+    case '3':
+      finalNodePath = 'node';
+      break;
+  }
+
   // Create MCP config
   const mcpConfig = {
     mcpServers: {
-      gsheets: {
-        command: "npx",
-        args: ["tsx", indexPath],
+      "mcp-gsheets": {
+        command: finalNodePath,
+        args: [distIndexPath],
         env: {
           GOOGLE_PROJECT_ID: projectId,
           GOOGLE_APPLICATION_CREDENTIALS: absoluteCredPath
@@ -109,11 +179,15 @@ async function main() {
       if (fs.existsSync(configPath)) {
         try {
           existingConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-          if (existingConfig.mcpServers && existingConfig.mcpServers.gsheets) {
-            const overwrite = await question(`\n${colors.yellow}⚠️  'gsheets' server already exists. Overwrite? (y/n): ${colors.reset}`);
+          if (existingConfig.mcpServers && (existingConfig.mcpServers.gsheets || existingConfig.mcpServers['mcp-gsheets'])) {
+            const overwrite = await question(`\n${colors.yellow}⚠️  'mcp-gsheets' server already exists. Overwrite? (y/n): ${colors.reset}`);
             if (overwrite.toLowerCase() !== 'y') {
               console.log('Cancelled.');
               process.exit(0);
+            }
+            // Remove old gsheets entry if exists
+            if (existingConfig.mcpServers.gsheets) {
+              delete existingConfig.mcpServers.gsheets;
             }
           }
         } catch (error) {
