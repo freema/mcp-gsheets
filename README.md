@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server for Google Sheets API integration. Enables
 
 ### 1. Prerequisites
 
-- Node.js v16 or higher
+- Node.js v18 or higher
 - Google Cloud Project with Sheets API enabled
 - Service Account with JSON key file
 
@@ -19,6 +19,9 @@ cd mcp-gsheets
 
 # Install dependencies
 npm install
+
+# Build the project
+npm run build
 ```
 
 ### 3. Google Cloud Setup
@@ -49,7 +52,8 @@ npm run setup
 
 This will:
 - Guide you through the configuration
-- Automatically find your Claude Desktop config
+- Automatically detect your Node.js installation (including nvm)
+- Find your Claude Desktop config
 - Create the proper JSON configuration
 - Optionally create a .env file for development
 
@@ -63,9 +67,9 @@ If you prefer manual configuration, add to your Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "gsheets": {
-      "command": "npx",
-      "args": ["tsx", "/absolute/path/to/mcp-gsheets/src/index.ts"],
+    "mcp-gsheets": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
       "env": {
         "GOOGLE_PROJECT_ID": "your-project-id",
         "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
@@ -77,7 +81,53 @@ If you prefer manual configuration, add to your Claude Desktop config:
 
 Restart Claude Desktop after adding the configuration.
 
-## 🧪 Testing & Development
+## 📦 Build & Development
+
+### Development Commands
+
+```bash
+# Development mode with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Type checking
+npm run typecheck
+
+# Clean build artifacts
+npm run clean
+
+# Run MCP inspector for debugging
+npm run inspector
+
+# Run MCP inspector in development mode
+npm run inspector:dev
+```
+
+### Task Runner (Alternative)
+
+If you have [Task](https://taskfile.dev) installed:
+
+```bash
+# Install dependencies
+task install
+
+# Build the project
+task build
+
+# Run in development mode
+task dev
+
+# Run linter
+task lint
+
+# Format code
+task fmt
+
+# Run all checks
+task check
+```
 
 ### Development Setup
 
@@ -92,24 +142,8 @@ cp .env.example .env
 
 2. Run in development mode:
 ```bash
-npm run dev  # Watch mode with auto-reload (automatically loads .env file)
+npm run dev  # Watch mode with auto-reload
 ```
-
-Note: The development mode automatically loads environment variables from `.env` file in the project root.
-
-### Testing Methods
-
-#### Method 1: Quick Test Script
-```bash
-npm run test:dev
-```
-This runs predefined tests against your test spreadsheet.
-
-#### Method 2: Manual Testing
-```bash
-node scripts/test-tools.js
-```
-Interactive command-line tool for testing specific operations.
 
 ## 📋 Available Tools
 
@@ -117,6 +151,7 @@ Interactive command-line tool for testing specific operations.
 - `sheets_get_values` - Read from a range
 - `sheets_batch_get_values` - Read from multiple ranges
 - `sheets_get_metadata` - Get spreadsheet info
+- `sheets_check_access` - Check access permissions
 
 ### Writing Data
 - `sheets_update_values` - Write to a range
@@ -125,12 +160,40 @@ Interactive command-line tool for testing specific operations.
 - `sheets_clear_values` - Clear cell contents
 
 ### Sheet Management
-- `sheets_create_spreadsheet` - Create new spreadsheet
 - `sheets_insert_sheet` - Add new sheet
 - `sheets_delete_sheet` - Remove sheet
 - `sheets_duplicate_sheet` - Copy sheet
 - `sheets_copy_to` - Copy to another spreadsheet
 - `sheets_update_sheet_properties` - Update sheet settings
+
+## 🔧 Code Quality
+
+### Linting
+
+```bash
+# Run ESLint
+npm run lint
+
+# Fix auto-fixable issues
+npm run lint:fix
+```
+
+### Formatting
+
+```bash
+# Check formatting with Prettier
+npm run format:check
+
+# Format code
+npm run format
+```
+
+### Type Checking
+
+```bash
+# Run TypeScript type checking
+npm run typecheck
+```
 
 ## ❗ Troubleshooting
 
@@ -150,14 +213,11 @@ Interactive command-line tool for testing specific operations.
 - Verify spreadsheet ID from URL
 - Format: `https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID]/edit`
 
-**TypeScript errors**
-```bash
-# Check TypeScript errors
-npx tsc --noEmit
-
-# Run directly without build
-npm start
-```
+**MCP Connection Issues**
+- Ensure you're using the built version (`dist/index.js`)
+- Check that Node.js path is correct in Claude Desktop config
+- Look for errors in Claude Desktop logs
+- Use `npm run inspector` to debug
 
 ## 🔍 Finding IDs
 
@@ -177,7 +237,17 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 2. Use batch operations for better performance
 3. Set appropriate permissions (read-only vs edit)
 4. Check rate limits for large operations
+5. Use `sheets_check_access` to verify permissions before operations
 
-## License
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Run tests and linting (`npm run check`)
+4. Commit your changes (`git commit -m 'Add some amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## 📄 License
 
 MIT

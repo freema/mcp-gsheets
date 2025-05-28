@@ -1,0 +1,102 @@
+version: '3'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  install:
+    desc: Install dependencies
+    cmds:
+      - npm install
+
+  build:
+    desc: Build the project
+    cmds:
+      - npm run build
+
+  dev:
+    desc: Run in development mode with hot reload
+    cmds:
+      - npm run dev
+
+  start:
+    desc: Run the production build
+    deps: [build]
+    cmds:
+      - npm start
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf dist
+      - rm -rf node_modules
+      - rm -f package-lock.json
+
+  typecheck:
+    desc: Run TypeScript type checking
+    cmds:
+      - npm run typecheck
+
+  lint:
+    desc: Run ESLint
+    cmds:
+      - npm run lint
+
+  lint:fix:
+    desc: Run ESLint with auto-fix
+    cmds:
+      - npm run lint:fix
+
+  fmt:
+    desc: Format code with Prettier
+    cmds:
+      - npm run format
+
+  fmt:check:
+    desc: Check code formatting
+    cmds:
+      - npm run format:check
+
+  check:
+    desc: Run all checks (typecheck, lint, format)
+    cmds:
+      - task: typecheck
+      - task: lint
+      - task: fmt:check
+
+  setup:
+    desc: Run interactive setup for MCP configuration
+    cmds:
+      - npm run setup
+
+  inspector:
+    desc: Run MCP inspector for debugging
+    deps: [build]
+    cmds:
+      - npm run inspector
+
+  inspector:dev:
+    desc: Run MCP inspector in development mode
+    cmds:
+      - npm run inspector:dev
+
+  release:
+    desc: Prepare for release (clean, install, build, check)
+    cmds:
+      - task: clean
+      - task: install
+      - task: check
+      - task: build
+
+  watch:
+    desc: Watch for file changes and rebuild
+    cmds:
+      - npx tsup --watch
+
+  env:
+    desc: Create .env file from example
+    cmds:
+      - cp .env.example .env
+      - echo "Created .env file. Please edit it with your credentials."

@@ -1,0 +1,10 @@
+dist
+node_modules
+*.json
+*.md
+*.yaml
+*.yml
+.env
+.env.*
+package-lock.json
+tsconfig.json

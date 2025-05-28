@@ -26,6 +26,7 @@ import {
 import { validateAuth } from './utils/google-auth.js';
 
 // Import all tools
+import { checkAccessTool, handleCheckAccess } from './tools/check-access.js';
 import { getValuesTool, handleGetValues } from './tools/get-values.js';
 import { batchGetValuesTool, handleBatchGetValues } from './tools/batch-get-values.js';
 import { getMetadataTool, handleGetMetadata } from './tools/get-metadata.js';
@@ -42,6 +43,7 @@ import { updateSheetPropertiesTool, handleUpdateSheetProperties } from './tools/
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
+  ['sheets_check_access', handleCheckAccess],
   ['sheets_get_values', handleGetValues],
   ['sheets_batch_get_values', handleBatchGetValues],
   ['sheets_get_metadata', handleGetMetadata],
@@ -59,6 +61,7 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
 
 // All tools
 const tools = [
+  checkAccessTool,
   getValuesTool,
   batchGetValuesTool,
   getMetadataTool,
@@ -133,7 +136,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  console.info('Google Sheets MCP server running on stdio');
+  console.error('Google Sheets MCP server running on stdio');
 }
 
 main().catch((error) => {
