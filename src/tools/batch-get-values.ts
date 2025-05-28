@@ -12,42 +12,43 @@ export const batchGetValuesTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       ranges: {
         type: 'array',
         items: {
-          type: 'string'
+          type: 'string',
         },
-        description: 'Array of A1 notation ranges to retrieve (e.g., ["Sheet1!A1:B10", "Sheet2!C1:D5"])'
+        description:
+          'Array of A1 notation ranges to retrieve (e.g., ["Sheet1!A1:B10", "Sheet2!C1:D5"])',
       },
       majorDimension: {
         type: 'string',
         enum: ['ROWS', 'COLUMNS'],
-        description: 'The major dimension of the values (default: ROWS)'
+        description: 'The major dimension of the values (default: ROWS)',
       },
       valueRenderOption: {
         type: 'string',
         enum: ['FORMATTED_VALUE', 'UNFORMATTED_VALUE', 'FORMULA'],
-        description: 'How values should be represented (default: FORMATTED_VALUE)'
-      }
+        description: 'How values should be represented (default: FORMATTED_VALUE)',
+      },
     },
-    required: ['spreadsheetId', 'ranges']
-  }
+    required: ['spreadsheetId', 'ranges'],
+  },
 };
 
 export async function handleBatchGetValues(input: any) {
   try {
     const validatedInput = validateBatchGetValuesInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.values.batchGet({
       spreadsheetId: validatedInput.spreadsheetId,
       ranges: validatedInput.ranges,
       majorDimension: validatedInput.majorDimension,
-      valueRenderOption: validatedInput.valueRenderOption
+      valueRenderOption: validatedInput.valueRenderOption,
     });
-    
+
     return formatBatchValuesResponse(response.data.valueRanges || []);
   } catch (error) {
     return handleError(error);

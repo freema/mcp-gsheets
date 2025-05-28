@@ -12,27 +12,27 @@ export const clearValuesTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       range: {
         type: 'string',
-        description: 'The A1 notation range to clear (e.g., "Sheet1!A1:B10")'
-      }
+        description: 'The A1 notation range to clear (e.g., "Sheet1!A1:B10")',
+      },
     },
-    required: ['spreadsheetId', 'range']
-  }
+    required: ['spreadsheetId', 'range'],
+  },
 };
 
 export async function handleClearValues(input: any) {
   try {
     const validatedInput = validateClearValuesInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.values.clear({
       spreadsheetId: validatedInput.spreadsheetId,
-      range: validatedInput.range
+      range: validatedInput.range,
     });
-    
+
     return formatClearResponse(response.data.clearedRange || validatedInput.range);
   } catch (error) {
     return handleError(error);

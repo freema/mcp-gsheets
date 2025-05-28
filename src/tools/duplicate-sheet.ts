@@ -12,48 +12,52 @@ export const duplicateSheetTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       sheetId: {
         type: 'number',
-        description: 'The ID of the sheet to duplicate (use sheets_get_metadata to find sheet IDs)'
+        description: 'The ID of the sheet to duplicate (use sheets_get_metadata to find sheet IDs)',
       },
       insertSheetIndex: {
         type: 'number',
-        description: 'The index where the new sheet should be inserted (0-based)'
+        description: 'The index where the new sheet should be inserted (0-based)',
       },
       newSheetName: {
         type: 'string',
-        description: 'The name for the duplicated sheet'
-      }
+        description: 'The name for the duplicated sheet',
+      },
     },
-    required: ['spreadsheetId', 'sheetId']
-  }
+    required: ['spreadsheetId', 'sheetId'],
+  },
 };
 
 export async function handleDuplicateSheet(input: any) {
   try {
     const validatedInput = validateDuplicateSheetInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.batchUpdate({
       spreadsheetId: validatedInput.spreadsheetId,
       requestBody: {
-        requests: [{
-          duplicateSheet: {
-            sourceSheetId: validatedInput.sheetId,
-            insertSheetIndex: validatedInput.insertSheetIndex,
-            newSheetName: validatedInput.newSheetName
-          }
-        }]
-      }
+        requests: [
+          {
+            duplicateSheet: {
+              sourceSheetId: validatedInput.sheetId,
+              insertSheetIndex: validatedInput.insertSheetIndex,
+              newSheetName: validatedInput.newSheetName,
+            },
+          },
+        ],
+      },
     });
-    
-    const duplicatedSheet = response.data.replies && response.data.replies[0] && response.data.replies[0].duplicateSheet ? response.data.replies[0].duplicateSheet.properties : undefined;
+
+    const duplicatedSheet = response.data.replies?.[0]?.duplicateSheet
+      ? response.data.replies[0].duplicateSheet.properties
+      : undefined;
     return formatSheetOperationResponse('Sheet duplicated', {
       newSheetId: duplicatedSheet ? duplicatedSheet.sheetId : undefined,
       title: duplicatedSheet ? duplicatedSheet.title : undefined,
-      index: duplicatedSheet ? duplicatedSheet.index : undefined
+      index: duplicatedSheet ? duplicatedSheet.index : undefined,
     });
   } catch (error) {
     return handleError(error);

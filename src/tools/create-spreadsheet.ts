@@ -12,7 +12,7 @@ export const createSpreadsheetTool: Tool = {
     properties: {
       title: {
         type: 'string',
-        description: 'The title of the new spreadsheet'
+        description: 'The title of the new spreadsheet',
       },
       sheets: {
         type: 'array',
@@ -21,52 +21,52 @@ export const createSpreadsheetTool: Tool = {
           properties: {
             title: {
               type: 'string',
-              description: 'The title of the sheet'
+              description: 'The title of the sheet',
             },
             rowCount: {
               type: 'number',
-              description: 'Number of rows in the sheet (default: 1000)'
+              description: 'Number of rows in the sheet (default: 1000)',
             },
             columnCount: {
               type: 'number',
-              description: 'Number of columns in the sheet (default: 26)'
-            }
-          }
+              description: 'Number of columns in the sheet (default: 26)',
+            },
+          },
         },
-        description: 'Array of sheets to create in the spreadsheet'
-      }
+        description: 'Array of sheets to create in the spreadsheet',
+      },
     },
-    required: ['title']
-  }
+    required: ['title'],
+  },
 };
 
 export async function handleCreateSpreadsheet(input: any) {
   try {
     const validatedInput = validateCreateSpreadsheetInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const requestBody: any = {
       properties: {
-        title: validatedInput.title
-      }
+        title: validatedInput.title,
+      },
     };
-    
+
     if (validatedInput.sheets && validatedInput.sheets.length > 0) {
       requestBody.sheets = validatedInput.sheets.map((sheet, index) => ({
         properties: {
           title: sheet.title || `Sheet${index + 1}`,
           gridProperties: {
             rowCount: sheet.rowCount || 1000,
-            columnCount: sheet.columnCount || 26
-          }
-        }
+            columnCount: sheet.columnCount || 26,
+          },
+        },
       }));
     }
-    
+
     const response = await sheets.spreadsheets.create({
-      requestBody
+      requestBody,
     });
-    
+
     return formatSpreadsheetCreatedResponse(response.data);
   } catch (error) {
     return handleError(error);

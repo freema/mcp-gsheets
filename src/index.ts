@@ -20,7 +20,7 @@ import {
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
-  CallToolRequest
+  CallToolRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { validateAuth } from './utils/google-auth.js';
@@ -39,7 +39,10 @@ import { insertSheetTool, handleInsertSheet } from './tools/insert-sheet.js';
 import { deleteSheetTool, handleDeleteSheet } from './tools/delete-sheet.js';
 import { duplicateSheetTool, handleDuplicateSheet } from './tools/duplicate-sheet.js';
 import { copyToTool, handleCopyTo } from './tools/copy-to.js';
-import { updateSheetPropertiesTool, handleUpdateSheetProperties } from './tools/update-sheet-properties.js';
+import {
+  updateSheetPropertiesTool,
+  handleUpdateSheetProperties,
+} from './tools/update-sheet-properties.js';
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
@@ -56,7 +59,7 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_delete_sheet', handleDeleteSheet],
   ['sheets_duplicate_sheet', handleDuplicateSheet],
   ['sheets_copy_to', handleCopyTo],
-  ['sheets_update_sheet_properties', handleUpdateSheetProperties]
+  ['sheets_update_sheet_properties', handleUpdateSheetProperties],
 ]);
 
 // All tools
@@ -74,7 +77,7 @@ const tools = [
   deleteSheetTool,
   duplicateSheetTool,
   copyToTool,
-  updateSheetPropertiesTool
+  updateSheetPropertiesTool,
 ];
 
 async function main() {
@@ -102,14 +105,14 @@ async function main() {
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
-      tools: tools
+      tools: tools,
     };
   });
 
   // Handle tool execution
   server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
     const { name, arguments: args } = request.params;
-    
+
     const handler = toolHandlers.get(name);
     if (!handler) {
       throw new Error(`Unknown tool: ${name}`);
@@ -135,7 +138,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  
+
   console.error('Google Sheets MCP server running on stdio');
 }
 

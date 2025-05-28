@@ -12,49 +12,49 @@ export const appendValuesTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       range: {
         type: 'string',
-        description: 'The A1 notation range of the table to append to (e.g., "Sheet1!A:B")'
+        description: 'The A1 notation range of the table to append to (e.g., "Sheet1!A:B")',
       },
       values: {
         type: 'array',
         items: {
-          type: 'array'
+          type: 'array',
         },
-        description: 'A 2D array of values to append, where each inner array represents a row'
+        description: 'A 2D array of values to append, where each inner array represents a row',
       },
       valueInputOption: {
         type: 'string',
         enum: ['RAW', 'USER_ENTERED'],
-        description: 'How the input data should be interpreted (default: USER_ENTERED)'
+        description: 'How the input data should be interpreted (default: USER_ENTERED)',
       },
       insertDataOption: {
         type: 'string',
         enum: ['OVERWRITE', 'INSERT_ROWS'],
-        description: 'How the input data should be inserted (default: OVERWRITE)'
-      }
+        description: 'How the input data should be inserted (default: OVERWRITE)',
+      },
     },
-    required: ['spreadsheetId', 'range', 'values']
-  }
+    required: ['spreadsheetId', 'range', 'values'],
+  },
 };
 
 export async function handleAppendValues(input: any) {
   try {
     const validatedInput = validateAppendValuesInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: validatedInput.spreadsheetId,
       range: validatedInput.range,
       valueInputOption: validatedInput.valueInputOption,
       insertDataOption: validatedInput.insertDataOption,
       requestBody: {
-        values: validatedInput.values
-      }
+        values: validatedInput.values,
+      },
     });
-    
+
     return formatAppendResponse(response.data.updates || {});
   } catch (error) {
     return handleError(error);

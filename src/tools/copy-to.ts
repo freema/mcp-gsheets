@@ -12,37 +12,37 @@ export const copyToTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the source spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the source spreadsheet (found in the URL after /d/)',
       },
       sheetId: {
         type: 'number',
-        description: 'The ID of the sheet to copy (use sheets_get_metadata to find sheet IDs)'
+        description: 'The ID of the sheet to copy (use sheets_get_metadata to find sheet IDs)',
       },
       destinationSpreadsheetId: {
         type: 'string',
-        description: 'The ID of the destination spreadsheet'
-      }
+        description: 'The ID of the destination spreadsheet',
+      },
     },
-    required: ['spreadsheetId', 'sheetId', 'destinationSpreadsheetId']
-  }
+    required: ['spreadsheetId', 'sheetId', 'destinationSpreadsheetId'],
+  },
 };
 
 export async function handleCopyTo(input: any) {
   try {
     const validatedInput = validateCopyToInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.sheets.copyTo({
       spreadsheetId: validatedInput.spreadsheetId,
       sheetId: validatedInput.sheetId,
       requestBody: {
-        destinationSpreadsheetId: validatedInput.destinationSpreadsheetId
-      }
+        destinationSpreadsheetId: validatedInput.destinationSpreadsheetId,
+      },
     });
-    
+
     return formatSheetOperationResponse('Sheet copied', {
       destinationSheetId: response.data.sheetId,
-      title: response.data.title
+      title: response.data.title,
     });
   } catch (error) {
     return handleError(error);

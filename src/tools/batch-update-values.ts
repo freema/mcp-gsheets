@@ -12,7 +12,7 @@ export const batchUpdateValuesTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       data: {
         type: 'array',
@@ -21,53 +21,53 @@ export const batchUpdateValuesTool: Tool = {
           properties: {
             range: {
               type: 'string',
-              description: 'The A1 notation range to update'
+              description: 'The A1 notation range to update',
             },
             values: {
               type: 'array',
               items: {
-                type: 'array'
+                type: 'array',
               },
-              description: 'A 2D array of values for this range'
-            }
+              description: 'A 2D array of values for this range',
+            },
           },
-          required: ['range', 'values']
+          required: ['range', 'values'],
         },
-        description: 'Array of range-value pairs to update'
+        description: 'Array of range-value pairs to update',
       },
       valueInputOption: {
         type: 'string',
         enum: ['RAW', 'USER_ENTERED'],
-        description: 'How the input data should be interpreted (default: USER_ENTERED)'
-      }
+        description: 'How the input data should be interpreted (default: USER_ENTERED)',
+      },
     },
-    required: ['spreadsheetId', 'data']
-  }
+    required: ['spreadsheetId', 'data'],
+  },
 };
 
 export async function handleBatchUpdateValues(input: any) {
   try {
     const validatedInput = validateBatchUpdateValuesInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.values.batchUpdate({
       spreadsheetId: validatedInput.spreadsheetId,
       requestBody: {
         valueInputOption: validatedInput.valueInputOption,
-        data: validatedInput.data.map(item => ({
+        data: validatedInput.data.map((item) => ({
           range: item.range,
-          values: item.values
-        }))
-      }
+          values: item.values,
+        })),
+      },
     });
-    
-    const totalUpdatedCells = response.data.responses 
+
+    const totalUpdatedCells = response.data.responses
       ? response.data.responses.reduce(
-          (sum: number, resp: any) => sum + (resp.updatedCells || 0), 
+          (sum: number, resp: any) => sum + (resp.updatedCells || 0),
           0
         )
       : 0;
-    
+
     return formatUpdateResponse(totalUpdatedCells);
   } catch (error) {
     return handleError(error);

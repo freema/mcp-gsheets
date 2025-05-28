@@ -12,57 +12,61 @@ export const insertSheetTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       title: {
         type: 'string',
-        description: 'The title of the new sheet'
+        description: 'The title of the new sheet',
       },
       index: {
         type: 'number',
-        description: 'The index where the sheet should be inserted (0-based)'
+        description: 'The index where the sheet should be inserted (0-based)',
       },
       rowCount: {
         type: 'number',
-        description: 'Number of rows in the sheet (default: 1000)'
+        description: 'Number of rows in the sheet (default: 1000)',
       },
       columnCount: {
         type: 'number',
-        description: 'Number of columns in the sheet (default: 26)'
-      }
+        description: 'Number of columns in the sheet (default: 26)',
+      },
     },
-    required: ['spreadsheetId', 'title']
-  }
+    required: ['spreadsheetId', 'title'],
+  },
 };
 
 export async function handleInsertSheet(input: any) {
   try {
     const validatedInput = validateInsertSheetInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.batchUpdate({
       spreadsheetId: validatedInput.spreadsheetId,
       requestBody: {
-        requests: [{
-          addSheet: {
-            properties: {
-              title: validatedInput.title,
-              index: validatedInput.index,
-              gridProperties: {
-                rowCount: validatedInput.rowCount,
-                columnCount: validatedInput.columnCount
-              }
-            }
-          }
-        }]
-      }
+        requests: [
+          {
+            addSheet: {
+              properties: {
+                title: validatedInput.title,
+                index: validatedInput.index,
+                gridProperties: {
+                  rowCount: validatedInput.rowCount,
+                  columnCount: validatedInput.columnCount,
+                },
+              },
+            },
+          },
+        ],
+      },
     });
-    
-    const addedSheet = response.data.replies && response.data.replies[0] && response.data.replies[0].addSheet ? response.data.replies[0].addSheet.properties : undefined;
+
+    const addedSheet = response.data.replies?.[0]?.addSheet
+      ? response.data.replies[0].addSheet.properties
+      : undefined;
     return formatSheetOperationResponse('Sheet inserted', {
       sheetId: addedSheet ? addedSheet.sheetId : undefined,
       title: addedSheet ? addedSheet.title : undefined,
-      index: addedSheet ? addedSheet.index : undefined
+      index: addedSheet ? addedSheet.index : undefined,
     });
   } catch (error) {
     return handleError(error);

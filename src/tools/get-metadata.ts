@@ -6,17 +6,18 @@ import { formatSpreadsheetMetadata } from '../utils/formatters.js';
 
 export const getMetadataTool: Tool = {
   name: 'sheets_get_metadata',
-  description: 'Get metadata about a Google Sheets spreadsheet including sheet names, IDs, and properties',
+  description:
+    'Get metadata about a Google Sheets spreadsheet including sheet names, IDs, and properties',
   inputSchema: {
     type: 'object',
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
-      }
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
+      },
     },
-    required: ['spreadsheetId']
-  }
+    required: ['spreadsheetId'],
+  },
 };
 
 export async function handleGetMetadata(input: any) {
@@ -24,18 +25,18 @@ export async function handleGetMetadata(input: any) {
     if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
       throw new Error('spreadsheetId is required and must be a string');
     }
-    
+
     if (!validateSpreadsheetId(input.spreadsheetId)) {
       throw new Error('Invalid spreadsheet ID format');
     }
-    
+
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.get({
       spreadsheetId: input.spreadsheetId,
-      includeGridData: false
+      includeGridData: false,
     });
-    
+
     return formatSpreadsheetMetadata(response.data);
   } catch (error) {
     return handleError(error);

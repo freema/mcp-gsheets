@@ -12,35 +12,37 @@ export const deleteSheetTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       sheetId: {
         type: 'number',
-        description: 'The ID of the sheet to delete (use sheets_get_metadata to find sheet IDs)'
-      }
+        description: 'The ID of the sheet to delete (use sheets_get_metadata to find sheet IDs)',
+      },
     },
-    required: ['spreadsheetId', 'sheetId']
-  }
+    required: ['spreadsheetId', 'sheetId'],
+  },
 };
 
 export async function handleDeleteSheet(input: any) {
   try {
     const validatedInput = validateDeleteSheetInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: validatedInput.spreadsheetId,
       requestBody: {
-        requests: [{
-          deleteSheet: {
-            sheetId: validatedInput.sheetId
-          }
-        }]
-      }
+        requests: [
+          {
+            deleteSheet: {
+              sheetId: validatedInput.sheetId,
+            },
+          },
+        ],
+      },
     });
-    
+
     return formatSheetOperationResponse('Sheet deleted', {
-      sheetId: validatedInput.sheetId
+      sheetId: validatedInput.sheetId,
     });
   } catch (error) {
     return handleError(error);

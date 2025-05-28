@@ -12,47 +12,44 @@ export const updateValuesTool: Tool = {
     properties: {
       spreadsheetId: {
         type: 'string',
-        description: 'The ID of the spreadsheet (found in the URL after /d/)'
+        description: 'The ID of the spreadsheet (found in the URL after /d/)',
       },
       range: {
         type: 'string',
-        description: 'The A1 notation range to update (e.g., "Sheet1!A1:B10")'
+        description: 'The A1 notation range to update (e.g., "Sheet1!A1:B10")',
       },
       values: {
         type: 'array',
         items: {
-          type: 'array'
+          type: 'array',
         },
-        description: 'A 2D array of values to update, where each inner array represents a row'
+        description: 'A 2D array of values to update, where each inner array represents a row',
       },
       valueInputOption: {
         type: 'string',
         enum: ['RAW', 'USER_ENTERED'],
-        description: 'How the input data should be interpreted (default: USER_ENTERED)'
-      }
+        description: 'How the input data should be interpreted (default: USER_ENTERED)',
+      },
     },
-    required: ['spreadsheetId', 'range', 'values']
-  }
+    required: ['spreadsheetId', 'range', 'values'],
+  },
 };
 
 export async function handleUpdateValues(input: any) {
   try {
     const validatedInput = validateUpdateValuesInput(input);
     const sheets = await getAuthenticatedClient();
-    
+
     const response = await sheets.spreadsheets.values.update({
       spreadsheetId: validatedInput.spreadsheetId,
       range: validatedInput.range,
       valueInputOption: validatedInput.valueInputOption,
       requestBody: {
-        values: validatedInput.values
-      }
+        values: validatedInput.values,
+      },
     });
-    
-    return formatUpdateResponse(
-      response.data.updatedCells || 0,
-      response.data.updatedRange
-    );
+
+    return formatUpdateResponse(response.data.updatedCells || 0, response.data.updatedRange);
   } catch (error) {
     return handleError(error);
   }
