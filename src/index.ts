@@ -43,6 +43,18 @@ import {
   updateSheetPropertiesTool,
   handleUpdateSheetProperties,
 } from './tools/update-sheet-properties.js';
+import { formatCellsTool, formatCellsHandler } from './tools/format-cells.js';
+import { updateBordersTool, updateBordersHandler } from './tools/update-borders.js';
+import {
+  mergeCellsTool,
+  unmergeCellsTool,
+  mergeCellsHandler,
+  unmergeCellsHandler,
+} from './tools/merge-cells.js';
+import {
+  addConditionalFormattingTool,
+  addConditionalFormattingHandler,
+} from './tools/conditional-formatting.js';
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
@@ -60,6 +72,11 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_duplicate_sheet', handleDuplicateSheet],
   ['sheets_copy_to', handleCopyTo],
   ['sheets_update_sheet_properties', handleUpdateSheetProperties],
+  ['sheets_format_cells', formatCellsHandler],
+  ['sheets_update_borders', updateBordersHandler],
+  ['sheets_merge_cells', mergeCellsHandler],
+  ['sheets_unmerge_cells', unmergeCellsHandler],
+  ['sheets_add_conditional_formatting', addConditionalFormattingHandler],
 ]);
 
 // All tools
@@ -78,6 +95,11 @@ const tools = [
   duplicateSheetTool,
   copyToTool,
   updateSheetPropertiesTool,
+  formatCellsTool,
+  updateBordersTool,
+  mergeCellsTool,
+  unmergeCellsTool,
+  addConditionalFormattingTool,
 ];
 
 async function main() {

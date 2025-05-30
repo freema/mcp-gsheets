@@ -100,3 +100,8 @@ tasks:
     cmds:
       - cp .env.example .env
       - echo "Created .env file. Please edit it with your credentials."
+
+  test:sheets:
+    desc: Test Google Sheets tools with a real spreadsheet
+    cmds:
+      - node scripts/test-sheets-tools.js

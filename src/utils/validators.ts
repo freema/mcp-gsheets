@@ -11,6 +11,11 @@ import {
   DuplicateSheetInput,
   UpdateSheetPropertiesInput,
   CopyToInput,
+  FormatCellsInput,
+  UpdateBordersInput,
+  MergeCellsInput,
+  UnmergeCellsInput,
+  AddConditionalFormattingInput,
 } from '../types/tools.js';
 
 export function validateSpreadsheetId(id: string): boolean {
@@ -18,9 +23,37 @@ export function validateSpreadsheetId(id: string): boolean {
 }
 
 export function validateRange(range: string): boolean {
-  // Allow sheet names with spaces, numbers, letters, and special characters
-  // Format: SheetName!A1:B10 or just A1:B10
-  return /^[A-Za-z0-9\s\-_()]+![A-Za-z0-9:]+$|^[A-Za-z0-9:]+$/.test(range);
+  // Split into sheet name part and range part
+  const parts = range.split('!');
+
+  if (parts.length > 2) {
+    return false; // More than one exclamation mark
+  }
+
+  if (parts.length === 2) {
+    // Has sheet name
+    const sheetName = parts[0];
+    const cellRange = parts[1];
+
+    // Sheet name can contain anything except empty string
+    if (!sheetName || sheetName.trim() === '') {
+      return false;
+    }
+
+    // Check cell range
+    return cellRange ? isValidCellRange(cellRange) : false;
+  } else {
+    // No sheet name, just range
+    const cellRange = parts[0];
+    return cellRange ? isValidCellRange(cellRange) : false;
+  }
+}
+
+// Helper function to validate cell range
+function isValidCellRange(cellRange: string): boolean {
+  // Pattern for A1 notation: letters followed by numbers, optionally colon and more letters with numbers
+  // E.g.: A1, A1:B10, AA1:ZZ999
+  return /^[A-Z]+[0-9]+(?::[A-Z]+[0-9]+)?$/i.test(cellRange);
 }
 
 export function validateGetValuesInput(input: any): GetValuesInput {
@@ -308,5 +341,152 @@ export function validateCopyToInput(input: any): CopyToInput {
     spreadsheetId: input.spreadsheetId,
     sheetId: input.sheetId,
     destinationSpreadsheetId: input.destinationSpreadsheetId,
+  };
+}
+
+export function validateFormatCellsInput(input: any): FormatCellsInput {
+  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
+    throw new Error('spreadsheetId is required and must be a string');
+  }
+
+  if (!input.range || typeof input.range !== 'string') {
+    throw new Error('range is required and must be a string');
+  }
+
+  if (!input.format || typeof input.format !== 'object') {
+    throw new Error('format is required and must be an object');
+  }
+
+  if (!validateSpreadsheetId(input.spreadsheetId)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+
+  if (!validateRange(input.range)) {
+    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+    format: input.format,
+  };
+}
+
+export function validateUpdateBordersInput(input: any): UpdateBordersInput {
+  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
+    throw new Error('spreadsheetId is required and must be a string');
+  }
+
+  if (!input.range || typeof input.range !== 'string') {
+    throw new Error('range is required and must be a string');
+  }
+
+  if (!input.borders || typeof input.borders !== 'object') {
+    throw new Error('borders is required and must be an object');
+  }
+
+  if (!validateSpreadsheetId(input.spreadsheetId)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+
+  if (!validateRange(input.range)) {
+    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+    borders: input.borders,
+  };
+}
+
+export function validateMergeCellsInput(input: any): MergeCellsInput {
+  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
+    throw new Error('spreadsheetId is required and must be a string');
+  }
+
+  if (!input.range || typeof input.range !== 'string') {
+    throw new Error('range is required and must be a string');
+  }
+
+  if (!input.mergeType || typeof input.mergeType !== 'string') {
+    throw new Error('mergeType is required and must be a string');
+  }
+
+  const validMergeTypes = ['MERGE_ALL', 'MERGE_COLUMNS', 'MERGE_ROWS'];
+  if (!validMergeTypes.includes(input.mergeType)) {
+    throw new Error(`Invalid mergeType. Must be one of: ${validMergeTypes.join(', ')}`);
+  }
+
+  if (!validateSpreadsheetId(input.spreadsheetId)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+
+  if (!validateRange(input.range)) {
+    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+    mergeType: input.mergeType,
+  };
+}
+
+export function validateUnmergeCellsInput(input: any): UnmergeCellsInput {
+  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
+    throw new Error('spreadsheetId is required and must be a string');
+  }
+
+  if (!input.range || typeof input.range !== 'string') {
+    throw new Error('range is required and must be a string');
+  }
+
+  if (!validateSpreadsheetId(input.spreadsheetId)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+
+  if (!validateRange(input.range)) {
+    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+  };
+}
+
+export function validateAddConditionalFormattingInput(input: any): AddConditionalFormattingInput {
+  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
+    throw new Error('spreadsheetId is required and must be a string');
+  }
+
+  if (!input.rules || !Array.isArray(input.rules) || input.rules.length === 0) {
+    throw new Error('rules is required and must be a non-empty array');
+  }
+
+  if (!validateSpreadsheetId(input.spreadsheetId)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+
+  for (const rule of input.rules) {
+    if (!rule.ranges || !Array.isArray(rule.ranges) || rule.ranges.length === 0) {
+      throw new Error('Each rule must have a non-empty ranges array');
+    }
+
+    for (const range of rule.ranges) {
+      if (!validateRange(range)) {
+        throw new Error(`Invalid range format: ${range}. Use A1 notation (e.g., "Sheet1!A1:B10")`);
+      }
+    }
+
+    if (!rule.booleanRule && !rule.gradientRule) {
+      throw new Error('Each rule must have either booleanRule or gradientRule');
+    }
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    rules: input.rules,
   };
 }

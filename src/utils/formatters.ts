@@ -134,3 +134,17 @@ export function formatSheetOperationResponse(operation: string, details?: any): 
     ],
   };
 }
+
+export function formatToolResponse(message: string, data?: any): ToolResponse {
+  if (data) {
+    return formatSuccessResponse(data, message);
+  }
+  return {
+    content: [
+      {
+        type: 'text',
+        text: message,
+      },
+    ],
+  };
+}

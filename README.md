@@ -166,6 +166,13 @@ npm run dev  # Watch mode with auto-reload
 - `sheets_copy_to` - Copy to another spreadsheet
 - `sheets_update_sheet_properties` - Update sheet settings
 
+### Cell Formatting
+- `sheets_format_cells` - Format cells (colors, fonts, alignment, number formats)
+- `sheets_update_borders` - Add or modify cell borders
+- `sheets_merge_cells` - Merge cells together
+- `sheets_unmerge_cells` - Unmerge previously merged cells
+- `sheets_add_conditional_formatting` - Add conditional formatting rules
+
 ## 🔧 Code Quality
 
 ### Linting
