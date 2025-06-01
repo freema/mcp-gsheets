@@ -1,5 +1,12 @@
 # MCP Google Sheets Server
 
+![CI](https://github.com/[USERNAME]/mcp-gsheets/workflows/CI/badge.svg)
+![Coverage](https://codecov.io/gh/[USERNAME]/mcp-gsheets/branch/main/graph/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-007ACC?logo=typescript&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)
+![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)
+
 A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Desktop).
 
 ## 🚀 Quick Start

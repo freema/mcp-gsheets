@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm run test:run
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp -r dist package.json README.md LICENSE release/
+          cd release
+          tar -czf ../mcp-gsheets-${{ github.ref_name }}.tar.gz .
+          cd ..
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            mcp-gsheets-${{ github.ref_name }}.tar.gz
+          body: |
+            ## Release ${{ github.ref_name }}
+            
+            ### Installation
+            
+            Download the archive and extract it:
+            ```bash
+            tar -xzf mcp-gsheets-${{ github.ref_name }}.tar.gz
+            npm install
+            ```
+            
+            ### What's Changed
+            
+            See [commits](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
