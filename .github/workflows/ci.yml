@@ -17,19 +17,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-      
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
       
-      - name: Install dependencies
-        run: pnpm install
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-npm-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
+      
+      - name: Clean npm cache and install dependencies
+        run: |
+          npm cache clean --force
+          npm ci --prefer-offline --no-audit --no-fund --silent
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          NPM_CONFIG_PROGRESS: false
+          NPM_CONFIG_AUDIT: false
+          NPM_CONFIG_FUND: false
+      
+      - name: Verify installation
+        run: |
+          npm list --depth=0
+          npx eslint --version
+          npx prettier --version
+          npx tsc --version
       
       - name: Run linter
         run: npm run lint
@@ -48,7 +71,7 @@ jobs:
       
       - name: Upload coverage to Codecov
         if: matrix.node-version == 20
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/lcov.info
