@@ -51,9 +51,20 @@ export function validateRange(range: string): boolean {
 
 // Helper function to validate cell range
 function isValidCellRange(cellRange: string): boolean {
-  // Pattern for A1 notation: letters followed by numbers, optionally colon and more letters with numbers
-  // E.g.: A1, A1:B10, AA1:ZZ999
-  return /^[A-Z]+[0-9]+(?::[A-Z]+[0-9]+)?$/i.test(cellRange);
+  // Pattern for A1 notation including:
+  // - A1, A1:B10 (standard ranges)
+  // - A:A, A:Z (full columns)
+  // - 1:1, 1:100 (full rows)
+  // - A1:B (mixed ranges)
+  const patterns = [
+    /^[A-Z]+[0-9]+(?::[A-Z]+[0-9]+)?$/i, // A1 or A1:B10
+    /^[A-Z]+:[A-Z]+$/i, // A:A or A:Z
+    /^[0-9]+:[0-9]+$/i, // 1:1 or 1:100
+    /^[A-Z]+[0-9]+:[A-Z]+$/i, // A1:B
+    /^[A-Z]+:[A-Z]+[0-9]+$/i, // A:B10
+  ];
+
+  return patterns.some((pattern) => pattern.test(cellRange));
 }
 
 export function validateGetValuesInput(input: any): GetValuesInput {

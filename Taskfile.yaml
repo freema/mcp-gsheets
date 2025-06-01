@@ -105,3 +105,37 @@ tasks:
     desc: Test Google Sheets tools with a real spreadsheet
     cmds:
       - node scripts/test-sheets-tools.js
+
+  test:
+    desc: Run all unit tests
+    cmds:
+      - npm test
+
+  test:run:
+    desc: Run tests once (no watch mode)
+    cmds:
+      - npm run test:run
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - npm run test:coverage
+
+  test:watch:
+    desc: Run tests in watch mode
+    cmds:
+      - npm run test:watch
+
+  test:ui:
+    desc: Run tests with UI
+    cmds:
+      - npm run test:ui
+
+  ci:
+    desc: Run CI pipeline (clean, install, check, test, build)
+    cmds:
+      - task: clean
+      - task: install
+      - task: check
+      - task: test:coverage
+      - task: build

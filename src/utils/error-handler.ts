@@ -6,7 +6,9 @@ export function handleError(error: any): ToolResponse {
   let errorMessage = 'An unexpected error occurred';
   let helpText = '';
 
-  if (error.code === 401) {
+  if (!error) {
+    errorMessage = 'An unknown error occurred';
+  } else if (error.code === 401) {
     errorMessage = 'Authentication failed';
     helpText = 'Please check that your service account credentials are valid.';
   } else if (error.code === 403) {
@@ -43,6 +45,9 @@ export function handleError(error: any): ToolResponse {
 }
 
 export function isRetriableError(error: any): boolean {
+  if (!error?.code) {
+    return false;
+  }
   const retriableCodes = [429, 500, 502, 503, 504];
   return retriableCodes.includes(error.code);
 }

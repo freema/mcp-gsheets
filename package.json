@@ -25,7 +25,12 @@
     "prepublishOnly": "npm run clean && npm run build",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
     "inspector:dev": "NODE_ENV=development npx @modelcontextprotocol/inspector npx tsx src/index.ts",
-    "test:sheets": "node scripts/test-sheets-tools.js"
+    "test:sheets": "node scripts/test-sheets-tools.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui"
   },
   "keywords": [
     "mcp",
@@ -48,6 +53,8 @@
     "@types/node": "^20.11.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/ui": "^3.1.4",
     "dotenv": "^16.3.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.5",
@@ -55,7 +62,8 @@
     "prettier": "^3.5.3",
     "tsup": "^8.0.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^3.1.4"
   },
   "files": [
     "dist",
