@@ -18,27 +18,27 @@ jobs:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
       
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-      
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-22-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-22-npm-
-            ${{ runner.os }}-node-22-
-      
-      - name: Clean npm cache and install dependencies
+      - name: Install dependencies with fallback
+        timeout-minutes: 10
         run: |
+          echo "Cleaning npm cache..."
           npm cache clean --force
-          npm ci --prefer-offline --no-audit --no-fund --silent
+          
+          echo "Attempting npm ci..."
+          if npm ci --no-audit --no-fund --verbose; then
+            echo "✅ npm ci succeeded"
+          else
+            echo "❌ npm ci failed, trying npm install..."
+            if npm install --no-audit --no-fund --verbose; then
+              echo "✅ npm install succeeded"
+            else
+              echo "❌ Both npm ci and npm install failed"
+              exit 1
+            fi
+          fi
         env:
-          NODE_OPTIONS: --max-old-space-size=4096
-          NPM_CONFIG_PROGRESS: false
+          NODE_OPTIONS: --max-old-space-size=6144
+          NPM_CONFIG_PROGRESS: true
           NPM_CONFIG_AUDIT: false
           NPM_CONFIG_FUND: false
       
