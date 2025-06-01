@@ -1,6 +1,5 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { google } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
@@ -42,8 +41,7 @@ export const unmergeCellsTool: Tool = {
 export async function mergeCellsHandler(input: any): Promise<ToolResponse> {
   try {
     const validatedInput = mergeCellsInputSchema.parse(input) as MergeCellsInput;
-    const auth = await getAuthenticatedClient();
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID
     const { sheetName, range: cleanRange } = extractSheetName(validatedInput.range);
@@ -81,8 +79,7 @@ export async function mergeCellsHandler(input: any): Promise<ToolResponse> {
 export async function unmergeCellsHandler(input: any): Promise<ToolResponse> {
   try {
     const validatedInput = unmergeCellsInputSchema.parse(input) as UnmergeCellsInput;
-    const auth = await getAuthenticatedClient();
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID
     const { sheetName, range: cleanRange } = extractSheetName(validatedInput.range);

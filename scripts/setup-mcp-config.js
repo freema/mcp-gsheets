@@ -47,7 +47,6 @@ function detectNodePath() {
           return nodePath;
         }
       } catch (e) {
-        // Fall through to process.execPath
       }
     }
     
@@ -185,7 +184,6 @@ async function main() {
               console.log('Cancelled.');
               process.exit(0);
             }
-            // Remove old gsheets entry if exists
             if (existingConfig.mcpServers.gsheets) {
               delete existingConfig.mcpServers.gsheets;
             }
@@ -204,12 +202,10 @@ async function main() {
         }
       };
 
-      // Create directory if needed
       if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir, { recursive: true });
       }
 
-      // Write config
       fs.writeFileSync(configPath, JSON.stringify(finalConfig, null, 2));
       console.log(`\n${colors.green}✅ Configuration saved to: ${configPath}${colors.reset}`);
       console.log(`\n${colors.yellow}⚠️  Restart Claude Desktop to apply changes${colors.reset}`);

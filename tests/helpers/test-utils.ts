@@ -1,8 +1,5 @@
 import { expect, vi } from 'vitest';
 
-/**
- * Creates a mock function that returns different values on consecutive calls
- */
 export function mockSequence<T>(...values: T[]) {
   let index = 0;
   return vi.fn(() => {
@@ -12,9 +9,6 @@ export function mockSequence<T>(...values: T[]) {
   });
 }
 
-/**
- * Creates a mock async function that resolves with different values
- */
 export function mockAsyncSequence<T>(...values: T[]) {
   let index = 0;
   return vi.fn(async () => {
@@ -24,9 +18,6 @@ export function mockAsyncSequence<T>(...values: T[]) {
   });
 }
 
-/**
- * Creates a delay promise for testing async operations
- */
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

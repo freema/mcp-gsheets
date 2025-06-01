@@ -1,6 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { google, sheets_v4 } from 'googleapis';
+import { sheets_v4 } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
@@ -52,9 +52,17 @@ export const updateBordersTool: Tool = {
 
 export async function updateBordersHandler(input: any): Promise<ToolResponse> {
   try {
+    // Handle case where borders comes as JSON string
+    if (input && typeof input.borders === 'string') {
+      try {
+        input.borders = JSON.parse(input.borders);
+      } catch (parseError) {
+        throw new Error('Invalid borders: Expected object or valid JSON string');
+      }
+    }
+
     const validatedInput = updateBordersInputSchema.parse(input) as UpdateBordersInput;
-    const auth = await getAuthenticatedClient();
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID
     const { sheetName, range: cleanRange } = extractSheetName(validatedInput.range);

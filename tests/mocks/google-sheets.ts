@@ -131,9 +131,7 @@ export const mockSheetsAPI = {
 };
 
 export const mockGoogleAuth = {
-  getClient: vi.fn().mockResolvedValue({
-    // Mock auth client
-  }),
+  getClient: vi.fn().mockResolvedValue({}),
 };
 
 export const mockGoogleAPIs = {

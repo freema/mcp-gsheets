@@ -413,5 +413,4 @@ async function testAllFormattingTools() {
   }
 }
 
-// Run tests
 testAllFormattingTools();

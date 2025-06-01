@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
       console.error('📋 Loaded .env file for development');
     }
   } catch (error) {
-    // dotenv is optional, ignore if not installed
+    console.error('⚠️ Failed to load .env file:', error);
   }
 }
 

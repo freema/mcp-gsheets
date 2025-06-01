@@ -1,6 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { google, sheets_v4 } from 'googleapis';
+import { sheets_v4 } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
@@ -123,11 +123,19 @@ export const addConditionalFormattingTool: Tool = {
 
 export async function addConditionalFormattingHandler(input: any): Promise<ToolResponse> {
   try {
+    // Handle case where rules comes as JSON string or rules array contains JSON strings
+    if (input && typeof input.rules === 'string') {
+      try {
+        input.rules = JSON.parse(input.rules);
+      } catch (parseError) {
+        throw new Error('Invalid rules: Expected array or valid JSON string');
+      }
+    }
+
     const validatedInput = addConditionalFormattingInputSchema.parse(
       input
     ) as AddConditionalFormattingInput;
-    const auth = await getAuthenticatedClient();
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedClient();
 
     // Process all rules
     const requests: sheets_v4.Schema$Request[] = [];
@@ -149,8 +157,6 @@ export async function addConditionalFormattingHandler(input: any): Promise<ToolR
 
       if (rule.booleanRule) {
         const format: sheets_v4.Schema$CellFormat = {};
-
-        // Map our format to Google's format
         if (rule.booleanRule.format.backgroundColor) {
           format.backgroundColor = rule.booleanRule.format.backgroundColor;
         }

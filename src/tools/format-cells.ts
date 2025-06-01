@@ -1,6 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { google, sheets_v4 } from 'googleapis';
+import { sheets_v4 } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
@@ -80,9 +80,17 @@ export const formatCellsTool: Tool = {
 
 export async function formatCellsHandler(input: any): Promise<ToolResponse> {
   try {
+    // Handle case where format comes as JSON string (from Claude Desktop)
+    if (input && typeof input.format === 'string') {
+      try {
+        input.format = JSON.parse(input.format);
+      } catch (parseError) {
+        throw new Error('Invalid format: Expected object or valid JSON string');
+      }
+    }
+
     const validatedInput = formatCellsInputSchema.parse(input) as FormatCellsInput;
-    const auth = await getAuthenticatedClient();
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID
     const { sheetName, range: cleanRange } = extractSheetName(validatedInput.range);

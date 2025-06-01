@@ -69,7 +69,6 @@ export async function handleCheckAccess(input: any) {
         if (writeError.code === 403) {
           permissions.canWrite = false;
         } else if (writeError.code !== 400) {
-          // 400 might mean invalid range, but we have access
           permissions.canWrite = true;
         }
       }
