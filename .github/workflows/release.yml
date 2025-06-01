@@ -12,73 +12,31 @@ jobs:
       contents: write
     
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
       
-      - name: Install dependencies with fallback
-        timeout-minutes: 10
-        run: |
-          echo "Cleaning npm cache..."
-          npm cache clean --force
-          
-          echo "Attempting npm ci..."
-          if npm ci --no-audit --no-fund --verbose; then
-            echo "✅ npm ci succeeded"
-          else
-            echo "❌ npm ci failed, trying npm install..."
-            if npm install --no-audit --no-fund --verbose; then
-              echo "✅ npm install succeeded"
-            else
-              echo "❌ Both npm ci and npm install failed"
-              exit 1
-            fi
-          fi
-        env:
-          NODE_OPTIONS: --max-old-space-size=6144
-          NPM_CONFIG_PROGRESS: true
-          NPM_CONFIG_AUDIT: false
-          NPM_CONFIG_FUND: false
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
       
-      - name: Run tests
+      - name: Test
         run: npm run test:run
       
       - name: Build
         run: npm run build
       
-      - name: Create release archive
-        run: |
-          mkdir -p release
-          cp -r dist package.json README.md LICENSE release/
-          cd release
-          tar -czf ../mcp-gsheets-${{ github.ref_name }}.tar.gz .
-          cd ..
+      - name: Create archive
+        run: tar -czf mcp-gsheets-${{ github.ref_name }}.tar.gz dist package.json README.md LICENSE
       
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Create release
+        uses: softprops/action-gh-release@v2
         with:
-          draft: false
-          prerelease: false
-          files: |
-            mcp-gsheets-${{ github.ref_name }}.tar.gz
-          body: |
-            ## Release ${{ github.ref_name }}
-            
-            ### Installation
-            
-            Download the archive and extract it:
-            ```bash
-            tar -xzf mcp-gsheets-${{ github.ref_name }}.tar.gz
-            npm install
-            ```
-            
-            ### What's Changed
-            
-            See [commits](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for details.
+          files: mcp-gsheets-${{ github.ref_name }}.tar.gz
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

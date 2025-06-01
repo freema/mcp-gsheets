@@ -4,46 +4,32 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quick-check:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
       
-      - name: Install dependencies with fallback
-        timeout-minutes: 10
-        run: |
-          echo "Cleaning npm cache..."
-          npm cache clean --force
-          
-          echo "Attempting npm ci..."
-          if npm ci --no-audit --no-fund --verbose; then
-            echo "✅ npm ci succeeded"
-          else
-            echo "❌ npm ci failed, trying npm install..."
-            if npm install --no-audit --no-fund --verbose; then
-              echo "✅ npm install succeeded"
-            else
-              echo "❌ Both npm ci and npm install failed"
-              exit 1
-            fi
-          fi
-        env:
-          NODE_OPTIONS: --max-old-space-size=6144
-          NPM_CONFIG_PROGRESS: true
-          NPM_CONFIG_AUDIT: false
-          NPM_CONFIG_FUND: false
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
       
-      - name: Run linter
+      - name: Lint
         run: npm run lint
+      
+      - name: Format check
+        run: npm run format:check
       
       - name: Type check
         run: npm run typecheck

@@ -22,6 +22,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "check": "npm run typecheck && npm run lint && npm run format:check",
+    "check:all": "npm run check && npm run test:run && npm run build",
     "prepublishOnly": "npm run clean && npm run build",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
     "inspector:dev": "NODE_ENV=development npx @modelcontextprotocol/inspector npx tsx src/index.ts",
