@@ -21,7 +21,9 @@ A Model Context Protocol (MCP) server for Google Sheets API integration. Enables
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/freema/mcp-gsheets.git
+# Or using SSH
+# git clone git@github.com:freema/mcp-gsheets.git
 cd mcp-gsheets
 
 # Install dependencies
