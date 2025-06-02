@@ -6,6 +6,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
 import { FormatCellsInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
+import { parseJsonInput } from '../utils/json-parser.js';
 
 // Schema definitions
 const colorSchema = z
@@ -81,13 +82,7 @@ export const formatCellsTool: Tool = {
 export async function formatCellsHandler(input: any): Promise<ToolResponse> {
   try {
     // Handle case where format comes as JSON string (from Claude Desktop)
-    if (input && typeof input.format === 'string') {
-      try {
-        input.format = JSON.parse(input.format);
-      } catch (parseError) {
-        throw new Error('Invalid format: Expected object or valid JSON string');
-      }
-    }
+    input.format = parseJsonInput(input.format, 'format');
 
     const validatedInput = formatCellsInputSchema.parse(input) as FormatCellsInput;
     const sheets = await getAuthenticatedClient();

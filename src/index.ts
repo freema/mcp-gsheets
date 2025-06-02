@@ -26,80 +26,52 @@ import {
 import { validateAuth } from './utils/google-auth.js';
 
 // Import all tools
-import { checkAccessTool, handleCheckAccess } from './tools/check-access.js';
-import { getValuesTool, handleGetValues } from './tools/get-values.js';
-import { batchGetValuesTool, handleBatchGetValues } from './tools/batch-get-values.js';
-import { getMetadataTool, handleGetMetadata } from './tools/get-metadata.js';
-import { updateValuesTool, handleUpdateValues } from './tools/update-values.js';
-import { batchUpdateValuesTool, handleBatchUpdateValues } from './tools/batch-update-values.js';
-import { appendValuesTool, handleAppendValues } from './tools/append-values.js';
-import { clearValuesTool, handleClearValues } from './tools/clear-values.js';
-import { createSpreadsheetTool, handleCreateSpreadsheet } from './tools/create-spreadsheet.js';
-import { insertSheetTool, handleInsertSheet } from './tools/insert-sheet.js';
-import { deleteSheetTool, handleDeleteSheet } from './tools/delete-sheet.js';
-import { duplicateSheetTool, handleDuplicateSheet } from './tools/duplicate-sheet.js';
-import { copyToTool, handleCopyTo } from './tools/copy-to.js';
-import {
-  updateSheetPropertiesTool,
-  handleUpdateSheetProperties,
-} from './tools/update-sheet-properties.js';
-import { formatCellsTool, formatCellsHandler } from './tools/format-cells.js';
-import { updateBordersTool, updateBordersHandler } from './tools/update-borders.js';
-import {
-  mergeCellsTool,
-  unmergeCellsTool,
-  mergeCellsHandler,
-  unmergeCellsHandler,
-} from './tools/merge-cells.js';
-import {
-  addConditionalFormattingTool,
-  addConditionalFormattingHandler,
-} from './tools/conditional-formatting.js';
+import * as tools from './tools/index.js';
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
-  ['sheets_check_access', handleCheckAccess],
-  ['sheets_get_values', handleGetValues],
-  ['sheets_batch_get_values', handleBatchGetValues],
-  ['sheets_get_metadata', handleGetMetadata],
-  ['sheets_update_values', handleUpdateValues],
-  ['sheets_batch_update_values', handleBatchUpdateValues],
-  ['sheets_append_values', handleAppendValues],
-  ['sheets_clear_values', handleClearValues],
-  ['sheets_create_spreadsheet', handleCreateSpreadsheet],
-  ['sheets_insert_sheet', handleInsertSheet],
-  ['sheets_delete_sheet', handleDeleteSheet],
-  ['sheets_duplicate_sheet', handleDuplicateSheet],
-  ['sheets_copy_to', handleCopyTo],
-  ['sheets_update_sheet_properties', handleUpdateSheetProperties],
-  ['sheets_format_cells', formatCellsHandler],
-  ['sheets_update_borders', updateBordersHandler],
-  ['sheets_merge_cells', mergeCellsHandler],
-  ['sheets_unmerge_cells', unmergeCellsHandler],
-  ['sheets_add_conditional_formatting', addConditionalFormattingHandler],
+  ['sheets_check_access', tools.handleCheckAccess],
+  ['sheets_get_values', tools.handleGetValues],
+  ['sheets_batch_get_values', tools.handleBatchGetValues],
+  ['sheets_get_metadata', tools.handleGetMetadata],
+  ['sheets_update_values', tools.handleUpdateValues],
+  ['sheets_batch_update_values', tools.handleBatchUpdateValues],
+  ['sheets_append_values', tools.handleAppendValues],
+  ['sheets_clear_values', tools.handleClearValues],
+  ['sheets_create_spreadsheet', tools.handleCreateSpreadsheet],
+  ['sheets_insert_sheet', tools.handleInsertSheet],
+  ['sheets_delete_sheet', tools.handleDeleteSheet],
+  ['sheets_duplicate_sheet', tools.handleDuplicateSheet],
+  ['sheets_copy_to', tools.handleCopyTo],
+  ['sheets_update_sheet_properties', tools.handleUpdateSheetProperties],
+  ['sheets_format_cells', tools.formatCellsHandler],
+  ['sheets_update_borders', tools.updateBordersHandler],
+  ['sheets_merge_cells', tools.mergeCellsHandler],
+  ['sheets_unmerge_cells', tools.unmergeCellsHandler],
+  ['sheets_add_conditional_formatting', tools.addConditionalFormattingHandler],
 ]);
 
 // All tools
-const tools = [
-  checkAccessTool,
-  getValuesTool,
-  batchGetValuesTool,
-  getMetadataTool,
-  updateValuesTool,
-  batchUpdateValuesTool,
-  appendValuesTool,
-  clearValuesTool,
-  createSpreadsheetTool,
-  insertSheetTool,
-  deleteSheetTool,
-  duplicateSheetTool,
-  copyToTool,
-  updateSheetPropertiesTool,
-  formatCellsTool,
-  updateBordersTool,
-  mergeCellsTool,
-  unmergeCellsTool,
-  addConditionalFormattingTool,
+const allTools = [
+  tools.checkAccessTool,
+  tools.getValuesTool,
+  tools.batchGetValuesTool,
+  tools.getMetadataTool,
+  tools.updateValuesTool,
+  tools.batchUpdateValuesTool,
+  tools.appendValuesTool,
+  tools.clearValuesTool,
+  tools.createSpreadsheetTool,
+  tools.insertSheetTool,
+  tools.deleteSheetTool,
+  tools.duplicateSheetTool,
+  tools.copyToTool,
+  tools.updateSheetPropertiesTool,
+  tools.formatCellsTool,
+  tools.updateBordersTool,
+  tools.mergeCellsTool,
+  tools.unmergeCellsTool,
+  tools.addConditionalFormattingTool,
 ];
 
 async function main() {
@@ -127,7 +99,7 @@ async function main() {
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
-      tools: tools,
+      tools: allTools,
     };
   });
 
