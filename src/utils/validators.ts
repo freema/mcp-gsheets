@@ -18,6 +18,51 @@ import {
   AddConditionalFormattingInput,
 } from '../types/tools.js';
 
+// Helper validation functions to eliminate duplication
+function validateRequiredString(value: any, fieldName: string): void {
+  if (!value || typeof value !== 'string') {
+    throw new Error(`${fieldName} is required and must be a string`);
+  }
+}
+
+function validateSpreadsheetIdField(id: any): void {
+  validateRequiredString(id, 'spreadsheetId');
+  if (!validateSpreadsheetId(id)) {
+    throw new Error('Invalid spreadsheet ID format');
+  }
+}
+
+function validateRangeField(range: any): void {
+  validateRequiredString(range, 'range');
+  if (!validateRange(range)) {
+    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+  }
+}
+
+function validateSheetIdField(sheetId: any): void {
+  if (sheetId === undefined || typeof sheetId !== 'number') {
+    throw new Error('sheetId is required and must be a number');
+  }
+}
+
+function validateValuesArray(values: any): void {
+  if (!values || !Array.isArray(values)) {
+    throw new Error('values is required and must be an array');
+  }
+}
+
+function validateNonEmptyArray(array: any, fieldName: string): void {
+  if (!array || !Array.isArray(array) || array.length === 0) {
+    throw new Error(`${fieldName} is required and must be a non-empty array`);
+  }
+}
+
+function validateRequiredObject(value: any, fieldName: string): void {
+  if (!value || typeof value !== 'object') {
+    throw new Error(`${fieldName} is required and must be an object`);
+  }
+}
+
 export function validateSpreadsheetId(id: string): boolean {
   return /^[a-zA-Z0-9-_]+$/.test(id);
 }
@@ -68,21 +113,8 @@ function isValidCellRange(cellRange: string): boolean {
 }
 
 export function validateGetValuesInput(input: any): GetValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -93,25 +125,9 @@ export function validateGetValuesInput(input: any): GetValuesInput {
 }
 
 export function validateUpdateValuesInput(input: any): UpdateValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!input.values || !Array.isArray(input.values)) {
-    throw new Error('values is required and must be an array');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+  validateValuesArray(input.values);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -122,25 +138,9 @@ export function validateUpdateValuesInput(input: any): UpdateValuesInput {
 }
 
 export function validateAppendValuesInput(input: any): AppendValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!input.values || !Array.isArray(input.values)) {
-    throw new Error('values is required and must be an array');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+  validateValuesArray(input.values);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -152,21 +152,8 @@ export function validateAppendValuesInput(input: any): AppendValuesInput {
 }
 
 export function validateClearValuesInput(input: any): ClearValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -175,17 +162,8 @@ export function validateClearValuesInput(input: any): ClearValuesInput {
 }
 
 export function validateBatchGetValuesInput(input: any): BatchGetValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.ranges || !Array.isArray(input.ranges) || input.ranges.length === 0) {
-    throw new Error('ranges is required and must be a non-empty array');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateNonEmptyArray(input.ranges, 'ranges');
 
   for (const range of input.ranges) {
     if (!validateRange(range)) {
@@ -202,17 +180,8 @@ export function validateBatchGetValuesInput(input: any): BatchGetValuesInput {
 }
 
 export function validateBatchUpdateValuesInput(input: any): BatchUpdateValuesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.data || !Array.isArray(input.data) || input.data.length === 0) {
-    throw new Error('data is required and must be a non-empty array');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateNonEmptyArray(input.data, 'data');
 
   for (const item of input.data) {
     if (!item.range || !item.values) {
@@ -233,9 +202,7 @@ export function validateBatchUpdateValuesInput(input: any): BatchUpdateValuesInp
 }
 
 export function validateCreateSpreadsheetInput(input: any): CreateSpreadsheetInput {
-  if (!input.title || typeof input.title !== 'string') {
-    throw new Error('title is required and must be a string');
-  }
+  validateRequiredString(input.title, 'title');
 
   return {
     title: input.title,
@@ -244,17 +211,8 @@ export function validateCreateSpreadsheetInput(input: any): CreateSpreadsheetInp
 }
 
 export function validateInsertSheetInput(input: any): InsertSheetInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.title || typeof input.title !== 'string') {
-    throw new Error('title is required and must be a string');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRequiredString(input.title, 'title');
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -266,17 +224,8 @@ export function validateInsertSheetInput(input: any): InsertSheetInput {
 }
 
 export function validateDeleteSheetInput(input: any): DeleteSheetInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (input.sheetId === undefined || typeof input.sheetId !== 'number') {
-    throw new Error('sheetId is required and must be a number');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateSheetIdField(input.sheetId);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -285,17 +234,8 @@ export function validateDeleteSheetInput(input: any): DeleteSheetInput {
 }
 
 export function validateDuplicateSheetInput(input: any): DuplicateSheetInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (input.sheetId === undefined || typeof input.sheetId !== 'number') {
-    throw new Error('sheetId is required and must be a number');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateSheetIdField(input.sheetId);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -306,17 +246,8 @@ export function validateDuplicateSheetInput(input: any): DuplicateSheetInput {
 }
 
 export function validateUpdateSheetPropertiesInput(input: any): UpdateSheetPropertiesInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (input.sheetId === undefined || typeof input.sheetId !== 'number') {
-    throw new Error('sheetId is required and must be a number');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateSheetIdField(input.sheetId);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -328,21 +259,9 @@ export function validateUpdateSheetPropertiesInput(input: any): UpdateSheetPrope
 }
 
 export function validateCopyToInput(input: any): CopyToInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (input.sheetId === undefined || typeof input.sheetId !== 'number') {
-    throw new Error('sheetId is required and must be a number');
-  }
-
-  if (!input.destinationSpreadsheetId || typeof input.destinationSpreadsheetId !== 'string') {
-    throw new Error('destinationSpreadsheetId is required and must be a string');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateSheetIdField(input.sheetId);
+  validateRequiredString(input.destinationSpreadsheetId, 'destinationSpreadsheetId');
 
   if (!validateSpreadsheetId(input.destinationSpreadsheetId)) {
     throw new Error('Invalid destination spreadsheet ID format');
@@ -356,25 +275,9 @@ export function validateCopyToInput(input: any): CopyToInput {
 }
 
 export function validateFormatCellsInput(input: any): FormatCellsInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!input.format || typeof input.format !== 'object') {
-    throw new Error('format is required and must be an object');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+  validateRequiredObject(input.format, 'format');
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -384,25 +287,9 @@ export function validateFormatCellsInput(input: any): FormatCellsInput {
 }
 
 export function validateUpdateBordersInput(input: any): UpdateBordersInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!input.borders || typeof input.borders !== 'object') {
-    throw new Error('borders is required and must be an object');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+  validateRequiredObject(input.borders, 'borders');
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -412,29 +299,13 @@ export function validateUpdateBordersInput(input: any): UpdateBordersInput {
 }
 
 export function validateMergeCellsInput(input: any): MergeCellsInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!input.mergeType || typeof input.mergeType !== 'string') {
-    throw new Error('mergeType is required and must be a string');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+  validateRequiredString(input.mergeType, 'mergeType');
 
   const validMergeTypes = ['MERGE_ALL', 'MERGE_COLUMNS', 'MERGE_ROWS'];
   if (!validMergeTypes.includes(input.mergeType)) {
     throw new Error(`Invalid mergeType. Must be one of: ${validMergeTypes.join(', ')}`);
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
   }
 
   return {
@@ -445,21 +316,8 @@ export function validateMergeCellsInput(input: any): MergeCellsInput {
 }
 
 export function validateUnmergeCellsInput(input: any): UnmergeCellsInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.range || typeof input.range !== 'string') {
-    throw new Error('range is required and must be a string');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
-
-  if (!validateRange(input.range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
 
   return {
     spreadsheetId: input.spreadsheetId,
@@ -468,17 +326,8 @@ export function validateUnmergeCellsInput(input: any): UnmergeCellsInput {
 }
 
 export function validateAddConditionalFormattingInput(input: any): AddConditionalFormattingInput {
-  if (!input.spreadsheetId || typeof input.spreadsheetId !== 'string') {
-    throw new Error('spreadsheetId is required and must be a string');
-  }
-
-  if (!input.rules || !Array.isArray(input.rules) || input.rules.length === 0) {
-    throw new Error('rules is required and must be a non-empty array');
-  }
-
-  if (!validateSpreadsheetId(input.spreadsheetId)) {
-    throw new Error('Invalid spreadsheet ID format');
-  }
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateNonEmptyArray(input.rules, 'rules');
 
   for (const rule of input.rules) {
     if (!rule.ranges || !Array.isArray(rule.ranges) || rule.ranges.length === 0) {

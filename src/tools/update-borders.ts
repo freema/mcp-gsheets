@@ -6,6 +6,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
 import { UpdateBordersInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
+import { parseJsonInput } from '../utils/json-parser.js';
 
 // Schema definitions
 const colorSchema = z
@@ -53,13 +54,7 @@ export const updateBordersTool: Tool = {
 export async function updateBordersHandler(input: any): Promise<ToolResponse> {
   try {
     // Handle case where borders comes as JSON string
-    if (input && typeof input.borders === 'string') {
-      try {
-        input.borders = JSON.parse(input.borders);
-      } catch (parseError) {
-        throw new Error('Invalid borders: Expected object or valid JSON string');
-      }
-    }
+    input.borders = parseJsonInput(input.borders, 'borders');
 
     const validatedInput = updateBordersInputSchema.parse(input) as UpdateBordersInput;
     const sheets = await getAuthenticatedClient();

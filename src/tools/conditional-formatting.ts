@@ -6,6 +6,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
 import { AddConditionalFormattingInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
+import { parseJsonInput } from '../utils/json-parser.js';
 
 // Schema definitions
 const colorSchema = z.object({
@@ -124,13 +125,7 @@ export const addConditionalFormattingTool: Tool = {
 export async function addConditionalFormattingHandler(input: any): Promise<ToolResponse> {
   try {
     // Handle case where rules comes as JSON string or rules array contains JSON strings
-    if (input && typeof input.rules === 'string') {
-      try {
-        input.rules = JSON.parse(input.rules);
-      } catch (parseError) {
-        throw new Error('Invalid rules: Expected array or valid JSON string');
-      }
-    }
+    input.rules = parseJsonInput(input.rules, 'rules');
 
     const validatedInput = addConditionalFormattingInputSchema.parse(
       input
