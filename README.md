@@ -1,5 +1,9 @@
 # MCP Google Sheets Server
 
+<a href="https://glama.ai/mcp/servers/@freema/mcp-gsheets">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@freema/mcp-gsheets/badge" />
+</a>
+
 ![CI](https://github.com/freema/mcp-gsheets/workflows/CI/badge.svg)
 ![Coverage](https://codecov.io/gh/freema/mcp-gsheets/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -266,4 +270,4 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 
 ## 📄 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
