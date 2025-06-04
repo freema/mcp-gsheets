@@ -4,6 +4,7 @@
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@freema/mcp-gsheets/badge" />
 </a>
 
+[![npm version](https://badge.fury.io/js/mcp-gsheets.svg)](https://www.npmjs.com/package/mcp-gsheets)
 ![CI](https://github.com/freema/mcp-gsheets/workflows/CI/badge.svg)
 ![Coverage](https://codecov.io/gh/freema/mcp-gsheets/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)

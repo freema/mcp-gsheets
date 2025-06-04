@@ -2,7 +2,7 @@
   "name": "mcp-gsheets",
   "version": "1.0.0",
   "description": "Model Context Protocol (MCP) server for Google Sheets API integration",
-  "author": "",
+  "author": "freema",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -74,10 +74,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/freema/mcp-gsheets.git"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/freema/mcp-gsheets/issues"
   },
-  "homepage": ""
+  "homepage": "https://github.com/freema/mcp-gsheets#readme"
 }
