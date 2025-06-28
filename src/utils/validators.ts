@@ -17,49 +17,59 @@ import {
   UnmergeCellsInput,
   AddConditionalFormattingInput,
 } from '../types/tools.js';
+import { ERROR_MESSAGES } from './error-messages.js';
+import {
+  createRangeValidator,
+  createSheetValidator,
+  COMMON_DEFAULTS,
+} from './validation-helpers.js';
 
 // Helper validation functions to eliminate duplication
 function validateRequiredString(value: any, fieldName: string): void {
   if (!value || typeof value !== 'string') {
-    throw new Error(`${fieldName} is required and must be a string`);
+    throw new Error(ERROR_MESSAGES.REQUIRED_STRING(fieldName));
   }
 }
 
 function validateSpreadsheetIdField(id: any): void {
-  validateRequiredString(id, 'spreadsheetId');
+  if (!id || typeof id !== 'string') {
+    throw new Error(ERROR_MESSAGES.SPREADSHEET_ID_REQUIRED);
+  }
   if (!validateSpreadsheetId(id)) {
     throw new Error('Invalid spreadsheet ID format');
   }
 }
 
 function validateRangeField(range: any): void {
-  validateRequiredString(range, 'range');
+  if (!range || typeof range !== 'string') {
+    throw new Error(ERROR_MESSAGES.RANGE_REQUIRED);
+  }
   if (!validateRange(range)) {
-    throw new Error('Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")');
+    throw new Error(ERROR_MESSAGES.INVALID_RANGE);
   }
 }
 
 function validateSheetIdField(sheetId: any): void {
   if (sheetId === undefined || typeof sheetId !== 'number') {
-    throw new Error('sheetId is required and must be a number');
+    throw new Error(ERROR_MESSAGES.SHEET_ID_REQUIRED);
   }
 }
 
 function validateValuesArray(values: any): void {
   if (!values || !Array.isArray(values)) {
-    throw new Error('values is required and must be an array');
+    throw new Error(ERROR_MESSAGES.VALUES_REQUIRED);
   }
 }
 
 function validateNonEmptyArray(array: any, fieldName: string): void {
   if (!array || !Array.isArray(array) || array.length === 0) {
-    throw new Error(`${fieldName} is required and must be a non-empty array`);
+    throw new Error(ERROR_MESSAGES.REQUIRED_ARRAY(fieldName));
   }
 }
 
 function validateRequiredObject(value: any, fieldName: string): void {
   if (!value || typeof value !== 'object') {
-    throw new Error(`${fieldName} is required and must be an object`);
+    throw new Error(ERROR_MESSAGES.REQUIRED_OBJECT(fieldName));
   }
 }
 
@@ -112,54 +122,27 @@ function isValidCellRange(cellRange: string): boolean {
   return patterns.some((pattern) => pattern.test(cellRange));
 }
 
-export function validateGetValuesInput(input: any): GetValuesInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
+export const validateGetValuesInput = createRangeValidator<GetValuesInput>(undefined, {
+  majorDimension: COMMON_DEFAULTS.majorDimension,
+  valueRenderOption: COMMON_DEFAULTS.valueRenderOption,
+});
 
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-    majorDimension: input.majorDimension || 'ROWS',
-    valueRenderOption: input.valueRenderOption || 'FORMATTED_VALUE',
-  };
-}
+export const validateUpdateValuesInput = createRangeValidator<UpdateValuesInput>(
+  (input) => validateValuesArray(input.values),
+  {
+    valueInputOption: COMMON_DEFAULTS.valueInputOption,
+  }
+);
 
-export function validateUpdateValuesInput(input: any): UpdateValuesInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
-  validateValuesArray(input.values);
+export const validateAppendValuesInput = createRangeValidator<AppendValuesInput>(
+  (input) => validateValuesArray(input.values),
+  {
+    valueInputOption: COMMON_DEFAULTS.valueInputOption,
+    insertDataOption: COMMON_DEFAULTS.insertDataOption,
+  }
+);
 
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-    values: input.values,
-    valueInputOption: input.valueInputOption || 'USER_ENTERED',
-  };
-}
-
-export function validateAppendValuesInput(input: any): AppendValuesInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
-  validateValuesArray(input.values);
-
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-    values: input.values,
-    valueInputOption: input.valueInputOption || 'USER_ENTERED',
-    insertDataOption: input.insertDataOption || 'OVERWRITE',
-  };
-}
-
-export function validateClearValuesInput(input: any): ClearValuesInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
-
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-  };
-}
+export const validateClearValuesInput = createRangeValidator<ClearValuesInput>();
 
 export function validateBatchGetValuesInput(input: any): BatchGetValuesInput {
   validateSpreadsheetIdField(input.spreadsheetId);
@@ -167,7 +150,7 @@ export function validateBatchGetValuesInput(input: any): BatchGetValuesInput {
 
   for (const range of input.ranges) {
     if (!validateRange(range)) {
-      throw new Error(`Invalid range format: ${range}. Use A1 notation (e.g., "Sheet1!A1:B10")`);
+      throw new Error(`Invalid range format: ${range}. ${ERROR_MESSAGES.INVALID_RANGE}`);
     }
   }
 
@@ -188,9 +171,7 @@ export function validateBatchUpdateValuesInput(input: any): BatchUpdateValuesInp
       throw new Error('Each data item must have range and values properties');
     }
     if (!validateRange(item.range)) {
-      throw new Error(
-        `Invalid range format: ${item.range}. Use A1 notation (e.g., "Sheet1!A1:B10")`
-      );
+      throw new Error(`Invalid range format: ${item.range}. ${ERROR_MESSAGES.INVALID_RANGE}`);
     }
   }
 
@@ -223,27 +204,9 @@ export function validateInsertSheetInput(input: any): InsertSheetInput {
   };
 }
 
-export function validateDeleteSheetInput(input: any): DeleteSheetInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateSheetIdField(input.sheetId);
+export const validateDeleteSheetInput = createSheetValidator<DeleteSheetInput>();
 
-  return {
-    spreadsheetId: input.spreadsheetId,
-    sheetId: input.sheetId,
-  };
-}
-
-export function validateDuplicateSheetInput(input: any): DuplicateSheetInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateSheetIdField(input.sheetId);
-
-  return {
-    spreadsheetId: input.spreadsheetId,
-    sheetId: input.sheetId,
-    insertSheetIndex: input.insertSheetIndex,
-    newSheetName: input.newSheetName,
-  };
-}
+export const validateDuplicateSheetInput = createSheetValidator<DuplicateSheetInput>();
 
 export function validateUpdateSheetPropertiesInput(input: any): UpdateSheetPropertiesInput {
   validateSpreadsheetIdField(input.spreadsheetId);
@@ -258,45 +221,20 @@ export function validateUpdateSheetPropertiesInput(input: any): UpdateSheetPrope
   };
 }
 
-export function validateCopyToInput(input: any): CopyToInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateSheetIdField(input.sheetId);
+export const validateCopyToInput = createSheetValidator<CopyToInput>((input) => {
   validateRequiredString(input.destinationSpreadsheetId, 'destinationSpreadsheetId');
-
   if (!validateSpreadsheetId(input.destinationSpreadsheetId)) {
     throw new Error('Invalid destination spreadsheet ID format');
   }
+});
 
-  return {
-    spreadsheetId: input.spreadsheetId,
-    sheetId: input.sheetId,
-    destinationSpreadsheetId: input.destinationSpreadsheetId,
-  };
-}
+export const validateFormatCellsInput = createRangeValidator<FormatCellsInput>((input) =>
+  validateRequiredObject(input.format, 'format')
+);
 
-export function validateFormatCellsInput(input: any): FormatCellsInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
-  validateRequiredObject(input.format, 'format');
-
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-    format: input.format,
-  };
-}
-
-export function validateUpdateBordersInput(input: any): UpdateBordersInput {
-  validateSpreadsheetIdField(input.spreadsheetId);
-  validateRangeField(input.range);
-  validateRequiredObject(input.borders, 'borders');
-
-  return {
-    spreadsheetId: input.spreadsheetId,
-    range: input.range,
-    borders: input.borders,
-  };
-}
+export const validateUpdateBordersInput = createRangeValidator<UpdateBordersInput>((input) =>
+  validateRequiredObject(input.borders, 'borders')
+);
 
 export function validateMergeCellsInput(input: any): MergeCellsInput {
   validateSpreadsheetIdField(input.spreadsheetId);
@@ -336,7 +274,7 @@ export function validateAddConditionalFormattingInput(input: any): AddConditiona
 
     for (const range of rule.ranges) {
       if (!validateRange(range)) {
-        throw new Error(`Invalid range format: ${range}. Use A1 notation (e.g., "Sheet1!A1:B10")`);
+        throw new Error(`Invalid range format: ${range}. ${ERROR_MESSAGES.INVALID_RANGE}`);
       }
     }
 

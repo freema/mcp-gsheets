@@ -1,3 +1,17 @@
+import {
+  InsertDataOption,
+  GridProperties,
+  TabColor,
+  Color as CommonColor,
+  CellFormat as CommonCellFormat,
+  BorderStyle,
+  RangeRequestFields,
+  SheetRequestFields,
+  ValueRenderRequestFields,
+  ValueInputRequestFields,
+  DimensionRequestFields,
+} from './common.js';
+
 export interface ToolResponse {
   content: Array<{
     type: 'text' | 'image' | 'resource';
@@ -6,47 +20,33 @@ export interface ToolResponse {
   }>;
 }
 
-export interface GetValuesInput {
-  spreadsheetId: string;
-  range: string;
-  majorDimension?: 'ROWS' | 'COLUMNS';
-  valueRenderOption?: 'FORMATTED_VALUE' | 'UNFORMATTED_VALUE' | 'FORMULA';
-}
+export interface GetValuesInput
+  extends RangeRequestFields,
+    DimensionRequestFields,
+    ValueRenderRequestFields {}
 
-export interface UpdateValuesInput {
-  spreadsheetId: string;
-  range: string;
+export interface UpdateValuesInput extends RangeRequestFields, ValueInputRequestFields {
   values: any[][];
-  valueInputOption?: 'RAW' | 'USER_ENTERED';
 }
 
-export interface AppendValuesInput {
-  spreadsheetId: string;
-  range: string;
+export interface AppendValuesInput extends RangeRequestFields, ValueInputRequestFields {
   values: any[][];
-  valueInputOption?: 'RAW' | 'USER_ENTERED';
-  insertDataOption?: 'OVERWRITE' | 'INSERT_ROWS';
+  insertDataOption?: InsertDataOption;
 }
 
-export interface ClearValuesInput {
-  spreadsheetId: string;
-  range: string;
-}
+export interface ClearValuesInput extends RangeRequestFields {}
 
-export interface BatchGetValuesInput {
+export interface BatchGetValuesInput extends DimensionRequestFields, ValueRenderRequestFields {
   spreadsheetId: string;
   ranges: string[];
-  majorDimension?: 'ROWS' | 'COLUMNS';
-  valueRenderOption?: 'FORMATTED_VALUE' | 'UNFORMATTED_VALUE' | 'FORMULA';
 }
 
-export interface BatchUpdateValuesInput {
+export interface BatchUpdateValuesInput extends ValueInputRequestFields {
   spreadsheetId: string;
   data: Array<{
     range: string;
     values: any[][];
   }>;
-  valueInputOption?: 'RAW' | 'USER_ENTERED';
 }
 
 export interface CreateSpreadsheetInput {
@@ -78,21 +78,10 @@ export interface DuplicateSheetInput {
   newSheetName?: string;
 }
 
-export interface UpdateSheetPropertiesInput {
-  spreadsheetId: string;
-  sheetId: number;
+export interface UpdateSheetPropertiesInput extends SheetRequestFields {
   title?: string;
-  gridProperties?: {
-    rowCount?: number;
-    columnCount?: number;
-    frozenRowCount?: number;
-    frozenColumnCount?: number;
-  };
-  tabColor?: {
-    red?: number;
-    green?: number;
-    blue?: number;
-  };
+  gridProperties?: GridProperties;
+  tabColor?: TabColor;
 }
 
 export interface CopyToInput {
@@ -101,13 +90,8 @@ export interface CopyToInput {
   destinationSpreadsheetId: string;
 }
 
-// Formatting types
-export interface Color {
-  red?: number; // 0-1
-  green?: number; // 0-1
-  blue?: number; // 0-1
-  alpha?: number; // 0-1
-}
+// Re-export Color from common for backward compatibility
+export type Color = CommonColor;
 
 export interface TextFormat {
   foregroundColor?: Color;
@@ -124,20 +108,8 @@ export interface NumberFormat {
   pattern?: string;
 }
 
-export interface CellFormat {
-  backgroundColor?: Color;
-  textFormat?: TextFormat;
-  horizontalAlignment?: 'LEFT' | 'CENTER' | 'RIGHT';
-  verticalAlignment?: 'TOP' | 'MIDDLE' | 'BOTTOM';
-  wrapStrategy?: 'OVERFLOW_CELL' | 'LEGACY_WRAP' | 'CLIP' | 'WRAP';
-  numberFormat?: NumberFormat;
-  padding?: {
-    top?: number;
-    right?: number;
-    bottom?: number;
-    left?: number;
-  };
-}
+// Re-export CellFormat from common for backward compatibility
+export type CellFormat = CommonCellFormat;
 
 export interface FormatCellsInput {
   spreadsheetId: string;
@@ -146,9 +118,7 @@ export interface FormatCellsInput {
 }
 
 // Border types
-export interface Border {
-  style: 'NONE' | 'SOLID' | 'DASHED' | 'DOTTED' | 'SOLID_MEDIUM' | 'SOLID_THICK' | 'DOUBLE';
-  color?: Color;
+export interface Border extends BorderStyle {
   width?: number;
 }
 

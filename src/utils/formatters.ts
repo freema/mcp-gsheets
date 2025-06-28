@@ -1,30 +1,17 @@
 import { ToolResponse } from '../types/tools.js';
+import {
+  createJsonResponse,
+  createTextResponse,
+  createEmptyResponse,
+} from './response-helpers.js';
 
 export function formatSuccessResponse(data: any, message?: string): ToolResponse {
-  const content = message
-    ? `${message}\n\n${JSON.stringify(data, null, 2)}`
-    : JSON.stringify(data, null, 2);
-
-  return {
-    content: [
-      {
-        type: 'text',
-        text: content,
-      },
-    ],
-  };
+  return createJsonResponse(data, message);
 }
 
 export function formatValuesResponse(values: any[][], range?: string): ToolResponse {
   if (!values || values.length === 0) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: range ? `No data found in range: ${range}` : 'No data found',
-        },
-      ],
-    };
+    return createEmptyResponse(range ? `range: ${range}` : '');
   }
 
   const formattedData = {
@@ -80,26 +67,13 @@ export function formatUpdateResponse(updatedCells: number, updatedRange?: string
   const message = updatedRange
     ? `Successfully updated ${updatedCells} cells in range: ${updatedRange}`
     : `Successfully updated ${updatedCells} cells`;
-
-  return {
-    content: [
-      {
-        type: 'text',
-        text: message,
-      },
-    ],
-  };
+  return createTextResponse(message);
 }
 
 export function formatAppendResponse(updates: any): ToolResponse {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: `Successfully appended ${updates.updatedCells || 0} cells to range: ${updates.updatedRange}`,
-      },
-    ],
-  };
+  return createTextResponse(
+    `Successfully appended ${updates.updatedCells || 0} cells to range: ${updates.updatedRange}`
+  );
 }
 
 export function formatClearResponse(clearedRange: string): ToolResponse {
@@ -125,26 +99,10 @@ export function formatSpreadsheetCreatedResponse(spreadsheet: any): ToolResponse
 }
 
 export function formatSheetOperationResponse(operation: string, details?: any): ToolResponse {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: `${operation} completed successfully${details ? ': ' + JSON.stringify(details, null, 2) : ''}`,
-      },
-    ],
-  };
+  const message = `${operation} completed successfully`;
+  return details ? createJsonResponse(details, message) : createTextResponse(message);
 }
 
 export function formatToolResponse(message: string, data?: any): ToolResponse {
-  if (data) {
-    return formatSuccessResponse(data, message);
-  }
-  return {
-    content: [
-      {
-        type: 'text',
-        text: message,
-      },
-    ],
-  };
+  return data ? createJsonResponse(data, message) : createTextResponse(message);
 }

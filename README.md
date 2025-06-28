@@ -260,6 +260,10 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 4. Check rate limits for large operations
 5. Use `sheets_check_access` to verify permissions before operations
 
+## 📋 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes in each version.
+
 ## 🤝 Contributing
 
 1. Fork the repository
