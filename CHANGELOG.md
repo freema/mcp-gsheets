@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-01-29
+
+### Added
+- **Chart Legend Support**: Series titles for meaningful legend labels
+  - Optional `title` property for chart series to specify custom legend labels
+  - Auto-detection of series names from header row above data ranges
+  - Smart range expansion to include header rows for proper legend labeling
+  - Support for both explicit titles and automatic detection from spreadsheet headers
+
+### Fixed
+- **Sheet Name Handling**: Proper support for sheet names containing spaces
+  - Fixed extraction of quoted sheet names (e.g., "My Sheet"!A1:B5) 
+  - Removed surrounding quotes from sheet names during parsing
+  - Enhanced error messages to show available sheets when sheet not found
+- **Chart Position API**: Corrected chart position structure for Google Sheets API
+  - Removed conflicting root-level `sheetId` from position object
+  - Updated to use only `overlayPosition.anchorCell.sheetId` structure
+  - Fixed "oneof field 'location' is already set" API errors
+- **Type Safety**: Enhanced TypeScript validation and error handling
+  - Added proper null/undefined handling for series title detection
+  - Improved range parsing with comprehensive error checking
+  - Updated validators to support new series title functionality
+
+### Changed
+- Updated tool descriptions to explain series naming and sheet name quoting
+- Enhanced input schema documentation with examples for proper usage
+- Improved chart creation logic to handle both basic and advanced use cases
+
 ## [1.1.0] - 2025-01-28
 
 ### Added
