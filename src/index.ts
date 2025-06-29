@@ -49,6 +49,13 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_merge_cells', tools.mergeCellsHandler],
   ['sheets_unmerge_cells', tools.unmergeCellsHandler],
   ['sheets_add_conditional_formatting', tools.addConditionalFormattingHandler],
+  // Batch operations
+  ['sheets_batch_delete_sheets', tools.handleBatchDeleteSheets],
+  ['sheets_batch_format_cells', tools.handleBatchFormatCells],
+  // Chart operations
+  ['sheets_create_chart', tools.handleCreateChart],
+  ['sheets_update_chart', tools.handleUpdateChart],
+  ['sheets_delete_chart', tools.handleDeleteChart],
 ]);
 
 // All tools
@@ -72,6 +79,13 @@ const allTools = [
   tools.mergeCellsTool,
   tools.unmergeCellsTool,
   tools.addConditionalFormattingTool,
+  // Batch operations
+  tools.batchDeleteSheetsTool,
+  tools.batchFormatCellsTool,
+  // Chart operations
+  tools.createChartTool,
+  tools.updateChartTool,
+  tools.deleteChartTool,
 ];
 
 async function main() {

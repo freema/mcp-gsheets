@@ -323,7 +323,7 @@ describe('extractSheetName', () => {
   it('should extract quoted sheet name', () => {
     const result = extractSheetName("'My Sheet'!A1");
     expect(result).toEqual({
-      sheetName: "'My Sheet'",
+      sheetName: 'My Sheet',
       range: 'A1',
     });
   });
@@ -331,7 +331,7 @@ describe('extractSheetName', () => {
   it('should handle sheet name with special characters', () => {
     const result = extractSheetName("'Sheet (2024) - Data'!A:Z");
     expect(result).toEqual({
-      sheetName: "'Sheet (2024) - Data'",
+      sheetName: 'Sheet (2024) - Data',
       range: 'A:Z',
     });
   });

@@ -1,25 +1,31 @@
-export interface SpreadsheetRange {
-  spreadsheetId: string;
-  range: string;
-}
+import {
+  MajorDimension,
+  ValueInputOption,
+  ValueRenderOption,
+  GridProperties,
+  TabColor,
+  RangeRequestFields,
+} from './common.js';
+
+export interface SpreadsheetRange extends RangeRequestFields {}
 
 export interface ValueRange {
   range?: string;
-  majorDimension?: 'ROWS' | 'COLUMNS';
+  majorDimension?: MajorDimension;
   values?: any[][];
 }
 
 export interface UpdateValuesRequest extends SpreadsheetRange {
   values: any[][];
-  valueInputOption?: 'RAW' | 'USER_ENTERED';
+  valueInputOption?: ValueInputOption;
 }
 
 export interface BatchUpdateRequest {
   spreadsheetId: string;
   data: ValueRange[];
-  valueInputOption?: 'RAW' | 'USER_ENTERED';
+  valueInputOption?: ValueInputOption;
   includeValuesInResponse?: boolean;
-  responseValueRenderOption?: 'FORMATTED_VALUE' | 'UNFORMATTED_VALUE' | 'FORMULA';
+  responseValueRenderOption?: ValueRenderOption;
 }
 
 export interface SheetProperties {
@@ -27,18 +33,8 @@ export interface SheetProperties {
   title?: string;
   index?: number;
   sheetType?: 'GRID' | 'OBJECT';
-  gridProperties?: {
-    rowCount?: number;
-    columnCount?: number;
-    frozenRowCount?: number;
-    frozenColumnCount?: number;
-  };
-  tabColor?: {
-    red?: number;
-    green?: number;
-    blue?: number;
-    alpha?: number;
-  };
+  gridProperties?: GridProperties;
+  tabColor?: TabColor;
 }
 
 export interface CreateSpreadsheetRequest {
