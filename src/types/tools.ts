@@ -205,3 +205,110 @@ export interface AddConditionalFormattingInput {
   spreadsheetId: string;
   rules: ConditionalFormatRule[];
 }
+
+// Batch operations
+export interface BatchDeleteSheetsInput {
+  spreadsheetId: string;
+  sheetIds: number[];
+}
+
+export interface BatchFormatCellsInput {
+  spreadsheetId: string;
+  formatRequests: Array<{
+    range: string;
+    format: CellFormat;
+  }>;
+}
+
+// Chart types
+export type ChartType =
+  | 'COLUMN'
+  | 'BAR'
+  | 'LINE'
+  | 'AREA'
+  | 'PIE'
+  | 'SCATTER'
+  | 'COMBO'
+  | 'HISTOGRAM'
+  | 'CANDLESTICK'
+  | 'WATERFALL';
+
+export interface ChartPosition {
+  overlayPosition: {
+    anchorCell: {
+      sheetId: number;
+      rowIndex: number;
+      columnIndex: number;
+    };
+    offsetXPixels?: number;
+    offsetYPixels?: number;
+    widthPixels?: number;
+    heightPixels?: number;
+  };
+}
+
+export interface ChartSeries {
+  sourceRange: string;
+  type?: ChartType;
+  targetAxis?: 'LEFT_AXIS' | 'RIGHT_AXIS';
+}
+
+export interface ChartAxis {
+  title?: string;
+  format?: {
+    bold?: boolean;
+    italic?: boolean;
+    fontSize?: number;
+    fontFamily?: string;
+  };
+  textPosition?: 'NEXT_TO_AXIS' | 'LOW' | 'HIGH' | 'NONE';
+}
+
+export interface ChartLegend {
+  position?: 'BOTTOM_LEGEND' | 'LEFT_LEGEND' | 'RIGHT_LEGEND' | 'TOP_LEGEND' | 'NO_LEGEND';
+  alignment?: 'START' | 'CENTER' | 'END';
+  textStyle?: {
+    bold?: boolean;
+    italic?: boolean;
+    fontSize?: number;
+    fontFamily?: string;
+    foregroundColor?: Color;
+  };
+}
+
+export interface CreateChartInput {
+  spreadsheetId: string;
+  position: ChartPosition;
+  chartType: ChartType;
+  title?: string;
+  subtitle?: string;
+  series: ChartSeries[];
+  domainRange?: string; // Optional domain range in A1 notation
+  domainAxis?: ChartAxis;
+  leftAxis?: ChartAxis;
+  rightAxis?: ChartAxis;
+  legend?: ChartLegend;
+  backgroundColor?: Color;
+  altText?: string;
+}
+
+export interface UpdateChartInput {
+  spreadsheetId: string;
+  chartId: number;
+  position?: ChartPosition;
+  chartType?: ChartType;
+  title?: string;
+  subtitle?: string;
+  series?: ChartSeries[];
+  domainAxis?: ChartAxis;
+  leftAxis?: ChartAxis;
+  rightAxis?: ChartAxis;
+  legend?: ChartLegend;
+  backgroundColor?: Color;
+  altText?: string;
+}
+
+export interface DeleteChartInput {
+  spreadsheetId: string;
+  chartId: number;
+}

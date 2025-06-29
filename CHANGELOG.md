@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Centralized error messages in `src/utils/error-messages.ts` for consistency
 - Generic validation system in `src/utils/validation-helpers.ts` to reduce code duplication
 - Response formatting helpers in `src/utils/response-helpers.ts` for consistent API responses
+- **Batch operations**:
+  - `sheets_batch_delete_sheets` - Delete multiple sheets in a single operation
+  - `sheets_batch_format_cells` - Format multiple cell ranges in a single operation
+- **Chart management**:
+  - `sheets_create_chart` - Create charts (COLUMN, BAR, LINE, AREA, PIE, SCATTER, COMBO, HISTOGRAM, CANDLESTICK, WATERFALL)
+  - `sheets_update_chart` - Update existing charts (position, type, title, series, etc.)
+  - `sheets_delete_chart` - Delete charts from spreadsheets
 
 ### Changed
 - Refactored validators to use generic validation system (`createRangeValidator`, `createSheetValidator`)

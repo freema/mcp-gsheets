@@ -17,3 +17,12 @@ export * from './update-borders.js';
 export * from './merge-cells.js';
 export * from './conditional-formatting.js';
 export * from './check-access.js';
+
+// Batch operations
+export * from './batch-delete-sheets.js';
+export * from './batch-format-cells.js';
+
+// Chart operations
+export * from './create-chart.js';
+export * from './update-chart.js';
+export * from './delete-chart.js';

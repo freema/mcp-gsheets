@@ -16,6 +16,12 @@ import {
   MergeCellsInput,
   UnmergeCellsInput,
   AddConditionalFormattingInput,
+  BatchDeleteSheetsInput,
+  BatchFormatCellsInput,
+  CreateChartInput,
+  UpdateChartInput,
+  DeleteChartInput,
+  ChartType,
 } from '../types/tools.js';
 import { ERROR_MESSAGES } from './error-messages.js';
 import {
@@ -286,5 +292,209 @@ export function validateAddConditionalFormattingInput(input: any): AddConditiona
   return {
     spreadsheetId: input.spreadsheetId,
     rules: input.rules,
+  };
+}
+
+// Batch operations validators
+export function validateBatchDeleteSheetsInput(input: any): BatchDeleteSheetsInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+
+  if (!input.sheetIds || !Array.isArray(input.sheetIds) || input.sheetIds.length === 0) {
+    throw new Error(ERROR_MESSAGES.SHEET_IDS_REQUIRED);
+  }
+
+  for (const sheetId of input.sheetIds) {
+    if (typeof sheetId !== 'number') {
+      throw new Error('Each sheetId must be a number');
+    }
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    sheetIds: input.sheetIds,
+  };
+}
+
+export function validateBatchFormatCellsInput(input: any): BatchFormatCellsInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+
+  if (
+    !input.formatRequests ||
+    !Array.isArray(input.formatRequests) ||
+    input.formatRequests.length === 0
+  ) {
+    throw new Error(ERROR_MESSAGES.FORMAT_REQUESTS_REQUIRED);
+  }
+
+  for (const request of input.formatRequests) {
+    if (!request.range || typeof request.range !== 'string') {
+      throw new Error('Each format request must have a range property');
+    }
+    if (!validateRange(request.range)) {
+      throw new Error(`Invalid range format: ${request.range}. ${ERROR_MESSAGES.INVALID_RANGE}`);
+    }
+    if (!request.format || typeof request.format !== 'object') {
+      throw new Error('Each format request must have a format property');
+    }
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    formatRequests: input.formatRequests,
+  };
+}
+
+// Chart validators
+const VALID_CHART_TYPES: ChartType[] = [
+  'COLUMN',
+  'BAR',
+  'LINE',
+  'AREA',
+  'PIE',
+  'SCATTER',
+  'COMBO',
+  'HISTOGRAM',
+  'CANDLESTICK',
+  'WATERFALL',
+];
+
+export function validateCreateChartInput(input: any): CreateChartInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+
+  if (!input.position || typeof input.position !== 'object') {
+    throw new Error(ERROR_MESSAGES.CHART_POSITION_REQUIRED);
+  }
+
+  if (!input.chartType || typeof input.chartType !== 'string') {
+    throw new Error(ERROR_MESSAGES.CHART_TYPE_REQUIRED);
+  }
+
+  if (!VALID_CHART_TYPES.includes(input.chartType)) {
+    throw new Error(ERROR_MESSAGES.INVALID_CHART_TYPE);
+  }
+
+  if (!input.series || !Array.isArray(input.series) || input.series.length === 0) {
+    throw new Error(ERROR_MESSAGES.CHART_SERIES_REQUIRED);
+  }
+
+  // Validate position structure
+  const pos = input.position;
+  if (!pos.overlayPosition || typeof pos.overlayPosition !== 'object') {
+    throw new Error('position.overlayPosition is required and must be an object');
+  }
+  if (!pos.overlayPosition.anchorCell || typeof pos.overlayPosition.anchorCell !== 'object') {
+    throw new Error('position.overlayPosition.anchorCell is required and must be an object');
+  }
+  if (typeof pos.overlayPosition.anchorCell.sheetId !== 'number') {
+    throw new Error('position.overlayPosition.anchorCell.sheetId is required and must be a number');
+  }
+  if (typeof pos.overlayPosition.anchorCell.rowIndex !== 'number') {
+    throw new Error(
+      'position.overlayPosition.anchorCell.rowIndex is required and must be a number'
+    );
+  }
+  if (typeof pos.overlayPosition.anchorCell.columnIndex !== 'number') {
+    throw new Error(
+      'position.overlayPosition.anchorCell.columnIndex is required and must be a number'
+    );
+  }
+
+  // Validate series
+  for (const series of input.series) {
+    if (!series.sourceRange || typeof series.sourceRange !== 'string') {
+      throw new Error('Each series must have a sourceRange property');
+    }
+    if (!validateRange(series.sourceRange)) {
+      throw new Error(
+        `Invalid series range format: ${series.sourceRange}. ${ERROR_MESSAGES.INVALID_RANGE}`
+      );
+    }
+    if (series.targetAxis && !['LEFT_AXIS', 'RIGHT_AXIS'].includes(series.targetAxis)) {
+      throw new Error(ERROR_MESSAGES.INVALID_AXIS_POSITION);
+    }
+  }
+
+  // Validate domainRange if provided
+  if (input.domainRange && !validateRange(input.domainRange)) {
+    throw new Error(
+      `Invalid domain range format: ${input.domainRange}. ${ERROR_MESSAGES.INVALID_RANGE}`
+    );
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    position: input.position,
+    chartType: input.chartType,
+    title: input.title,
+    subtitle: input.subtitle,
+    series: input.series,
+    domainRange: input.domainRange,
+    domainAxis: input.domainAxis,
+    leftAxis: input.leftAxis,
+    rightAxis: input.rightAxis,
+    legend: input.legend,
+    backgroundColor: input.backgroundColor,
+    altText: input.altText,
+  };
+}
+
+export function validateUpdateChartInput(input: any): UpdateChartInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+
+  if (input.chartId === undefined || typeof input.chartId !== 'number') {
+    throw new Error(ERROR_MESSAGES.CHART_ID_REQUIRED);
+  }
+
+  if (input.chartType && !VALID_CHART_TYPES.includes(input.chartType)) {
+    throw new Error(ERROR_MESSAGES.INVALID_CHART_TYPE);
+  }
+
+  // Validate series if provided
+  if (input.series) {
+    if (!Array.isArray(input.series) || input.series.length === 0) {
+      throw new Error(ERROR_MESSAGES.CHART_SERIES_REQUIRED);
+    }
+    for (const series of input.series) {
+      if (!series.sourceRange || typeof series.sourceRange !== 'string') {
+        throw new Error('Each series must have a sourceRange property');
+      }
+      if (!validateRange(series.sourceRange)) {
+        throw new Error(
+          `Invalid series range format: ${series.sourceRange}. ${ERROR_MESSAGES.INVALID_RANGE}`
+        );
+      }
+      if (series.targetAxis && !['LEFT_AXIS', 'RIGHT_AXIS'].includes(series.targetAxis)) {
+        throw new Error(ERROR_MESSAGES.INVALID_AXIS_POSITION);
+      }
+    }
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    chartId: input.chartId,
+    position: input.position,
+    chartType: input.chartType,
+    title: input.title,
+    subtitle: input.subtitle,
+    series: input.series,
+    domainAxis: input.domainAxis,
+    leftAxis: input.leftAxis,
+    rightAxis: input.rightAxis,
+    legend: input.legend,
+    backgroundColor: input.backgroundColor,
+    altText: input.altText,
+  };
+}
+
+export function validateDeleteChartInput(input: any): DeleteChartInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+
+  if (input.chartId === undefined || typeof input.chartId !== 'number') {
+    throw new Error(ERROR_MESSAGES.CHART_ID_REQUIRED);
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    chartId: input.chartId,
   };
 }

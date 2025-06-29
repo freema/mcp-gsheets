@@ -70,7 +70,11 @@ export async function getSheetId(
   if (sheetName) {
     const sheet = sheetsData.find((s) => s.properties?.title === sheetName);
     if (!sheet?.properties?.sheetId) {
-      throw new Error(`Sheet "${sheetName}" not found`);
+      const availableSheets = sheetsData
+        .map((s) => s.properties?.title)
+        .filter((title) => title)
+        .join(', ');
+      throw new Error(`Sheet "${sheetName}" not found. Available sheets: ${availableSheets}`);
     }
     return sheet.properties.sheetId;
   }
@@ -92,9 +96,16 @@ export async function getSheetId(
 export function extractSheetName(range: string): { sheetName?: string; range: string } {
   if (range.includes('!')) {
     const parts = range.split('!');
-    const sheetName = parts[0];
+    let sheetName = parts[0];
     const rangePart = parts[1] || '';
     if (sheetName) {
+      // Remove surrounding quotes if present (both single and double quotes)
+      if (
+        (sheetName.startsWith('"') && sheetName.endsWith('"')) ||
+        (sheetName.startsWith("'") && sheetName.endsWith("'"))
+      ) {
+        sheetName = sheetName.slice(1, -1);
+      }
       return { sheetName, range: rangePart };
     }
   }

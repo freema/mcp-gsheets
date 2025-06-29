@@ -1,9 +1,5 @@
 import { ToolResponse } from '../types/tools.js';
-import {
-  createJsonResponse,
-  createTextResponse,
-  createEmptyResponse,
-} from './response-helpers.js';
+import { createJsonResponse, createTextResponse, createEmptyResponse } from './response-helpers.js';
 
 export function formatSuccessResponse(data: any, message?: string): ToolResponse {
   return createJsonResponse(data, message);

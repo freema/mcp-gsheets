@@ -59,6 +59,22 @@ export const ERROR_MESSAGES = {
   INVALID_CONDITION_TYPE: 'Invalid condition type',
   CONDITION_VALUES_REQUIRED: 'Condition values are required for this condition type',
 
+  // Batch operation errors (additional)
+  SHEET_IDS_REQUIRED: 'sheetIds is required and must be a non-empty array',
+  FORMAT_REQUESTS_REQUIRED: 'formatRequests is required and must be a non-empty array',
+
+  // Chart errors
+  CHART_ID_REQUIRED: 'chartId is required and must be a number',
+  CHART_TYPE_REQUIRED: 'chartType is required and must be a valid chart type',
+  CHART_POSITION_REQUIRED: 'position is required and must be an object',
+  CHART_SERIES_REQUIRED: 'series is required and must be a non-empty array',
+  INVALID_CHART_TYPE:
+    'Invalid chart type. Must be one of: COLUMN, BAR, LINE, AREA, PIE, SCATTER, COMBO, HISTOGRAM, CANDLESTICK, WATERFALL',
+  INVALID_AXIS_POSITION: 'targetAxis must be either "LEFT_AXIS" or "RIGHT_AXIS"',
+  INVALID_LEGEND_POSITION:
+    'legend position must be one of: BOTTOM_LEGEND, LEFT_LEGEND, RIGHT_LEGEND, TOP_LEGEND, NO_LEGEND',
+  INVALID_TEXT_POSITION: 'textPosition must be one of: NEXT_TO_AXIS, LOW, HIGH, NONE',
+
   // Generic errors
   INVALID_INPUT: 'Invalid input provided',
   OPERATION_FAILED: 'Operation failed',

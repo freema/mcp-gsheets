@@ -180,12 +180,21 @@ npm run dev  # Watch mode with auto-reload
 - `sheets_copy_to` - Copy to another spreadsheet
 - `sheets_update_sheet_properties` - Update sheet settings
 
+### Batch Operations
+- `sheets_batch_delete_sheets` - Delete multiple sheets at once
+- `sheets_batch_format_cells` - Format multiple cell ranges at once
+
 ### Cell Formatting
 - `sheets_format_cells` - Format cells (colors, fonts, alignment, number formats)
 - `sheets_update_borders` - Add or modify cell borders
 - `sheets_merge_cells` - Merge cells together
 - `sheets_unmerge_cells` - Unmerge previously merged cells
 - `sheets_add_conditional_formatting` - Add conditional formatting rules
+
+### Charts
+- `sheets_create_chart` - Create various types of charts
+- `sheets_update_chart` - Modify existing charts
+- `sheets_delete_chart` - Remove charts
 
 ## 🔧 Code Quality
 
