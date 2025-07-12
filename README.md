@@ -93,6 +93,31 @@ If you prefer manual configuration, add to your Claude Desktop config:
 }
 ```
 
+#### Alternative: JSON String Authentication
+
+Instead of using a file path, you can provide the service account credentials directly as a JSON string. This is useful for containerized environments, CI/CD pipelines, or when you want to avoid managing credential files.
+
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_SERVICE_ACCOUNT_KEY": "{\"type\":\"service_account\",\"project_id\":\"your-project\",\"private_key_id\":\"...\",\"private_key\":\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\",\"client_email\":\"...@....iam.gserviceaccount.com\",\"client_id\":\"...\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\":\"...\"}"
+      }
+    }
+  }
+}
+```
+
+**Note**: When using `GOOGLE_SERVICE_ACCOUNT_KEY`:
+- The entire JSON must be on a single line
+- All quotes must be escaped with backslashes
+- Newlines in the private key must be represented as `\\n`
+- If the JSON includes a `project_id`, you can omit `GOOGLE_PROJECT_ID`
+
 Restart Claude Desktop after adding the configuration.
 
 ## 📦 Build & Development
@@ -230,8 +255,9 @@ npm run typecheck
 ### Common Issues
 
 **"Authentication failed"**
-- Verify JSON key path is absolute and correct
-- Check GOOGLE_PROJECT_ID matches your project
+- If using file-based auth: Verify JSON key path is absolute and correct
+- If using JSON string auth: Ensure JSON is properly escaped and valid
+- Check GOOGLE_PROJECT_ID matches your project (or is included in JSON)
 - Ensure Sheets API is enabled
 
 **"Permission denied"**
