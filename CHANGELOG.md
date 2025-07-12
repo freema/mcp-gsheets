@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-07-12
+
+### Added
+- **Alternative Authentication Method**: Support for service account credentials as JSON string
+  - New `GOOGLE_SERVICE_ACCOUNT_KEY` environment variable for JSON string authentication
+  - Useful for containerized environments, CI/CD pipelines, and deployment scenarios where file management is difficult
+  - Falls back to JSON string authentication when `GOOGLE_APPLICATION_CREDENTIALS` is not provided
+  - Automatic project ID extraction from service account credentials
+  - Enhanced validation with detailed error messages for invalid JSON format
+
+### Changed
+- Updated authentication validation to support both file-based and JSON string methods
+- Enhanced documentation with examples for both authentication approaches
+- Updated `.env.example` to show both authentication options
+
 ## [1.3.0] - 2025-01-29
 
 ### Added
