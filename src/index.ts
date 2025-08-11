@@ -56,6 +56,9 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_create_chart', tools.handleCreateChart],
   ['sheets_update_chart', tools.handleUpdateChart],
   ['sheets_delete_chart', tools.handleDeleteChart],
+  // Link and date operations
+  ['sheets_insert_link', tools.handleInsertLink],
+  ['sheets_insert_date', tools.handleInsertDate],
 ]);
 
 // All tools
@@ -86,6 +89,9 @@ const allTools = [
   tools.createChartTool,
   tools.updateChartTool,
   tools.deleteChartTool,
+  // Link and date operations
+  tools.insertLinkTool,
+  tools.insertDateTool,
 ];
 
 async function main() {
