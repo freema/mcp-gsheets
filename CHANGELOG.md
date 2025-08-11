@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-08-11
+
+### Added
+- **HYPERLINK Formula Support**: New tools for inserting clickable links and dates with locale-aware formatting
+  - `sheets_insert_link` - Insert HYPERLINK formulas with proper separator support (EU/US)
+  - `sheets_insert_date` - Insert formatted dates with automatic parsing and locale support
+  - Support for EU format (semicolon separator) and US format (comma separator)
+  - Default to EU format (`useEUFormat: true`) for better international compatibility
+  - Automatic date parsing for various formats (ISO, EU, US) and relative dates (today, tomorrow, yesterday)
+
+### Fixed
+- HYPERLINK formula parsing errors in non-US locales
+- Date formatting issues for different regional settings
+
 ## [1.3.1] - 2025-07-12
 
 ### Added
