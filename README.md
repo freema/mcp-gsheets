@@ -12,6 +12,8 @@
 ![Node](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white)
 
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/freema/mcp-gsheets)](https://archestra.ai/mcp-catalog/freema__mcp-gsheets)
+
 A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Desktop).
 
 ## 🚀 Quick Start
