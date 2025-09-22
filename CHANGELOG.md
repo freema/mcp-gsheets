@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-09-22
+
+### Added
+- **New Tool: sheets_insert_rows** - Insert new rows at specific position with optional data
+  - Support for inserting rows before or after a specified anchor point
+  - Optional data population for newly inserted rows
+  - Inherit formatting from previous row option
+  - Flexible value input options (RAW or USER_ENTERED)
+
+### Changed
+- **Enhanced sheets_append_values Description** - Added explicit warning about default OVERWRITE behavior
+  - Clarified that default `insertDataOption` is `OVERWRITE`
+  - Added note about using `INSERT_ROWS` option to insert new rows instead of overwriting
+
+### Documentation
+- Added detailed documentation for sheets_insert_rows tool with examples
+- Updated README to highlight the default OVERWRITE behavior in sheets_append_values
+
 ## [1.4.0] - 2025-08-11
 
 ### Added

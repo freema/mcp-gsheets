@@ -1,6 +1,6 @@
 {
   "name": "mcp-gsheets",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Model Context Protocol (MCP) server for Google Sheets API integration",
   "author": "freema",
   "license": "MIT",

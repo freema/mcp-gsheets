@@ -19,6 +19,7 @@ import {
   validateMergeCellsInput,
   validateUnmergeCellsInput,
   validateAddConditionalFormattingInput,
+  validateInsertRowsInput,
 } from '../../../src/utils/validators';
 import { testSpreadsheetIds, testRanges, testValues, testInputs, testErrors } from '../../fixtures/test-data';
 
@@ -690,5 +691,112 @@ describe('validateAddConditionalFormattingInput', () => {
       spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
       rules: [{ ranges: ['A1:A10'] }],
     })).toThrow('Each rule must have either booleanRule or gradientRule');
+  });
+});
+
+describe('validateInsertRowsInput', () => {
+  it('should accept valid input with minimal parameters', () => {
+    const input = {
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+    };
+
+    const result = validateInsertRowsInput(input);
+
+    expect(result).toEqual({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      rows: 1,
+      position: 'BEFORE',
+      inheritFromBefore: false,
+      values: undefined,
+      valueInputOption: 'USER_ENTERED',
+    });
+  });
+
+  it('should accept valid input with all parameters', () => {
+    const input = {
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A10',
+      rows: 3,
+      position: 'AFTER',
+      inheritFromBefore: true,
+      values: [['a', 'b'], ['c', 'd']],
+      valueInputOption: 'RAW',
+    };
+
+    const result = validateInsertRowsInput(input);
+
+    expect(result).toEqual(input);
+  });
+
+  it('should reject invalid spreadsheet ID', () => {
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: 'invalid id!',
+      range: 'Sheet1!A5',
+    })).toThrow('Invalid spreadsheet ID format');
+  });
+
+  it('should reject invalid range', () => {
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'invalid range',
+    })).toThrow();
+  });
+
+  it('should reject invalid rows count', () => {
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      rows: 0,
+    })).toThrow('Rows must be a positive number');
+
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      rows: -1,
+    })).toThrow('Rows must be a positive number');
+
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      rows: 'not a number',
+    })).toThrow('Rows must be a positive number');
+  });
+
+  it('should reject invalid position', () => {
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      position: 'INVALID',
+    })).toThrow('Position must be either BEFORE or AFTER');
+  });
+
+  it('should reject invalid values format', () => {
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      values: 'not an array',
+    })).toThrow('Values must be a 2D array');
+
+    expect(() => validateInsertRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      values: ['not', '2D', 'array'],
+    })).toThrow('Values must be a 2D array');
+  });
+
+  it('should apply default values correctly', () => {
+    const input = {
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!A5',
+      rows: 5,
+    };
+
+    const result = validateInsertRowsInput(input);
+
+    expect(result.position).toBe('BEFORE');
+    expect(result.inheritFromBefore).toBe(false);
+    expect(result.valueInputOption).toBe('USER_ENTERED');
   });
 });

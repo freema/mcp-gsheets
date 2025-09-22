@@ -59,6 +59,8 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   // Link and date operations
   ['sheets_insert_link', tools.handleInsertLink],
   ['sheets_insert_date', tools.handleInsertDate],
+  // Row operations
+  ['sheets_insert_rows', tools.handleInsertRows],
 ]);
 
 // All tools
@@ -92,6 +94,8 @@ const allTools = [
   // Link and date operations
   tools.insertLinkTool,
   tools.insertDateTool,
+  // Row operations
+  tools.insertRowsTool,
 ];
 
 async function main() {

@@ -195,8 +195,9 @@ npm run dev  # Watch mode with auto-reload
 ### Writing Data
 - `sheets_update_values` - Write to a range
 - `sheets_batch_update_values` - Write to multiple ranges
-- `sheets_append_values` - Append rows to a table
+- `sheets_append_values` - Append rows to a table (**Note:** Default `insertDataOption` is `OVERWRITE`. To insert new rows, set `insertDataOption: 'INSERT_ROWS'`)
 - `sheets_clear_values` - Clear cell contents
+- `sheets_insert_rows` - Insert new rows at specific position with optional data
 
 ### Sheet Management
 - `sheets_insert_sheet` - Add new sheet
@@ -294,6 +295,44 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 3. Set appropriate permissions (read-only vs edit)
 4. Check rate limits for large operations
 5. Use `sheets_check_access` to verify permissions before operations
+
+## 📘 Tool Details
+
+### sheets_insert_rows
+
+Insert new rows at a specific position in a spreadsheet with optional data.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `range` (required): A1 notation anchor point where rows will be inserted (e.g., "Sheet1!A5")
+- `rows` (optional): Number of rows to insert (default: 1)
+- `position` (optional): 'BEFORE' or 'AFTER' the anchor row (default: 'BEFORE')
+- `inheritFromBefore` (optional): Whether to inherit formatting from the row before (default: false)
+- `values` (optional): 2D array of values to fill the newly inserted rows
+- `valueInputOption` (optional): 'RAW' or 'USER_ENTERED' (default: 'USER_ENTERED')
+
+**Examples:**
+
+```javascript
+// Insert 1 empty row before row 5
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "Sheet1!A5"
+}
+
+// Insert 3 rows after row 10 with data
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "Sheet1!A10",
+  "rows": 3,
+  "position": "AFTER",
+  "values": [
+    ["John", "Doe", "john@example.com"],
+    ["Jane", "Smith", "jane@example.com"],
+    ["Bob", "Johnson", "bob@example.com"]
+  ]
+}
+```
 
 ## 📋 Changelog
 
