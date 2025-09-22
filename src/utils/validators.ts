@@ -498,3 +498,37 @@ export function validateDeleteChartInput(input: any): DeleteChartInput {
     chartId: input.chartId,
   };
 }
+
+export function validateInsertRowsInput(input: any): any {
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+
+  const rows = input.rows ?? 1;
+  if (typeof rows !== 'number' || rows <= 0) {
+    throw new Error('Rows must be a positive number');
+  }
+
+  const position = input.position ?? 'BEFORE';
+  if (!['BEFORE', 'AFTER'].includes(position)) {
+    throw new Error('Position must be either BEFORE or AFTER');
+  }
+
+  const inheritFromBefore = input.inheritFromBefore ?? false;
+  const valueInputOption = input.valueInputOption ?? 'USER_ENTERED';
+
+  if (input.values) {
+    if (!Array.isArray(input.values) || !input.values.every((row: any) => Array.isArray(row))) {
+      throw new Error('Values must be a 2D array');
+    }
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+    rows,
+    position,
+    inheritFromBefore,
+    values: input.values,
+    valueInputOption,
+  };
+}

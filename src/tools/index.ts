@@ -30,3 +30,6 @@ export * from './delete-chart.js';
 // Link and date operations
 export * from './insert-link.js';
 export * from './insert-date.js';
+
+// Row operations
+export * from './insert-rows.js';
