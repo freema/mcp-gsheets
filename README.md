@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/freema-mcp-gsheets-badge.png)](https://mseep.ai/app/freema-mcp-gsheets)
+
 # MCP Google Sheets Server
 
 <a href="https://glama.ai/mcp/servers/@freema/mcp-gsheets">
