@@ -12,33 +12,122 @@
 ![Node](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white)
 
-A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Desktop).
+A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Code, Claude Desktop, Cursor, etc.).
 
-## 🚀 Quick Start
+## Key Features
 
-### 1. Prerequisites
+- **Complete Google Sheets Integration**: Read, write, and manage spreadsheets
+- **Advanced Operations**: Batch operations, formatting, charts, and conditional formatting
+- **Flexible Authentication**: Support for both file-based and JSON string credentials
+- **Production Ready**: Built with TypeScript, comprehensive error handling, and full test coverage
 
-- Node.js v18 or higher
-- Google Cloud Project with Sheets API enabled
+## Requirements
+
+- [Node.js](https://nodejs.org/) v18 or higher
+- [Google Cloud Project](https://console.cloud.google.com) with Sheets API enabled
 - Service Account with JSON key file
+- [npm](https://www.npmjs.com/)
 
-### 2. Installation
+## Getting Started
 
-```bash
-# Clone the repository
-git clone https://github.com/freema/mcp-gsheets.git
-# Or using SSH
-# git clone git@github.com:freema/mcp-gsheets.git
-cd mcp-gsheets
+### Quick Install (Recommended)
 
-# Install dependencies
-npm install
+Add the following config to your MCP client:
 
-# Build the project
-npm run build
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+      }
+    }
+  }
+}
 ```
 
-### 3. Google Cloud Setup
+> [!NOTE]
+> Using `mcp-gsheets@latest` ensures that your MCP client will always use the latest version of the MCP Google Sheets server.
+
+### MCP Client Configuration
+
+<details>
+  <summary>Claude Code</summary>
+  Use the Claude Code CLI to add the MCP Google Sheets server (<a href="https://docs.anthropic.com/en/docs/claude-code/mcp">guide</a>):
+
+```bash
+claude mcp add mcp-gsheets npx mcp-gsheets@latest
+```
+
+After adding, edit your Claude Code config to add the required environment variables:
+
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "npx",
+      "args": ["mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+  <summary>Claude Desktop</summary>
+
+Add to your Claude Desktop config:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Linux: `~/.config/claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+  <summary>Cursor</summary>
+
+Go to `Cursor Settings` → `MCP` → `New MCP Server`. Use the config provided above.
+
+</details>
+
+<details>
+  <summary>Cline</summary>
+
+Follow https://docs.cline.bot/mcp/configuring-mcp-servers and use the config provided above.
+
+</details>
+
+<details>
+  <summary>Other MCP Clients</summary>
+
+For other MCP clients, use the standard configuration format shown above. Ensure the `command` is set to `npx` and include the environment variables for Google Cloud authentication.
+
+</details>
+
+### Google Cloud Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select existing
@@ -54,55 +143,16 @@ npm run build
    - Click Share and add the service account email (from JSON file)
    - Grant "Editor" permissions
 
-### 4. Configure MCP Client
+### Alternative: JSON String Authentication
 
-#### Easy Setup (Recommended)
-
-Run the interactive setup script:
-
-```bash
-npm run setup
-```
-
-This will:
-- Guide you through the configuration
-- Automatically detect your Node.js installation (including nvm)
-- Find your Claude Desktop config
-- Create the proper JSON configuration
-- Optionally create a .env file for development
-
-#### Manual Setup
-
-If you prefer manual configuration, add to your Claude Desktop config:
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-- Linux: `~/.config/claude/claude_desktop_config.json`
+Instead of using a file path for credentials, you can provide the service account credentials directly as a JSON string. This is useful for containerized environments, CI/CD pipelines, or when you want to avoid managing credential files.
 
 ```json
 {
   "mcpServers": {
     "mcp-gsheets": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
-      "env": {
-        "GOOGLE_PROJECT_ID": "your-project-id",
-        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
-      }
-    }
-  }
-}
-```
-
-#### Alternative: JSON String Authentication
-
-Instead of using a file path, you can provide the service account credentials directly as a JSON string. This is useful for containerized environments, CI/CD pipelines, or when you want to avoid managing credential files.
-
-```json
-{
-  "mcpServers": {
-    "mcp-gsheets": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
       "env": {
         "GOOGLE_PROJECT_ID": "your-project-id",
         "GOOGLE_SERVICE_ACCOUNT_KEY": "{\"type\":\"service_account\",\"project_id\":\"your-project\",\"private_key_id\":\"...\",\"private_key\":\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\",\"client_email\":\"...@....iam.gserviceaccount.com\",\"client_id\":\"...\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\":\"...\"}"
@@ -118,7 +168,55 @@ Instead of using a file path, you can provide the service account credentials di
 - Newlines in the private key must be represented as `\\n`
 - If the JSON includes a `project_id`, you can omit `GOOGLE_PROJECT_ID`
 
-Restart Claude Desktop after adding the configuration.
+## Local Development Setup
+
+If you want to develop or contribute to this project, you can clone and build it locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/freema/mcp-gsheets.git
+cd mcp-gsheets
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+```
+
+### Interactive Setup Script
+
+Run the interactive setup script to configure your local MCP client:
+
+```bash
+npm run setup
+```
+
+This will:
+- Guide you through the configuration
+- Automatically detect your Node.js installation (including nvm)
+- Find your Claude Desktop config
+- Create the proper JSON configuration
+- Optionally create a .env file for development
+
+### Manual Local Configuration
+
+If you prefer manual configuration with a local build, add to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-gsheets/dist/index.js"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/service-account-key.json"
+      }
+    }
+  }
+}
+```
 
 ## 📦 Build & Development
 
