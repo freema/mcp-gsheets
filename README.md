@@ -143,7 +143,9 @@ For other MCP clients, use the standard configuration format shown above. Ensure
    - Click Share and add the service account email (from JSON file)
    - Grant "Editor" permissions
 
-### Alternative: JSON String Authentication
+### Alternative Authentication Methods
+
+#### Option 1: JSON String Authentication
 
 Instead of using a file path for credentials, you can provide the service account credentials directly as a JSON string. This is useful for containerized environments, CI/CD pipelines, or when you want to avoid managing credential files.
 
@@ -167,6 +169,31 @@ Instead of using a file path for credentials, you can provide the service accoun
 - All quotes must be escaped with backslashes
 - Newlines in the private key must be represented as `\\n`
 - If the JSON includes a `project_id`, you can omit `GOOGLE_PROJECT_ID`
+
+#### Option 2: Private Key Authentication (Simplified)
+
+For the most user-friendly approach, you can provide just the private key and email directly. This is the simplest method and requires only two fields from your service account JSON:
+
+```json
+{
+  "mcpServers": {
+    "mcp-gsheets": {
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCgR6bvMNOUHZ29\\n+YgbVHAXsT/s+L/jnXTCB193zikCzspSBSfxLu8VRDjkNq9WUoDxizTATzMFNvNf\\n...\\n-----END PRIVATE KEY-----\\n",
+        "GOOGLE_CLIENT_EMAIL": "spreadsheet@your-project.iam.gserviceaccount.com"
+      }
+    }
+  }
+}
+```
+
+**Note**: When using `GOOGLE_PRIVATE_KEY`:
+- Newlines in the private key should be represented as `\\n`
+- The private key must include the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` markers
+- The client email should be the service account email from your JSON file
+- `GOOGLE_PROJECT_ID` is optional when using this method
 
 ## Local Development Setup
 
@@ -356,7 +383,9 @@ npm run typecheck
 **"Authentication failed"**
 - If using file-based auth: Verify JSON key path is absolute and correct
 - If using JSON string auth: Ensure JSON is properly escaped and valid
-- Check GOOGLE_PROJECT_ID matches your project (or is included in JSON)
+- If using private key auth: Check that the private key includes BEGIN/END markers and newlines are escaped as `\\n`
+- Verify GOOGLE_CLIENT_EMAIL is a valid service account email
+- Check GOOGLE_PROJECT_ID matches your project (or is included in JSON for full JSON auth)
 - Ensure Sheets API is enabled
 
 **"Permission denied"**
