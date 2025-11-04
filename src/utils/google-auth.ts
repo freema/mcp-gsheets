@@ -69,8 +69,7 @@ export function validateAuth(): void {
   // Check if at least one authentication method is provided
   const hasFileAuth = !!process.env.GOOGLE_APPLICATION_CREDENTIALS;
   const hasJsonAuth = !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  const hasPrivateKeyAuth =
-    !!process.env.GOOGLE_PRIVATE_KEY && !!process.env.GOOGLE_CLIENT_EMAIL;
+  const hasPrivateKeyAuth = !!process.env.GOOGLE_PRIVATE_KEY && !!process.env.GOOGLE_CLIENT_EMAIL;
 
   if (!hasFileAuth && !hasJsonAuth && !hasPrivateKeyAuth) {
     throw new Error(
