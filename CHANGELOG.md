@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2025-01-04
+
+### Added
+- **Simplified Private Key Authentication**: Support for direct private key + email authentication
+  - New `GOOGLE_PRIVATE_KEY` and `GOOGLE_CLIENT_EMAIL` environment variables for simplified authentication
+  - Most user-friendly authentication method requiring only two fields from service account JSON
+  - Automatic handling of escaped newlines in private key (`\\n` → `\n`)
+  - Comprehensive validation for private key format (BEGIN/END markers) and email format
+  - `GOOGLE_PROJECT_ID` is now optional when using this authentication method
+
+### Changed
+- Enhanced authentication validation to support three authentication methods (file path, full JSON string, or private key + email)
+- Updated error messages to include the new authentication option
+- Improved documentation with detailed examples for all three authentication approaches
+- Updated `.env.example` to show all three authentication options
+
 ## [1.5.0] - 2025-09-22
 
 ### Added
