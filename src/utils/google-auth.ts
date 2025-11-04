@@ -36,6 +36,15 @@ export async function getAuthClient(): Promise<GoogleAuth> {
         );
       }
     }
+    // Priority 3: Use private key + email authentication
+    else if (process.env.GOOGLE_PRIVATE_KEY && process.env.GOOGLE_CLIENT_EMAIL) {
+      const credentials = {
+        type: 'service_account',
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+      };
+      options.credentials = credentials;
+    }
 
     authClient = new GoogleAuth(options);
   }
@@ -58,18 +67,52 @@ export async function getAuthenticatedClient() {
 
 export function validateAuth(): void {
   // Check if at least one authentication method is provided
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+  const hasFileAuth = !!process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const hasJsonAuth = !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  const hasPrivateKeyAuth =
+    !!process.env.GOOGLE_PRIVATE_KEY && !!process.env.GOOGLE_CLIENT_EMAIL;
+
+  if (!hasFileAuth && !hasJsonAuth && !hasPrivateKeyAuth) {
     throw new Error(
-      'No authentication method provided. Please set either:\n' +
-        '- GOOGLE_APPLICATION_CREDENTIALS to the path of your service account key file, or\n' +
-        '- GOOGLE_SERVICE_ACCOUNT_KEY to the JSON string of your service account credentials.'
+      'No authentication method provided. Please set one of:\n' +
+        '- GOOGLE_APPLICATION_CREDENTIALS to the path of your service account key file\n' +
+        '- GOOGLE_SERVICE_ACCOUNT_KEY to the JSON string of your service account credentials\n' +
+        '- GOOGLE_PRIVATE_KEY and GOOGLE_CLIENT_EMAIL for direct private key authentication'
     );
   }
 
+  // If using private key authentication, validate both fields are present
+  if (!hasFileAuth && !hasJsonAuth && hasPrivateKeyAuth) {
+    if (!process.env.GOOGLE_PRIVATE_KEY) {
+      throw new Error('GOOGLE_PRIVATE_KEY is required when using private key authentication');
+    }
+    if (!process.env.GOOGLE_CLIENT_EMAIL) {
+      throw new Error('GOOGLE_CLIENT_EMAIL is required when using private key authentication');
+    }
+
+    // Validate private key format
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+    if (!privateKey.includes('BEGIN PRIVATE KEY') || !privateKey.includes('END PRIVATE KEY')) {
+      throw new Error(
+        'GOOGLE_PRIVATE_KEY appears to be invalid. ' +
+          'It should start with -----BEGIN PRIVATE KEY----- and end with -----END PRIVATE KEY-----'
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(process.env.GOOGLE_CLIENT_EMAIL)) {
+      throw new Error(
+        'GOOGLE_CLIENT_EMAIL appears to be invalid. ' +
+          'It should be a valid email address (e.g., your-service-account@your-project.iam.gserviceaccount.com)'
+      );
+    }
+  }
+
   // If using JSON authentication, validate it can be parsed
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+  if (!hasFileAuth && hasJsonAuth) {
     try {
-      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY!);
 
       // Validate required fields in the service account JSON
       if (!credentials.type || credentials.type !== 'service_account') {
@@ -97,8 +140,8 @@ export function validateAuth(): void {
     }
   }
 
-  // Validate project ID is available
-  if (!process.env.GOOGLE_PROJECT_ID) {
+  // Validate project ID is available (optional for private key auth as it's not always needed)
+  if (!process.env.GOOGLE_PROJECT_ID && !hasPrivateKeyAuth) {
     throw new Error(
       'GOOGLE_PROJECT_ID environment variable is not set. ' +
         'Please set it to your Google Cloud project ID, or ensure it is included in your service account credentials.'
