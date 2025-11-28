@@ -137,6 +137,7 @@ For other MCP clients, use the standard configuration format shown above. Ensure
 4. Create Service Account:
    - Go to "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "Service Account"
+   - In the service accounts list, click the three dots in the `Actions` column → `Manage keys` → `Add key` → `Create new key` → select JSON format
    - Download the JSON key file
 5. Share your spreadsheets:
    - Open your Google Sheet
