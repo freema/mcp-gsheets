@@ -474,6 +474,10 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of changes in each version.
 5. Push to the branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
 
+## 👤 Author
+
+**Tomáš Grásl** - [tomasgrasl.cz](https://www.tomasgrasl.cz/)
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
