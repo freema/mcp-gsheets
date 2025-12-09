@@ -20,13 +20,24 @@ import {
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
+  ListResourceTemplatesRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
   CallToolRequest,
+  ReadResourceRequest,
+  GetPromptRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { validateAuth } from './utils/google-auth.js';
 
 // Import all tools
 import * as tools from './tools/index.js';
+
+// Import resources
+import { resourceTemplates, handleResourceRead } from './resources/index.js';
+
+// Import prompts
+import { allPrompts, handleGetPrompt } from './prompts/index.js';
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
@@ -110,12 +121,13 @@ async function main() {
   const server = new Server(
     {
       name: 'spreadsheet',
-      version: '1.0.0',
+      version: '1.6.0',
     },
     {
       capabilities: {
-        resources: {},
-        tools: {},
+        resources: { listChanged: false },
+        tools: { listChanged: false },
+        prompts: { listChanged: false },
       },
     }
   );
@@ -144,14 +156,31 @@ async function main() {
     }
   });
 
-  // List resources (not implemented for this server)
+  // List resource templates
+  server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
+    return { resourceTemplates };
+  });
+
+  // List resources (empty - we use templates)
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
     return { resources: [] };
   });
 
-  // Read resource (not implemented for this server)
-  server.setRequestHandler(ReadResourceRequestSchema, async () => {
-    throw new Error('Resource reading not implemented');
+  // Read resource
+  server.setRequestHandler(ReadResourceRequestSchema, async (request: ReadResourceRequest) => {
+    const uri = request.params.uri;
+    return handleResourceRead(uri);
+  });
+
+  // List prompts
+  server.setRequestHandler(ListPromptsRequestSchema, async () => {
+    return { prompts: allPrompts };
+  });
+
+  // Get prompt
+  server.setRequestHandler(GetPromptRequestSchema, async (request: GetPromptRequest) => {
+    const { name, arguments: args } = request.params;
+    return handleGetPrompt(name, args);
   });
 
   const transport = new StdioServerTransport();
