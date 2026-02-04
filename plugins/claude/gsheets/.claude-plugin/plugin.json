@@ -1,0 +1,11 @@
+{
+  "name": "gsheets",
+  "description": "Google Sheets integration for reading, writing, and managing spreadsheets. Create charts, format cells, and automate data operations.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Tomáš Grasl",
+    "url": "https://www.tomasgrasl.cz/"
+  },
+  "repository": "https://github.com/freema/mcp-gsheets",
+  "license": "MIT"
+}
