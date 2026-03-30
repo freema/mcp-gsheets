@@ -28,6 +28,10 @@ A Model Context Protocol (MCP) server for Google Sheets API integration. Enables
 - Service Account with JSON key file
 - [npm](https://www.npmjs.com/)
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/freema-mcp-gsheets).
+
 ## Getting Started
 
 ### Quick Install (Recommended)
