@@ -25,6 +25,7 @@ export const appendValuesTool: Tool = {
         type: 'array',
         items: {
           type: 'array',
+          items: {},
         },
         description: 'A 2D array of values to append, where each inner array represents a row',
       },

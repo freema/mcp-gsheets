@@ -31,6 +31,7 @@ export const updateValuesTool: Tool = {
         type: 'array',
         items: {
           type: 'array',
+          items: {},
         },
         description: 'A 2D array of values to update, where each inner array represents a row',
       },

@@ -36,6 +36,7 @@ export const insertRowsTool: Tool = {
         type: 'array',
         items: {
           type: 'array',
+          items: {},
         },
         description: 'Optional 2D array of values to fill the newly inserted rows',
       },
