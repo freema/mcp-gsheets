@@ -29,7 +29,7 @@ export async function getAuthClient(): Promise<GoogleAuth> {
         if (!options.projectId && credentials.project_id) {
           options.projectId = credentials.project_id;
         }
-      } catch (error) {
+      } catch {
         throw new Error(
           'Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY: Invalid JSON format. ' +
             'Please ensure the environment variable contains valid JSON.'

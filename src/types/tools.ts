@@ -21,9 +21,7 @@ export interface ToolResponse {
 }
 
 export interface GetValuesInput
-  extends RangeRequestFields,
-    DimensionRequestFields,
-    ValueRenderRequestFields {}
+  extends RangeRequestFields, DimensionRequestFields, ValueRenderRequestFields {}
 
 export interface UpdateValuesInput extends RangeRequestFields, ValueInputRequestFields {
   values: any[][];
