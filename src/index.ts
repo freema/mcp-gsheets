@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// Load .env file in development mode
-if (process.env.NODE_ENV !== 'production') {
+// Load .env file only in explicit development mode
+if (process.env.NODE_ENV === 'development') {
   try {
     const { config } = await import('dotenv');
     const result = config();
