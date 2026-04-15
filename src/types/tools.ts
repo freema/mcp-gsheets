@@ -310,3 +310,31 @@ export interface DeleteChartInput {
   spreadsheetId: string;
   chartId: number;
 }
+
+// ── READ / Snapshot types ────────────────────────────────────────────
+
+export interface GetMergedCellsInput {
+  spreadsheetId: string;
+  sheetName: string;
+}
+
+export interface GetSheetDimensionsInput {
+  spreadsheetId: string;
+  sheetName: string;
+}
+
+export interface GetSheetFormattingInput {
+  spreadsheetId: string;
+  range: string; // np. "Dyspozycje!A1:Z85"
+}
+
+export interface GetConditionalFormattingInput {
+  spreadsheetId: string;
+  sheetName: string;
+}
+
+export interface GetFullSheetSnapshotInput {
+  spreadsheetId: string;
+  sheetName: string;
+  includeFormattingRange?: string; // optional, e.g. "A1:Z100" — if provided, cell formatting is included
+}

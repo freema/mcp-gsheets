@@ -72,6 +72,12 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_insert_date', tools.handleInsertDate],
   // Row operations
   ['sheets_insert_rows', tools.handleInsertRows],
+  // READ / Snapshot tools
+  ['sheets_get_merged_cells', tools.handleGetMergedCells],
+  ['sheets_get_sheet_dimensions', tools.handleGetSheetDimensions],
+  ['sheets_get_sheet_formatting', tools.handleGetSheetFormatting],
+  ['sheets_get_conditional_formatting', tools.handleGetConditionalFormattingData],
+  ['sheets_get_full_sheet_snapshot', tools.handleGetFullSheetSnapshot],
 ]);
 
 // All tools
@@ -107,6 +113,12 @@ const allTools = [
   tools.insertDateTool,
   // Row operations
   tools.insertRowsTool,
+  // READ / Snapshot tools
+  tools.getMergedCellsTool,
+  tools.getSheetDimensionsTool,
+  tools.getSheetFormattingTool,
+  tools.getConditionalFormattingDataTool,
+  tools.getFullSheetSnapshotTool,
 ];
 
 async function main() {
