@@ -27,6 +27,7 @@ export const batchUpdateValuesTool: Tool = {
               type: 'array',
               items: {
                 type: 'array',
+                items: {},
               },
               description: 'A 2D array of values for this range',
             },
