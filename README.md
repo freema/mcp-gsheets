@@ -372,7 +372,9 @@ npm run dev  # Watch mode with auto-reload
 | `sheets_get_sheet_dimensions` | Return column widths, row heights, frozen column/row counts, and hidden flags for every column and row | `spreadsheetId`, `sheetName` |
 | `sheets_get_sheet_formatting` | Read raw cell formatting (background colour, font, borders, alignment, number format) for a range without returning cell values | `spreadsheetId`, `range` |
 | `sheets_get_conditional_formatting` | Read all conditional formatting rules and banded (alternating-colour) ranges defined on a sheet | `spreadsheetId`, `sheetName` |
-| `sheets_get_full_sheet_snapshot` | Master one-shot tool — returns all structural and formatting metadata (merges, dimensions, conditional formatting, and optionally cell formatting) in a single API call | `spreadsheetId`, `sheetName`, `includeFormattingRange` (optional) |
+| `sheets_get_sheet_structure` | Lightweight structural metadata only — no per-cell data. Returns dimensions, frozen rows/cols, tab colour, column widths, row heights, hidden columns/rows, and all merges in A1 notation. Single fast API call | `spreadsheetId`, `sheetName` |
+| `sheets_get_formatting_compact` | Read cell formatting for a range and return it as compact A1Range→format pairs (run-length encoded). Identical adjacent cells are collapsed into rectangular ranges — reduces output by 90 %+ compared to per-cell data | `spreadsheetId`, `sheetName`, `range`, `useEffectiveFormat`, `fields` |
+| `sheets_get_full_sheet_snapshot` | Master one-shot tool — returns all structural and formatting metadata (merges, dimensions, conditional formatting, and optionally cell formatting) in a single API call. Supports `fields` filter and `compactMode` to limit response size | `spreadsheetId`, `sheetName`, `includeFormattingRange`, `fields`, `compactMode` |
 
 ## 🔧 Code Quality
 
@@ -451,6 +453,51 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 5. Use `sheets_check_access` to verify permissions before operations
 
 ## 📘 Tool Details
+
+### sheets_get_sheet_structure
+
+Returns lightweight structural/dimensional metadata for a sheet without any per-cell data. Much faster and cheaper than `sheets_get_full_sheet_snapshot` when you only need layout information.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+
+**Returns:** `sheetName`, `sheetId`, `sheetIndex`, `tabColor`, `tabColorStyle`, `dimensions` (`rowCount`, `columnCount`), `frozen` (`rowCount`, `columnCount`), `columnWidths` (array of pixel sizes), `rowHeights` (array of pixel sizes), `hiddenColumns` (0-based indices), `hiddenRows` (0-based indices), `mergeCount`, `merges` (A1 notation array)
+
+---
+
+### sheets_get_formatting_compact
+
+Read cell formatting for a range and return it as compact A1Range → format pairs. Adjacent cells with identical formatting are collapsed into rectangular ranges (run-length encoded), reducing output by 90 %+ compared to per-cell data.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+- `range` (required): Range without sheet prefix, e.g. `"A1:Z85"`
+- `useEffectiveFormat` (optional): `false` (default) = userEnteredFormat (only explicit overrides, smaller output); `true` = effectiveFormat (all inherited defaults)
+- `fields` (optional): Array of format field names to include, e.g. `["backgroundColor", "textFormat", "borders"]`
+
+**Returns:** `{ range, formatType, rangeCount, data: { "A1:C3": { backgroundColor: {...} }, ... } }`
+
+**Supported fields:** `backgroundColor`, `backgroundColorStyle`, `textFormat`, `horizontalAlignment`, `verticalAlignment`, `wrapStrategy`, `textRotation`, `numberFormat`, `padding`, `borders`
+
+---
+
+### sheets_get_full_sheet_snapshot
+
+Master one-shot tool that returns all structural and formatting metadata in a single API call.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+- `includeFormattingRange` (optional): If provided (e.g. `"A1:Z100"`), per-cell formatting is included in the response
+- `useEffectiveFormat` (optional): Use effectiveFormat instead of userEnteredFormat when including cell formatting (default: `false`)
+- `fields` (optional): Array of format field names to return, e.g. `["backgroundColor", "textFormat"]` — reduces API transfer size and response size
+- `compactMode` (optional): When `true`, identical adjacent cells are collapsed into rectangular ranges (RLE). Reduces a typical 85×28 sheet from ~60 000 lines to ~500 lines (default: `false`)
+
+---
+
+
 
 ### sheets_insert_rows
 

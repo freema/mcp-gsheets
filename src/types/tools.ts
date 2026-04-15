@@ -337,4 +337,20 @@ export interface GetFullSheetSnapshotInput {
   spreadsheetId: string;
   sheetName: string;
   includeFormattingRange?: string; // optional, e.g. "A1:Z100" — if provided, cell formatting is included
+  useEffectiveFormat?: boolean;
+  fields?: string[];   // optional format field filter, e.g. ["backgroundColor", "textFormat"]
+  compactMode?: boolean; // when true, adjacent cells with identical formatting are collapsed into ranges
+}
+
+export interface GetSheetStructureInput {
+  spreadsheetId: string;
+  sheetName: string;
+}
+
+export interface GetFormattingCompactInput {
+  spreadsheetId: string;
+  sheetName: string;
+  range: string;
+  useEffectiveFormat?: boolean;
+  fields?: string[];
 }

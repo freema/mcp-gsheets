@@ -5,12 +5,16 @@ import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
+import { colIndexToLetter } from '../utils/range-helpers.js';
+import { extractFormatFields, compactifyCellFormatting } from '../utils/compact-format.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
   sheetName: z.string(),
   includeFormattingRange: z.string().optional(),
   useEffectiveFormat: z.boolean().optional().default(false),
+  fields: z.array(z.string()).optional(),
+  compactMode: z.boolean().optional().default(false),
 });
 
 export const getFullSheetSnapshotTool: Tool = {
@@ -20,6 +24,8 @@ export const getFullSheetSnapshotTool: Tool = {
     'Returns: sheet properties (frozen rows/cols, dimensions, tab color), ' +
     'merged cells, column widths, row heights, conditional formatting, banded ranges, ' +
     'and optionally cell-level formatting for a specified range (includeFormattingRange). ' +
+    'Use compactMode:true to collapse identical adjacent cells into range descriptors (90%+ smaller output). ' +
+    'Use fields to limit which format properties are returned. ' +
     'Use this before programmatically recreating a sheet.',
   inputSchema: {
     type: 'object',
@@ -43,22 +49,24 @@ export const getFullSheetSnapshotTool: Tool = {
         description:
           'If includeFormattingRange is set: use effectiveFormat (true) or userEnteredFormat (false, default).',
       },
+      fields: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          'Optional list of format field names to include, e.g. ["backgroundColor", "textFormat", "borders"]. ' +
+          'Reduces response size by excluding unused format properties. All fields returned if omitted.',
+      },
+      compactMode: {
+        type: 'boolean',
+        description:
+          'When true, adjacent cells with identical formatting are collapsed into range descriptors ' +
+          '(run-length encoded). Reduces cell formatting output by 90%+ for typical formatted sheets. ' +
+          'Only applies when includeFormattingRange is set.',
+      },
     },
     required: ['spreadsheetId', 'sheetName'],
   },
 };
-
-/** Convert 0-based column index to letter(s) */
-function colIndexToLetter(index: number): string {
-  let result = '';
-  let n = index + 1;
-  while (n > 0) {
-    const rem = (n - 1) % 26;
-    result = String.fromCharCode(65 + rem) + result;
-    n = Math.floor((n - 1) / 26);
-  }
-  return result;
-}
 
 function gridRangeToA1(
   startRowIndex: number,
@@ -76,6 +84,8 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       sheetName,
       includeFormattingRange,
       useEffectiveFormat,
+      fields: formatFields,
+      compactMode,
     } = inputSchema.parse(input);
 
     const sheets = await getAuthenticatedClient();
@@ -89,8 +99,18 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       'sheets.bandedRanges';
 
     const formatField = useEffectiveFormat ? 'effectiveFormat' : 'userEnteredFormat';
+
+    // Build cell-level fields mask — use per-field paths when caller specifies a filter
+    let cellDataFields: string;
+    if (formatFields && formatFields.length > 0) {
+      cellDataFields = formatFields
+        .map((f) => `sheets.data.rowData.values.${formatField}.${f}`)
+        .join(',');
+    } else {
+      cellDataFields = `sheets.data.rowData.values.${formatField}`;
+    }
     const cellFormattingFields = includeFormattingRange
-      ? `,sheets.data.rowData.values.${formatField},sheets.data.startRow,sheets.data.startColumn`
+      ? `,${cellDataFields},sheets.data.startRow,sheets.data.startColumn`
       : '';
 
     const fullRangeParam = includeFormattingRange
@@ -153,25 +173,27 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
     if (includeFormattingRange && gridData.rowData) {
       const startRow = gridData.startRow ?? 0;
       const startColumn = gridData.startColumn ?? 0;
-      cellFormatting = (gridData.rowData).map((rowData: sheets_v4.Schema$RowData, rowOffset: number) =>
-        (rowData.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
-          const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;
-          if (!fmt) return null;
-          return {
-            row: startRow + rowOffset,
-            col: startColumn + colOffset,
-            backgroundColor: fmt.backgroundColor ?? null,
-            textFormat: fmt.textFormat ?? null,
-            horizontalAlignment: fmt.horizontalAlignment ?? null,
-            verticalAlignment: fmt.verticalAlignment ?? null,
-            wrapStrategy: fmt.wrapStrategy ?? null,
-            textRotation: fmt.textRotation ?? null,
-            numberFormat: fmt.numberFormat ?? null,
-            padding: fmt.padding ?? null,
-            borders: fmt.borders ?? null,
-          };
-        })
-      );
+
+      if (compactMode) {
+        cellFormatting = compactifyCellFormatting(
+          gridData.rowData as sheets_v4.Schema$RowData[],
+          startRow,
+          startColumn,
+          useEffectiveFormat,
+          formatFields
+        );
+      } else {
+        cellFormatting = (gridData.rowData as sheets_v4.Schema$RowData[]).map(
+          (rowData: sheets_v4.Schema$RowData, rowOffset: number) =>
+            (rowData.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
+              const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;
+              if (!fmt) return null;
+              const extracted = extractFormatFields(fmt, formatFields);
+              if (Object.keys(extracted).length === 0) return null;
+              return { row: startRow + rowOffset, col: startColumn + colOffset, ...extracted };
+            })
+        );
+      }
     }
 
     const snapshot = {
@@ -194,6 +216,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
             cellFormatting: {
               range: `${sheetName}!${includeFormattingRange}`,
               formatType: formatField,
+              compact: compactMode,
               data: cellFormatting,
             },
           }

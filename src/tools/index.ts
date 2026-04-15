@@ -40,3 +40,5 @@ export * from './get-sheet-dimensions.js';
 export * from './get-sheet-formatting.js';
 export * from './get-conditional-formatting-data.js';
 export * from './get-full-sheet-snapshot.js';
+export * from './get-sheet-structure.js';
+export * from './get-formatting-compact.js';

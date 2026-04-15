@@ -78,6 +78,8 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_get_sheet_formatting', tools.handleGetSheetFormatting],
   ['sheets_get_conditional_formatting', tools.handleGetConditionalFormattingData],
   ['sheets_get_full_sheet_snapshot', tools.handleGetFullSheetSnapshot],
+  ['sheets_get_sheet_structure', tools.handleGetSheetStructure],
+  ['sheets_get_formatting_compact', tools.handleGetFormattingCompact],
 ]);
 
 // All tools
@@ -119,6 +121,8 @@ const allTools = [
   tools.getSheetFormattingTool,
   tools.getConditionalFormattingDataTool,
   tools.getFullSheetSnapshotTool,
+  tools.getSheetStructureTool,
+  tools.getFormattingCompactTool,
 ];
 
 async function main() {

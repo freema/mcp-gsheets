@@ -111,3 +111,18 @@ export function extractSheetName(range: string): { sheetName?: string; range: st
   }
   return { range };
 }
+
+/**
+ * Convert zero-based column index to letter(s).
+ * 0 = A, 1 = B, 25 = Z, 26 = AA, etc.
+ */
+export function colIndexToLetter(index: number): string {
+  let result = '';
+  let n = index + 1;
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    result = String.fromCharCode(65 + rem) + result;
+    n = Math.floor((n - 1) / 26);
+  }
+  return result;
+}
