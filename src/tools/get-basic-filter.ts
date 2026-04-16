@@ -112,13 +112,14 @@ export async function handleGetBasicFilter(input: any): Promise<ToolResponse> {
     } else if (bf.criteria) {
       for (const [colIdx, fc] of Object.entries(bf.criteria)) {
         const idx = Number(colIdx);
+        const criteria = fc as sheets_v4.Schema$FilterCriteria;
         filterCriteria.push({
           columnIndex: idx,
           columnLetter: colToLetter(idx),
-          hiddenValues: fc.hiddenValues ?? [],
-          condition: fc.condition ?? null,
-          visibleBackgroundColor: fc.visibleBackgroundColor ?? null,
-          visibleForegroundColor: fc.visibleForegroundColor ?? null,
+          hiddenValues: criteria.hiddenValues ?? [],
+          condition: criteria.condition ?? null,
+          visibleBackgroundColor: criteria.visibleBackgroundColor ?? null,
+          visibleForegroundColor: criteria.visibleForegroundColor ?? null,
         });
       }
     }
@@ -131,7 +132,7 @@ export async function handleGetBasicFilter(input: any): Promise<ToolResponse> {
         hasBasicFilter: true,
         basicFilter: {
           range: rangeA1,
-          sortSpecs: (bf.sortSpecs ?? []).map((s) => ({
+          sortSpecs: (bf.sortSpecs ?? []).map((s: sheets_v4.Schema$SortSpec) => ({
             columnIndex: s.dimensionIndex,
             columnLetter: s.dimensionIndex != null ? colToLetter(s.dimensionIndex) : null,
             sortOrder: s.sortOrder ?? null,
