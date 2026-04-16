@@ -44,3 +44,7 @@ export * from './get-sheet-structure.js';
 export * from './get-formatting-compact.js';
 export * from './get-data-validation.js';
 export * from './get-basic-filter.js';
+
+// Border and comparison tools
+export * from './get-border-map.js';
+export * from './compare-ranges.js';
