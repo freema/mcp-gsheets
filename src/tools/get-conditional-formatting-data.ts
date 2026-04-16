@@ -1,11 +1,11 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { sheets_v4 } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
 import { normalizeConditionalFormatFormulas } from '../utils/formula-locale.js';
+import { findSheetOrThrow } from '../utils/range-helpers.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
@@ -56,17 +56,7 @@ export async function handleGetConditionalFormattingData(input: any): Promise<To
         'sheets.bandedRanges',
     });
 
-    const sheetData = (response.data.sheets ?? []).find(
-      (s: sheets_v4.Schema$Sheet) => s.properties?.title === sheetName
-    );
-
-    if (!sheetData) {
-      const available = (response.data.sheets ?? [])
-        .map((s: sheets_v4.Schema$Sheet) => s.properties?.title)
-        .filter(Boolean)
-        .join(', ');
-      throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
-    }
+    const sheetData = findSheetOrThrow(response.data.sheets ?? [], sheetName);
 
     const rawFormats: any[] = sheetData.conditionalFormats ?? [];
     const conditionalFormats = normalizeFormulas

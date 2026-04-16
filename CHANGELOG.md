@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2026-04-16
+
+### Fixed
+- Resolve strict TypeScript errors (`noUncheckedIndexedAccess`) and ESLint violations in new tools
+- Fix publish workflow: upgrade Node.js 18 to 22 (vitest 4.x requirement)
+- Fix CI workflow: drop Node 18 from test matrix, minimum now Node 20
+- Fix server version string (was stuck at 1.6.0)
+
+### Changed
+- Extract duplicated `colToLetter`, `gridRangeToA1`, and sheet-not-found logic into shared `range-helpers.ts`
+- Reduce bundle size by removing code duplication across tool files
+- Add unit tests for all new read/snapshot tools and shared utilities
+- Document `sheets_get_basic_filter` and `sheets_get_data_validation` in README
+- Update minimum Node.js requirement to 20.0.0
+
+## [1.7.0] - 2026-04-16
+
+### Added
+- **9 new read/snapshot tools** (contributed by @marcin-uliasz in #124):
+  - `sheets_get_merged_cells` — list all merged cell ranges
+  - `sheets_get_sheet_dimensions` — column widths, row heights, frozen rows/cols
+  - `sheets_get_sheet_formatting` — raw cell formatting for a range
+  - `sheets_get_conditional_formatting` — conditional formatting rules and banded ranges
+  - `sheets_get_full_sheet_snapshot` — comprehensive one-shot sheet metadata
+  - `sheets_get_sheet_structure` — lightweight structural metadata
+  - `sheets_get_formatting_compact` — run-length encoded formatting (90%+ smaller)
+  - `sheets_get_basic_filter` — AutoFilter configuration
+  - `sheets_get_data_validation` — data validation rules (checkboxes, dropdowns)
+- MCP prompts and resources support
+- Claude Code plugin configuration
+- Input schema validation tests for nested array items
+
+### Fixed
+- Nested array `items` missing in tool schemas for `sheets_append_values`, `sheets_update_values`, `sheets_insert_rows`, `sheets_batch_update_values` (#122)
+
+### Changed
+- Migrate ESLint to flat config API
+- Externalize `dotenv` in build to prevent double-loading
+- Bump version to 1.7.0
+
 ## [1.5.3] - 2025-01-04
 
 ### Added

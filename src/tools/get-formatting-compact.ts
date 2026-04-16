@@ -1,10 +1,10 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { sheets_v4 } from 'googleapis';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
+import { findSheetOrThrow } from '../utils/range-helpers.js';
 import { compactifyCellFormatting } from '../utils/compact-format.js';
 
 const inputSchema = z.object({
@@ -84,17 +84,7 @@ export async function handleGetFormattingCompact(input: any): Promise<ToolRespon
     });
 
     const allSheets = response.data.sheets ?? [];
-    const sheetData = allSheets.find(
-      (s: sheets_v4.Schema$Sheet) => s.properties?.title === sheetName
-    );
-
-    if (!sheetData) {
-      const available = allSheets
-        .map((s: sheets_v4.Schema$Sheet) => s.properties?.title)
-        .filter(Boolean)
-        .join(', ');
-      throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
-    }
+    const sheetData = findSheetOrThrow(allSheets, sheetName);
 
     const gridData = sheetData.data?.[0];
     if (!gridData?.rowData) {
@@ -108,7 +98,7 @@ export async function handleGetFormattingCompact(input: any): Promise<ToolRespon
     const startColumn = gridData.startColumn ?? 0;
 
     const compactData = compactifyCellFormatting(
-      gridData.rowData as sheets_v4.Schema$RowData[],
+      gridData.rowData,
       startRow,
       startColumn,
       useEffectiveFormat,

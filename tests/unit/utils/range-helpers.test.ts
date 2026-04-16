@@ -5,6 +5,8 @@ import {
   getSheetId,
   extractSheetName,
   colIndexToLetter,
+  findSheetOrThrow,
+  gridRangeToA1,
 } from '../../../src/utils/range-helpers';
 import { sheets_v4 } from 'googleapis';
 
@@ -400,5 +402,89 @@ describe('colIndexToLetter', () => {
 
   it('should convert 701 to ZZ', () => {
     expect(colIndexToLetter(701)).toBe('ZZ');
+  });
+});
+
+describe('findSheetOrThrow', () => {
+  it('should return the matching sheet by title', () => {
+    const sheets = [
+      { properties: { title: 'Sheet1', sheetId: 0 } },
+      { properties: { title: 'Data', sheetId: 1 } },
+    ] as sheets_v4.Schema$Sheet[];
+
+    const result = findSheetOrThrow(sheets, 'Data');
+    expect(result.properties?.sheetId).toBe(1);
+    expect(result.properties?.title).toBe('Data');
+  });
+
+  it('should throw when sheet name is not found', () => {
+    const sheets = [
+      { properties: { title: 'Sheet1', sheetId: 0 } },
+      { properties: { title: 'Sheet2', sheetId: 1 } },
+    ] as sheets_v4.Schema$Sheet[];
+
+    expect(() => findSheetOrThrow(sheets, 'Missing')).toThrow(
+      'Sheet "Missing" not found. Available: Sheet1, Sheet2'
+    );
+  });
+
+  it('should throw when sheets array is empty', () => {
+    expect(() => findSheetOrThrow([], 'Sheet1')).toThrow(
+      'Sheet "Sheet1" not found. Available: '
+    );
+  });
+
+  it('should be case-sensitive', () => {
+    const sheets = [{ properties: { title: 'sheet1', sheetId: 0 } }] as sheets_v4.Schema$Sheet[];
+
+    expect(() => findSheetOrThrow(sheets, 'Sheet1')).toThrow('Sheet "Sheet1" not found');
+  });
+});
+
+describe('gridRangeToA1', () => {
+  it('should convert a simple grid range to A1 notation', () => {
+    const result = gridRangeToA1({
+      startRowIndex: 0,
+      endRowIndex: 2,
+      startColumnIndex: 0,
+      endColumnIndex: 3,
+    });
+    expect(result).toBe('A1:C2');
+  });
+
+  it('should convert a single-cell grid range', () => {
+    const result = gridRangeToA1({
+      startRowIndex: 4,
+      endRowIndex: 5,
+      startColumnIndex: 1,
+      endColumnIndex: 2,
+    });
+    expect(result).toBe('B5:B5');
+  });
+
+  it('should handle ranges starting from non-zero offsets', () => {
+    const result = gridRangeToA1({
+      startRowIndex: 5,
+      endRowIndex: 8,
+      startColumnIndex: 1,
+      endColumnIndex: 4,
+    });
+    expect(result).toBe('B6:D8');
+  });
+
+  it('should handle ranges with double-letter columns', () => {
+    const result = gridRangeToA1({
+      startRowIndex: 0,
+      endRowIndex: 1,
+      startColumnIndex: 25,
+      endColumnIndex: 28,
+    });
+    expect(result).toBe('Z1:AB1');
+  });
+
+  it('should use defaults when indices are missing', () => {
+    const result = gridRangeToA1({});
+    // startCol=0, startRow=1, endCol defaults to startCol+1-1=0, endRow defaults to startRow=1
+    expect(result).toBe('A1:A1');
   });
 });

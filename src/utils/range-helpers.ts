@@ -1,6 +1,36 @@
 import { sheets_v4 } from 'googleapis';
 
 /**
+ * Find a sheet by name or throw with a helpful error listing available sheets.
+ */
+export function findSheetOrThrow(
+  sheets: sheets_v4.Schema$Sheet[],
+  sheetName: string
+): sheets_v4.Schema$Sheet {
+  const sheet = sheets.find((s) => s.properties?.title === sheetName);
+  if (!sheet) {
+    const available = sheets
+      .map((s) => s.properties?.title)
+      .filter(Boolean)
+      .join(', ');
+    throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
+  }
+  return sheet;
+}
+
+/**
+ * Convert a GridRange to A1 notation string, e.g. "A1:C3".
+ * endRowIndex and endColumnIndex are exclusive (as in the Sheets API).
+ */
+export function gridRangeToA1(range: sheets_v4.Schema$GridRange): string {
+  const startCol = range.startColumnIndex ?? 0;
+  const startRow = (range.startRowIndex ?? 0) + 1;
+  const endCol = (range.endColumnIndex ?? startCol + 1) - 1;
+  const endRow = range.endRowIndex ?? startRow;
+  return `${colIndexToLetter(startCol)}${startRow}:${colIndexToLetter(endCol)}${endRow}`;
+}
+
+/**
  * Convert column letter(s) to zero-based index
  * A = 0, B = 1, Z = 25, AA = 26, etc.
  */

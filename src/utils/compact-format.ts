@@ -10,17 +10,39 @@ export function extractFormatFields(
   fields?: string[]
 ): Record<string, unknown> {
   const all: Record<string, unknown> = {};
-  if (fmt.backgroundColor != null) all.backgroundColor = fmt.backgroundColor;
-  if (fmt.backgroundColorStyle != null) all.backgroundColorStyle = fmt.backgroundColorStyle;
-  if (fmt.textFormat != null) all.textFormat = fmt.textFormat;
-  if (fmt.horizontalAlignment != null) all.horizontalAlignment = fmt.horizontalAlignment;
-  if (fmt.verticalAlignment != null) all.verticalAlignment = fmt.verticalAlignment;
-  if (fmt.wrapStrategy != null) all.wrapStrategy = fmt.wrapStrategy;
-  if (fmt.textRotation != null) all.textRotation = fmt.textRotation;
-  if (fmt.numberFormat != null) all.numberFormat = fmt.numberFormat;
-  if (fmt.padding != null) all.padding = fmt.padding;
-  if (fmt.borders != null) all.borders = fmt.borders;
-  if (!fields || fields.length === 0) return all;
+  if (fmt.backgroundColor !== null && fmt.backgroundColor !== undefined) {
+    all.backgroundColor = fmt.backgroundColor;
+  }
+  if (fmt.backgroundColorStyle !== null && fmt.backgroundColorStyle !== undefined) {
+    all.backgroundColorStyle = fmt.backgroundColorStyle;
+  }
+  if (fmt.textFormat !== null && fmt.textFormat !== undefined) {
+    all.textFormat = fmt.textFormat;
+  }
+  if (fmt.horizontalAlignment !== null && fmt.horizontalAlignment !== undefined) {
+    all.horizontalAlignment = fmt.horizontalAlignment;
+  }
+  if (fmt.verticalAlignment !== null && fmt.verticalAlignment !== undefined) {
+    all.verticalAlignment = fmt.verticalAlignment;
+  }
+  if (fmt.wrapStrategy !== null && fmt.wrapStrategy !== undefined) {
+    all.wrapStrategy = fmt.wrapStrategy;
+  }
+  if (fmt.textRotation !== null && fmt.textRotation !== undefined) {
+    all.textRotation = fmt.textRotation;
+  }
+  if (fmt.numberFormat !== null && fmt.numberFormat !== undefined) {
+    all.numberFormat = fmt.numberFormat;
+  }
+  if (fmt.padding !== null && fmt.padding !== undefined) {
+    all.padding = fmt.padding;
+  }
+  if (fmt.borders !== null && fmt.borders !== undefined) {
+    all.borders = fmt.borders;
+  }
+  if (!fields || fields.length === 0) {
+    return all;
+  }
   return Object.fromEntries(Object.entries(all).filter(([k]) => fields.includes(k)));
 }
 
@@ -55,7 +77,9 @@ export function compactifyCellFormatting(
   let maxCols = 0;
   for (const row of rowData) {
     const len = row.values?.length ?? 0;
-    if (len > maxCols) maxCols = len;
+    if (len > maxCols) {
+      maxCols = len;
+    }
   }
 
   // Build 2D grid of { key, fmt } — key is JSON of the filtered format (or '' for empty)
@@ -91,7 +115,6 @@ export function compactifyCellFormatting(
   const closedRanges: RangeEntry[] = [];
 
   for (const [r, row] of grid.entries()) {
-
     // Identify horizontal runs within this row
     const runs: Array<{
       startCol: number;
@@ -118,7 +141,9 @@ export function compactifyCellFormatting(
     // Try to extend open ranges or start new ones
     const newOpen = new Map<string, RangeEntry>();
     for (const run of runs) {
-      if (!run.key || !run.fmt) continue; // skip empty/null cells
+      if (!run.key || !run.fmt) {
+        continue;
+      } // skip empty/null cells
       const mapKey = `${run.startCol}-${run.endCol}-${run.key}`;
       if (openRanges.has(mapKey)) {
         // Same run shape as previous row — extend downward
@@ -139,14 +164,20 @@ export function compactifyCellFormatting(
 
     // Close any open ranges that did not continue into this row
     for (const [key, entry] of openRanges) {
-      if (!newOpen.has(key)) closedRanges.push(entry);
+      if (!newOpen.has(key)) {
+        closedRanges.push(entry);
+      }
     }
     openRanges.clear();
-    for (const [k, v] of newOpen) openRanges.set(k, v);
+    for (const [k, v] of newOpen) {
+      openRanges.set(k, v);
+    }
   }
 
   // Close remaining open ranges at the end of the grid
-  for (const [, entry] of openRanges) closedRanges.push(entry);
+  for (const [, entry] of openRanges) {
+    closedRanges.push(entry);
+  }
 
   // Convert internal coordinates to A1 notation
   const result: Record<string, unknown> = {};
