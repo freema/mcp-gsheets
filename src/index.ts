@@ -141,7 +141,7 @@ async function main() {
   const server = new Server(
     {
       name: 'spreadsheet',
-      version: '1.6.0',
+      version: '1.7.1',
     },
     {
       capabilities: {

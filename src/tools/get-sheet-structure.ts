@@ -5,7 +5,7 @@ import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
-import { colIndexToLetter } from '../utils/range-helpers.js';
+import { gridRangeToA1, findSheetOrThrow } from '../utils/range-helpers.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
@@ -51,17 +51,7 @@ export async function handleGetSheetStructure(input: any): Promise<ToolResponse>
     });
 
     const allSheets = response.data.sheets ?? [];
-    const sheetData = allSheets.find(
-      (s: sheets_v4.Schema$Sheet) => s.properties?.title === sheetName
-    );
-
-    if (!sheetData) {
-      const available = allSheets
-        .map((s: sheets_v4.Schema$Sheet) => s.properties?.title)
-        .filter(Boolean)
-        .join(', ');
-      throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
-    }
+    const sheetData = findSheetOrThrow(allSheets, sheetName);
 
     const props = sheetData.properties!;
     const gridProps = props.gridProperties ?? {};
@@ -88,13 +78,9 @@ export async function handleGetSheetStructure(input: any): Promise<ToolResponse>
       .filter((i: number) => i >= 0);
 
     // Merges in A1 notation
-    const merges = (sheetData.merges ?? []).map((m: sheets_v4.Schema$GridRange) => {
-      const sc = m.startColumnIndex ?? 0;
-      const ec = (m.endColumnIndex ?? 1) - 1; // endColumnIndex is exclusive
-      const sr = (m.startRowIndex ?? 0) + 1; // convert to 1-based
-      const er = m.endRowIndex ?? 1; // endRowIndex is exclusive, which is 1-based end
-      return `${colIndexToLetter(sc)}${sr}:${colIndexToLetter(ec)}${er}`;
-    });
+    const merges = (sheetData.merges ?? []).map((m: sheets_v4.Schema$GridRange) =>
+      gridRangeToA1(m)
+    );
 
     return formatSuccessResponse(
       {

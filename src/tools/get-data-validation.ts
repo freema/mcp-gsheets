@@ -5,6 +5,7 @@ import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
+import { colIndexToLetter, findSheetOrThrow } from '../utils/range-helpers.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
@@ -39,17 +40,6 @@ export const getDataValidationTool: Tool = {
     required: ['spreadsheetId', 'sheetName'],
   },
 };
-
-/** Convert 0-based column index to A1 column letter(s). */
-function colToLetter(col: number): string {
-  let letter = '';
-  let c = col;
-  while (c >= 0) {
-    letter = String.fromCharCode((c % 26) + 65) + letter;
-    c = Math.floor(c / 26) - 1;
-  }
-  return letter;
-}
 
 /** Serialize a DataValidationRule to a stable JSON key for grouping. */
 function validationKey(dv: sheets_v4.Schema$DataValidationRule): string {
@@ -167,8 +157,8 @@ function compactifyValidation(
           }
         }
 
-        const topLeft = `${colToLetter(c + minCol)}${r + minRow + 1}`;
-        const bottomRight = `${colToLetter(endC + minCol)}${endR + minRow + 1}`;
+        const topLeft = `${colIndexToLetter(c + minCol)}${r + minRow + 1}`;
+        const bottomRight = `${colIndexToLetter(endC + minCol)}${endR + minRow + 1}`;
         ranges.push(topLeft === bottomRight ? topLeft : `${topLeft}:${bottomRight}`);
       }
     }
@@ -201,17 +191,7 @@ export async function handleGetDataValidation(input: any): Promise<ToolResponse>
         'sheets.properties.title,sheets.properties.sheetId',
     });
 
-    const sheetData = (response.data.sheets ?? []).find(
-      (s: sheets_v4.Schema$Sheet) => s.properties?.title === sheetName
-    );
-
-    if (!sheetData) {
-      const available = (response.data.sheets ?? [])
-        .map((s: sheets_v4.Schema$Sheet) => s.properties?.title)
-        .filter(Boolean)
-        .join(', ');
-      throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
-    }
+    const sheetData = findSheetOrThrow(response.data.sheets ?? [], sheetName);
 
     const gridData = sheetData.data?.[0];
     if (!gridData?.rowData) {
@@ -224,11 +204,7 @@ export async function handleGetDataValidation(input: any): Promise<ToolResponse>
     const startRow = gridData.startRow ?? 0;
     const startCol = gridData.startColumn ?? 0;
 
-    const validationRules = compactifyValidation(
-      gridData.rowData as sheets_v4.Schema$RowData[],
-      startRow,
-      startCol
-    );
+    const validationRules = compactifyValidation(gridData.rowData, startRow, startCol);
 
     return formatSuccessResponse(
       { sheetName, validationRules },

@@ -5,7 +5,7 @@ import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
-import { colIndexToLetter } from '../utils/range-helpers.js';
+import { gridRangeToA1, findSheetOrThrow } from '../utils/range-helpers.js';
 import { extractFormatFields, compactifyCellFormatting } from '../utils/compact-format.js';
 
 const inputSchema = z.object({
@@ -68,15 +68,6 @@ export const getFullSheetSnapshotTool: Tool = {
   },
 };
 
-function gridRangeToA1(
-  startRowIndex: number,
-  endRowIndex: number,
-  startColumnIndex: number,
-  endColumnIndex: number
-): string {
-  return `${colIndexToLetter(startColumnIndex)}${startRowIndex + 1}:${colIndexToLetter(endColumnIndex - 1)}${endRowIndex}`;
-}
-
 export async function handleGetFullSheetSnapshot(input: any): Promise<ToolResponse> {
   try {
     const {
@@ -124,17 +115,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       fields: baseFields + cellFormattingFields,
     });
 
-    const sheetData = (response.data.sheets ?? []).find(
-      (s: sheets_v4.Schema$Sheet) => s.properties?.title === sheetName
-    );
-
-    if (!sheetData) {
-      const available = (response.data.sheets ?? [])
-        .map((s: sheets_v4.Schema$Sheet) => s.properties?.title)
-        .filter(Boolean)
-        .join(', ');
-      throw new Error(`Sheet "${sheetName}" not found. Available: ${available}`);
-    }
+    const sheetData = findSheetOrThrow(response.data.sheets ?? [], sheetName);
 
     const props = sheetData.properties!;
     const gridProps = props.gridProperties ?? {};
@@ -142,12 +123,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
 
     // ── Merges ──
     const merges = (sheetData.merges ?? []).map((m: sheets_v4.Schema$GridRange) => ({
-      a1Notation: gridRangeToA1(
-        m.startRowIndex ?? 0,
-        m.endRowIndex ?? 0,
-        m.startColumnIndex ?? 0,
-        m.endColumnIndex ?? 0
-      ),
+      a1Notation: gridRangeToA1(m),
       startRowIndex: m.startRowIndex,
       endRowIndex: m.endRowIndex,
       startColumnIndex: m.startColumnIndex,
@@ -180,14 +156,14 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
 
       if (compactMode) {
         cellFormatting = compactifyCellFormatting(
-          gridData.rowData as sheets_v4.Schema$RowData[],
+          gridData.rowData,
           startRow,
           startColumn,
           useEffectiveFormat,
           formatFields
         );
       } else {
-        cellFormatting = (gridData.rowData as sheets_v4.Schema$RowData[]).map(
+        cellFormatting = gridData.rowData.map(
           (rowData: sheets_v4.Schema$RowData, rowOffset: number) =>
             (rowData.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
               const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;

@@ -9,7 +9,7 @@
 ![Coverage](https://codecov.io/gh/freema/mcp-gsheets/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-007ACC?logo=typescript&logoColor=white)
-![Node](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)
 ![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white)
 
 A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Code, Claude Desktop, Cursor, etc.).
@@ -23,7 +23,7 @@ A Model Context Protocol (MCP) server for Google Sheets API integration. Enables
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) v18 or higher
+- [Node.js](https://nodejs.org/) v20 or higher
 - [Google Cloud Project](https://console.cloud.google.com) with Sheets API enabled
 - Service Account with JSON key file
 - [npm](https://www.npmjs.com/)
@@ -375,6 +375,8 @@ npm run dev  # Watch mode with auto-reload
 | `sheets_get_sheet_structure` | Lightweight structural metadata only — no per-cell data. Returns dimensions, frozen rows/cols, tab colour, column widths, row heights, hidden columns/rows, and all merges in A1 notation. Single fast API call | `spreadsheetId`, `sheetName` |
 | `sheets_get_formatting_compact` | Read cell formatting for a range and return it as compact A1Range→format pairs (run-length encoded). Identical adjacent cells are collapsed into rectangular ranges — reduces output by 90 %+ compared to per-cell data | `spreadsheetId`, `sheetName`, `range`, `useEffectiveFormat`, `fields` |
 | `sheets_get_full_sheet_snapshot` | Master one-shot tool — returns all structural and formatting metadata (merges, dimensions, conditional formatting, and optionally cell formatting) in a single API call. Supports `fields` filter and `compactMode` to limit response size | `spreadsheetId`, `sheetName`, `includeFormattingRange`, `fields`, `compactMode` |
+| `sheets_get_basic_filter` | Read the Basic Filter (AutoFilter) configuration for a sheet, including filtered range, sort specs, and per-column filter criteria (hidden values, conditions, colour filters) | `spreadsheetId`, `sheetName` |
+| `sheets_get_data_validation` | Read data validation rules (checkboxes, dropdowns, custom formulas) from a sheet or range. Returns compact run-length-encoded list of unique rules grouped by cell ranges | `spreadsheetId`, `sheetName`, `range` |
 
 ## 🔧 Code Quality
 
