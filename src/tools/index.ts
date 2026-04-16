@@ -42,3 +42,5 @@ export * from './get-conditional-formatting-data.js';
 export * from './get-full-sheet-snapshot.js';
 export * from './get-sheet-structure.js';
 export * from './get-formatting-compact.js';
+export * from './get-data-validation.js';
+export * from './get-basic-filter.js';

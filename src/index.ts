@@ -80,6 +80,8 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_get_full_sheet_snapshot', tools.handleGetFullSheetSnapshot],
   ['sheets_get_sheet_structure', tools.handleGetSheetStructure],
   ['sheets_get_formatting_compact', tools.handleGetFormattingCompact],
+  ['sheets_get_data_validation', tools.handleGetDataValidation],
+  ['sheets_get_basic_filter', tools.handleGetBasicFilter],
 ]);
 
 // All tools
@@ -123,6 +125,8 @@ const allTools = [
   tools.getFullSheetSnapshotTool,
   tools.getSheetStructureTool,
   tools.getFormattingCompactTool,
+  tools.getDataValidationTool,
+  tools.getBasicFilterTool,
 ];
 
 async function main() {
