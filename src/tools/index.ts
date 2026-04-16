@@ -33,3 +33,14 @@ export * from './insert-date.js';
 
 // Row operations
 export * from './insert-rows.js';
+
+// READ / Snapshot tools
+export * from './get-merged-cells.js';
+export * from './get-sheet-dimensions.js';
+export * from './get-sheet-formatting.js';
+export * from './get-conditional-formatting-data.js';
+export * from './get-full-sheet-snapshot.js';
+export * from './get-sheet-structure.js';
+export * from './get-formatting-compact.js';
+export * from './get-data-validation.js';
+export * from './get-basic-filter.js';

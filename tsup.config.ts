@@ -18,12 +18,12 @@ export default defineConfig({
     '@google-cloud/local-auth',
     'gcp-metadata',
     'gtoken',
-    'google-p12-pem'
+    'google-p12-pem',
+    'dotenv'
   ],
   noExternal: [
     '@modelcontextprotocol/sdk',
-    'zod',
-    'dotenv'
+    'zod'
   ],
   onSuccess: 'echo "✅ Build completed successfully!"'
 });

@@ -9,7 +9,7 @@ export function parseJsonInput(input: any, propertyName: string): any {
   if (input && typeof input === 'string') {
     try {
       return JSON.parse(input);
-    } catch (parseError) {
+    } catch {
       throw new Error(`Invalid ${propertyName}: Expected object or valid JSON string`);
     }
   }

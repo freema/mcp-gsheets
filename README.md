@@ -313,40 +313,68 @@ npm run dev  # Watch mode with auto-reload
 ## 📋 Available Tools
 
 ### Reading Data
-- `sheets_get_values` - Read from a range
-- `sheets_batch_get_values` - Read from multiple ranges
-- `sheets_get_metadata` - Get spreadsheet info
-- `sheets_check_access` - Check access permissions
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_get_values` | Read cell values from a single range | `spreadsheetId`, `range` (A1 notation), `valueRenderOption` |
+| `sheets_batch_get_values` | Read cell values from multiple ranges in one request | `spreadsheetId`, `ranges` (array of A1 ranges) |
+| `sheets_get_metadata` | Get spreadsheet metadata: title, locale, sheets list with IDs, row/column counts | `spreadsheetId` |
+| `sheets_check_access` | Verify that the service account can access a spreadsheet | `spreadsheetId` |
 
 ### Writing Data
-- `sheets_update_values` - Write to a range
-- `sheets_batch_update_values` - Write to multiple ranges
-- `sheets_append_values` - Append rows to a table (**Note:** Default `insertDataOption` is `OVERWRITE`. To insert new rows, set `insertDataOption: 'INSERT_ROWS'`)
-- `sheets_clear_values` - Clear cell contents
-- `sheets_insert_rows` - Insert new rows at specific position with optional data
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_update_values` | Write values to a single range (overwrites existing content) | `spreadsheetId`, `range`, `values` (2D array), `valueInputOption` |
+| `sheets_batch_update_values` | Write values to multiple ranges in one request | `spreadsheetId`, `data` (array of `{range, values}`), `valueInputOption` |
+| `sheets_append_values` | Append rows after the last row of an existing table. **Default `insertDataOption` is `OVERWRITE`** — set `INSERT_ROWS` to push existing rows down | `spreadsheetId`, `range`, `values`, `valueInputOption`, `insertDataOption` |
+| `sheets_clear_values` | Clear all values in a range (preserves formatting) | `spreadsheetId`, `range` |
+| `sheets_insert_rows` | Insert blank or pre-filled rows at a specific position | `spreadsheetId`, `range` (anchor), `rows`, `position` (BEFORE/AFTER), `values` |
+| `sheets_insert_link` | Insert a hyperlink formula into a cell | `spreadsheetId`, `range`, `url`, `label` |
+| `sheets_insert_date` | Insert a date/datetime value formatted correctly into a cell | `spreadsheetId`, `range`, `date`, `format` |
 
 ### Sheet Management
-- `sheets_insert_sheet` - Add new sheet
-- `sheets_delete_sheet` - Remove sheet
-- `sheets_duplicate_sheet` - Copy sheet
-- `sheets_copy_to` - Copy to another spreadsheet
-- `sheets_update_sheet_properties` - Update sheet settings
 
-### Batch Operations
-- `sheets_batch_delete_sheets` - Delete multiple sheets at once
-- `sheets_batch_format_cells` - Format multiple cell ranges at once
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_create_spreadsheet` | Create a new Google Sheets file | `title`, `sheets` (optional initial sheet configs) |
+| `sheets_insert_sheet` | Add a new sheet tab to an existing spreadsheet | `spreadsheetId`, `title`, `index` |
+| `sheets_delete_sheet` | Remove a sheet tab by its numeric sheet ID | `spreadsheetId`, `sheetId` |
+| `sheets_duplicate_sheet` | Copy a sheet within the same spreadsheet | `spreadsheetId`, `sheetId`, `newSheetName`, `insertSheetIndex` |
+| `sheets_copy_to` | Copy a sheet to a different spreadsheet | `spreadsheetId`, `sheetId`, `destinationSpreadsheetId` |
+| `sheets_update_sheet_properties` | Rename a sheet, change tab colour, toggle grid lines, etc. | `spreadsheetId`, `sheetId`, `properties` |
+| `sheets_batch_delete_sheets` | Delete multiple sheet tabs in one request | `spreadsheetId`, `sheetIds` (array) |
 
 ### Cell Formatting
-- `sheets_format_cells` - Format cells (colors, fonts, alignment, number formats)
-- `sheets_update_borders` - Add or modify cell borders
-- `sheets_merge_cells` - Merge cells together
-- `sheets_unmerge_cells` - Unmerge previously merged cells
-- `sheets_add_conditional_formatting` - Add conditional formatting rules
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_format_cells` | Apply background colour, font style, alignment and number format to a range | `spreadsheetId`, `range`, `format` |
+| `sheets_batch_format_cells` | Apply different formats to multiple ranges in one request | `spreadsheetId`, `requests` (array of `{range, format}`) |
+| `sheets_update_borders` | Set or remove borders on a range (style, width, colour per side) | `spreadsheetId`, `range`, `borders` |
+| `sheets_merge_cells` | Merge a range of cells | `spreadsheetId`, `range`, `mergeType` (MERGE_ALL / MERGE_COLUMNS / MERGE_ROWS) |
+| `sheets_unmerge_cells` | Unmerge previously merged cells in a range | `spreadsheetId`, `range` |
+| `sheets_add_conditional_formatting` | Add a conditional formatting rule (gradient or boolean) to a range | `spreadsheetId`, `range`, `rule` |
 
 ### Charts
-- `sheets_create_chart` - Create various types of charts
-- `sheets_update_chart` - Modify existing charts
-- `sheets_delete_chart` - Remove charts
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_create_chart` | Create a bar, line, pie, column or other chart on a sheet | `spreadsheetId`, `sheetId`, `chartSpec`, `position` |
+| `sheets_update_chart` | Modify an existing chart's spec or position | `spreadsheetId`, `chartId`, `chartSpec`, `position` |
+| `sheets_delete_chart` | Remove a chart from a spreadsheet | `spreadsheetId`, `chartId` |
+
+### Read / Snapshot Tools
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_get_merged_cells` | Return all merged cell ranges for a sheet, with A1 notation and raw GridRange coordinates | `spreadsheetId`, `sheetName` |
+| `sheets_get_sheet_dimensions` | Return column widths, row heights, frozen column/row counts, and hidden flags for every column and row | `spreadsheetId`, `sheetName` |
+| `sheets_get_sheet_formatting` | Read raw cell formatting (background colour, font, borders, alignment, number format) for a range without returning cell values | `spreadsheetId`, `range` |
+| `sheets_get_conditional_formatting` | Read all conditional formatting rules and banded (alternating-colour) ranges defined on a sheet | `spreadsheetId`, `sheetName` |
+| `sheets_get_sheet_structure` | Lightweight structural metadata only — no per-cell data. Returns dimensions, frozen rows/cols, tab colour, column widths, row heights, hidden columns/rows, and all merges in A1 notation. Single fast API call | `spreadsheetId`, `sheetName` |
+| `sheets_get_formatting_compact` | Read cell formatting for a range and return it as compact A1Range→format pairs (run-length encoded). Identical adjacent cells are collapsed into rectangular ranges — reduces output by 90 %+ compared to per-cell data | `spreadsheetId`, `sheetName`, `range`, `useEffectiveFormat`, `fields` |
+| `sheets_get_full_sheet_snapshot` | Master one-shot tool — returns all structural and formatting metadata (merges, dimensions, conditional formatting, and optionally cell formatting) in a single API call. Supports `fields` filter and `compactMode` to limit response size | `spreadsheetId`, `sheetName`, `includeFormattingRange`, `fields`, `compactMode` |
 
 ## 🔧 Code Quality
 
@@ -425,6 +453,51 @@ Use `sheets_get_metadata` to list all sheets with their IDs.
 5. Use `sheets_check_access` to verify permissions before operations
 
 ## 📘 Tool Details
+
+### sheets_get_sheet_structure
+
+Returns lightweight structural/dimensional metadata for a sheet without any per-cell data. Much faster and cheaper than `sheets_get_full_sheet_snapshot` when you only need layout information.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+
+**Returns:** `sheetName`, `sheetId`, `sheetIndex`, `tabColor`, `tabColorStyle`, `dimensions` (`rowCount`, `columnCount`), `frozen` (`rowCount`, `columnCount`), `columnWidths` (array of pixel sizes), `rowHeights` (array of pixel sizes), `hiddenColumns` (0-based indices), `hiddenRows` (0-based indices), `mergeCount`, `merges` (A1 notation array)
+
+---
+
+### sheets_get_formatting_compact
+
+Read cell formatting for a range and return it as compact A1Range → format pairs. Adjacent cells with identical formatting are collapsed into rectangular ranges (run-length encoded), reducing output by 90 %+ compared to per-cell data.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+- `range` (required): Range without sheet prefix, e.g. `"A1:Z85"`
+- `useEffectiveFormat` (optional): `false` (default) = userEnteredFormat (only explicit overrides, smaller output); `true` = effectiveFormat (all inherited defaults)
+- `fields` (optional): Array of format field names to include, e.g. `["backgroundColor", "textFormat", "borders"]`
+
+**Returns:** `{ range, formatType, rangeCount, data: { "A1:C3": { backgroundColor: {...} }, ... } }`
+
+**Supported fields:** `backgroundColor`, `backgroundColorStyle`, `textFormat`, `horizontalAlignment`, `verticalAlignment`, `wrapStrategy`, `textRotation`, `numberFormat`, `padding`, `borders`
+
+---
+
+### sheets_get_full_sheet_snapshot
+
+Master one-shot tool that returns all structural and formatting metadata in a single API call.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `sheetName` (required): Name of the sheet (tab)
+- `includeFormattingRange` (optional): If provided (e.g. `"A1:Z100"`), per-cell formatting is included in the response
+- `useEffectiveFormat` (optional): Use effectiveFormat instead of userEnteredFormat when including cell formatting (default: `false`)
+- `fields` (optional): Array of format field names to return, e.g. `["backgroundColor", "textFormat"]` — reduces API transfer size and response size
+- `compactMode` (optional): When `true`, identical adjacent cells are collapsed into rectangular ranges (RLE). Reduces a typical 85×28 sheet from ~60 000 lines to ~500 lines (default: `false`)
+
+---
+
+
 
 ### sheets_insert_rows
 
