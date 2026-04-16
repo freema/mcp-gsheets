@@ -91,8 +91,8 @@ export async function handleGetSheetStructure(input: any): Promise<ToolResponse>
     const merges = (sheetData.merges ?? []).map((m: sheets_v4.Schema$GridRange) => {
       const sc = m.startColumnIndex ?? 0;
       const ec = (m.endColumnIndex ?? 1) - 1; // endColumnIndex is exclusive
-      const sr = (m.startRowIndex ?? 0) + 1;  // convert to 1-based
-      const er = m.endRowIndex ?? 1;           // endRowIndex is exclusive, which is 1-based end
+      const sr = (m.startRowIndex ?? 0) + 1; // convert to 1-based
+      const er = m.endRowIndex ?? 1; // endRowIndex is exclusive, which is 1-based end
       return `${colIndexToLetter(sc)}${sr}:${colIndexToLetter(ec)}${er}`;
     });
 

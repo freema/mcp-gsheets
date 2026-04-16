@@ -83,14 +83,21 @@ function compactifyValidation(
   startCol: number
 ): CompactRule[] {
   // Map: serialized rule → { parsed rule, set of "row,col" }
-  const ruleMap = new Map<string, { rule: sheets_v4.Schema$DataValidationRule; cells: Set<string> }>();
+  const ruleMap = new Map<
+    string,
+    { rule: sheets_v4.Schema$DataValidationRule; cells: Set<string> }
+  >();
 
   for (let r = 0; r < rowData.length; r++) {
     const row = rowData[r];
-    if (!row?.values) continue;
+    if (!row?.values) {
+      continue;
+    }
     for (let c = 0; c < row.values.length; c++) {
       const dv = row.values[c]?.dataValidation;
-      if (!dv) continue;
+      if (!dv) {
+        continue;
+      }
       const key = validationKey(dv);
       if (!ruleMap.has(key)) {
         ruleMap.set(key, { rule: dv, cells: new Set() });
@@ -118,7 +125,9 @@ function compactifyValidation(
     const grid: boolean[][] = Array.from({ length: rows }, () => Array(cols).fill(false));
     for (const { r, c } of coords) {
       const gridRow = grid[r - minRow];
-      if (gridRow) gridRow[c - minCol] = true;
+      if (gridRow) {
+        gridRow[c - minCol] = true;
+      }
     }
 
     // Greedy rectangle extraction
@@ -127,17 +136,23 @@ function compactifyValidation(
 
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
-        if (!grid[r]?.[c] || used[r]?.[c]) continue;
+        if (!grid[r]?.[c] || used[r]?.[c]) {
+          continue;
+        }
 
         // Extend down in this column
         let endR = r;
-        while (endR + 1 < rows && grid[endR + 1]?.[c] && !used[endR + 1]?.[c]) endR++;
+        while (endR + 1 < rows && grid[endR + 1]?.[c] && !used[endR + 1]?.[c]) {
+          endR++;
+        }
 
         // Extend right while all rows in the span are filled
         let endC = c;
         outer: while (endC + 1 < cols) {
           for (let rr = r; rr <= endR; rr++) {
-            if (!grid[rr]?.[endC + 1] || used[rr]?.[endC + 1]) break outer;
+            if (!grid[rr]?.[endC + 1] || used[rr]?.[endC + 1]) {
+              break outer;
+            }
           }
           endC++;
         }
@@ -160,9 +175,7 @@ function compactifyValidation(
 
     results.push({
       type: rule.condition?.type ?? null,
-      values: (rule.condition?.values ?? []).map(
-        (v) => v.userEnteredValue ?? v.relativeDate ?? ''
-      ),
+      values: (rule.condition?.values ?? []).map((v) => v.userEnteredValue ?? v.relativeDate ?? ''),
       strict: rule.strict ?? false,
       showCustomUi: rule.showCustomUi ?? false,
       inputMessage: rule.inputMessage ?? '',

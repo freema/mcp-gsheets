@@ -38,8 +38,7 @@ export async function handleGetSheetDimensions(input: any): Promise<ToolResponse
 
     const response = await sheets.spreadsheets.get({
       spreadsheetId,
-      fields:
-        'sheets.properties,sheets.data.columnMetadata,sheets.data.rowMetadata',
+      fields: 'sheets.properties,sheets.data.columnMetadata,sheets.data.rowMetadata',
     });
 
     const sheetData = (response.data.sheets ?? []).find(
@@ -57,17 +56,21 @@ export async function handleGetSheetDimensions(input: any): Promise<ToolResponse
     const gridProps = sheetData.properties?.gridProperties ?? {};
     const gridData = sheetData.data?.[0] ?? {};
 
-    const columns = (gridData.columnMetadata ?? []).map((col: sheets_v4.Schema$DimensionProperties, i: number) => ({
-      index: i,
-      pixelSize: col.pixelSize ?? null,
-      hiddenByUser: col.hiddenByUser ?? false,
-    }));
+    const columns = (gridData.columnMetadata ?? []).map(
+      (col: sheets_v4.Schema$DimensionProperties, i: number) => ({
+        index: i,
+        pixelSize: col.pixelSize ?? null,
+        hiddenByUser: col.hiddenByUser ?? false,
+      })
+    );
 
-    const rows = (gridData.rowMetadata ?? []).map((row: sheets_v4.Schema$DimensionProperties, i: number) => ({
-      index: i,
-      pixelSize: row.pixelSize ?? null,
-      hiddenByUser: row.hiddenByUser ?? false,
-    }));
+    const rows = (gridData.rowMetadata ?? []).map(
+      (row: sheets_v4.Schema$DimensionProperties, i: number) => ({
+        index: i,
+        pixelSize: row.pixelSize ?? null,
+        hiddenByUser: row.hiddenByUser ?? false,
+      })
+    );
 
     return formatSuccessResponse(
       {

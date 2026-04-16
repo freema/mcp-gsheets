@@ -155,18 +155,22 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
     }));
 
     // ── Column dimensions ──
-    const columns = (gridData.columnMetadata ?? []).map((col: sheets_v4.Schema$DimensionProperties, i: number) => ({
-      index: i,
-      pixelSize: col.pixelSize ?? null,
-      hiddenByUser: col.hiddenByUser ?? false,
-    }));
+    const columns = (gridData.columnMetadata ?? []).map(
+      (col: sheets_v4.Schema$DimensionProperties, i: number) => ({
+        index: i,
+        pixelSize: col.pixelSize ?? null,
+        hiddenByUser: col.hiddenByUser ?? false,
+      })
+    );
 
     // ── Row dimensions ──
-    const rows = (gridData.rowMetadata ?? []).map((row: sheets_v4.Schema$DimensionProperties, i: number) => ({
-      index: i,
-      pixelSize: row.pixelSize ?? null,
-      hiddenByUser: row.hiddenByUser ?? false,
-    }));
+    const rows = (gridData.rowMetadata ?? []).map(
+      (row: sheets_v4.Schema$DimensionProperties, i: number) => ({
+        index: i,
+        pixelSize: row.pixelSize ?? null,
+        hiddenByUser: row.hiddenByUser ?? false,
+      })
+    );
 
     // ── Cell formatting (optional) ──
     let cellFormatting: any = null;
@@ -187,9 +191,13 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
           (rowData: sheets_v4.Schema$RowData, rowOffset: number) =>
             (rowData.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
               const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;
-              if (!fmt) return null;
+              if (!fmt) {
+                return null;
+              }
               const extracted = extractFormatFields(fmt, formatFields);
-              if (Object.keys(extracted).length === 0) return null;
+              if (Object.keys(extracted).length === 0) {
+                return null;
+              }
               return { row: startRow + rowOffset, col: startColumn + colOffset, ...extracted };
             })
         );

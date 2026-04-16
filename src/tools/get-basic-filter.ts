@@ -61,8 +61,7 @@ export async function handleGetBasicFilter(input: any): Promise<ToolResponse> {
 
     const response = await sheets.spreadsheets.get({
       spreadsheetId,
-      fields:
-        'sheets.properties.title,sheets.properties.sheetId,sheets.basicFilter',
+      fields: 'sheets.properties.title,sheets.properties.sheetId,sheets.basicFilter',
     });
 
     const sheetData = (response.data.sheets ?? []).find(
@@ -91,9 +90,9 @@ export async function handleGetBasicFilter(input: any): Promise<ToolResponse> {
       columnIndex: number;
       columnLetter: string;
       hiddenValues: string[];
-      condition: any | null;
-      visibleBackgroundColor: any | null;
-      visibleForegroundColor: any | null;
+      condition: sheets_v4.Schema$BooleanCondition | null;
+      visibleBackgroundColor: sheets_v4.Schema$Color | null;
+      visibleForegroundColor: sheets_v4.Schema$Color | null;
     }> = [];
 
     if (bf.filterSpecs && bf.filterSpecs.length > 0) {
@@ -134,7 +133,10 @@ export async function handleGetBasicFilter(input: any): Promise<ToolResponse> {
           range: rangeA1,
           sortSpecs: (bf.sortSpecs ?? []).map((s: sheets_v4.Schema$SortSpec) => ({
             columnIndex: s.dimensionIndex,
-            columnLetter: s.dimensionIndex != null ? colToLetter(s.dimensionIndex) : null,
+            columnLetter:
+              s.dimensionIndex !== null && s.dimensionIndex !== undefined
+                ? colToLetter(s.dimensionIndex)
+                : null,
             sortOrder: s.sortOrder ?? null,
           })),
           filterCriteria,

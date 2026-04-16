@@ -64,25 +64,29 @@ export async function handleGetSheetFormatting(input: any): Promise<ToolResponse
     const startRow = gridData.startRow ?? 0;
     const startColumn = gridData.startColumn ?? 0;
 
-    const cells = (gridData.rowData ?? []).map((row: sheets_v4.Schema$RowData, rowOffset: number) => {
-      return (row.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
-        const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;
-        if (!fmt) return null;
-        return {
-          row: startRow + rowOffset,
-          col: startColumn + colOffset,
-          backgroundColor: fmt.backgroundColor ?? null,
-          textFormat: fmt.textFormat ?? null,
-          horizontalAlignment: fmt.horizontalAlignment ?? null,
-          verticalAlignment: fmt.verticalAlignment ?? null,
-          wrapStrategy: fmt.wrapStrategy ?? null,
-          textRotation: fmt.textRotation ?? null,
-          numberFormat: fmt.numberFormat ?? null,
-          padding: fmt.padding ?? null,
-          borders: fmt.borders ?? null,
-        };
-      });
-    });
+    const cells = (gridData.rowData ?? []).map(
+      (row: sheets_v4.Schema$RowData, rowOffset: number) => {
+        return (row.values ?? []).map((cell: sheets_v4.Schema$CellData, colOffset: number) => {
+          const fmt = useEffectiveFormat ? cell.effectiveFormat : cell.userEnteredFormat;
+          if (!fmt) {
+            return null;
+          }
+          return {
+            row: startRow + rowOffset,
+            col: startColumn + colOffset,
+            backgroundColor: fmt.backgroundColor ?? null,
+            textFormat: fmt.textFormat ?? null,
+            horizontalAlignment: fmt.horizontalAlignment ?? null,
+            verticalAlignment: fmt.verticalAlignment ?? null,
+            wrapStrategy: fmt.wrapStrategy ?? null,
+            textRotation: fmt.textRotation ?? null,
+            numberFormat: fmt.numberFormat ?? null,
+            padding: fmt.padding ?? null,
+            borders: fmt.borders ?? null,
+          };
+        });
+      }
+    );
 
     const { sheetName } = extractSheetName(range);
 
