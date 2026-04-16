@@ -4,6 +4,7 @@ import {
   parseRange,
   getSheetId,
   extractSheetName,
+  colIndexToLetter,
 } from '../../../src/utils/range-helpers';
 import { sheets_v4 } from 'googleapis';
 
@@ -295,6 +296,18 @@ describe('getSheetId', () => {
       .rejects.toThrow('No sheets found in spreadsheet');
   });
 
+  it('should throw when first sheet has undefined sheetId', async () => {
+    // sheetsData.length > 0 but sheetId is undefined — falls through to throw
+    (mockSheets.spreadsheets.get as any).mockResolvedValue({
+      data: {
+        sheets: [{ properties: { title: 'Sheet1' } }],
+      },
+    });
+
+    await expect(getSheetId(mockSheets, 'spreadsheet-id'))
+      .rejects.toThrow('No sheets found in spreadsheet');
+  });
+
   it('should handle case-sensitive sheet names', async () => {
     (mockSheets.spreadsheets.get as any).mockResolvedValue({
       data: {
@@ -351,7 +364,41 @@ describe('extractSheetName', () => {
     });
   });
 
+  it('should return only range when sheetName part is empty string', () => {
+    // '!A1:B10' splits to ['', 'A1:B10'] — sheetName is '' (falsy), returns original range
+    const result = extractSheetName('!A1:B10');
+    expect(result).toEqual({
+      range: '!A1:B10',
+    });
+  });
 
+  it('should strip double quotes from sheet name', () => {
+    const result = extractSheetName('"My Sheet"!A1:B10');
+    expect(result).toEqual({
+      sheetName: 'My Sheet',
+      range: 'A1:B10',
+    });
+  });
+});
 
+describe('colIndexToLetter', () => {
+  it('should convert 0 to A', () => {
+    expect(colIndexToLetter(0)).toBe('A');
+  });
 
+  it('should convert 25 to Z', () => {
+    expect(colIndexToLetter(25)).toBe('Z');
+  });
+
+  it('should convert 26 to AA', () => {
+    expect(colIndexToLetter(26)).toBe('AA');
+  });
+
+  it('should convert 51 to AZ', () => {
+    expect(colIndexToLetter(51)).toBe('AZ');
+  });
+
+  it('should convert 701 to ZZ', () => {
+    expect(colIndexToLetter(701)).toBe('ZZ');
+  });
 });

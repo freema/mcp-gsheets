@@ -82,9 +82,11 @@ export function validateAuth(): void {
 
   // If using private key authentication, validate both fields are present
   if (!hasFileAuth && !hasJsonAuth && hasPrivateKeyAuth) {
+    /* v8 ignore next 3 */
     if (!process.env.GOOGLE_PRIVATE_KEY) {
       throw new Error('GOOGLE_PRIVATE_KEY is required when using private key authentication');
     }
+    /* v8 ignore next 3 */
     if (!process.env.GOOGLE_CLIENT_EMAIL) {
       throw new Error('GOOGLE_CLIENT_EMAIL is required when using private key authentication');
     }

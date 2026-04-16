@@ -269,4 +269,87 @@ describe('handleInsertRows', () => {
       });
     });
   });
+
+  describe('edge cases', () => {
+    it('should default to row 0 when startRowIndex is undefined (??0 branch)', async () => {
+      vi.mocked(rangeHelpers.parseRange).mockReturnValue({
+        sheetId: 0,
+        // startRowIndex and startColumnIndex intentionally omitted
+      } as any);
+
+      const input = {
+        spreadsheetId: 'test-id',
+        range: 'Sheet1!A1',
+      };
+
+      mockSheets.spreadsheets.batchUpdate.mockResolvedValue({ data: {} });
+
+      const result = await handleInsertRows(input);
+
+      expect(mockSheets.spreadsheets.batchUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestBody: expect.objectContaining({
+            requests: [
+              expect.objectContaining({
+                insertDimension: expect.objectContaining({
+                  range: expect.objectContaining({ startIndex: 0, endIndex: 1 }),
+                }),
+              }),
+            ],
+          }),
+        })
+      );
+      expect(result).toMatchObject({
+        content: [expect.objectContaining({ text: expect.stringContaining('row 1') })],
+      });
+    });
+
+    it('should build range without sheet name when sheetName is null', async () => {
+      vi.mocked(rangeHelpers.extractSheetName).mockReturnValue({
+        sheetName: null as any,
+        range: 'A5',
+      });
+
+      const input = {
+        spreadsheetId: 'test-id',
+        range: 'A5',
+        values: [['data']],
+      };
+
+      mockSheets.spreadsheets.batchUpdate.mockResolvedValue({ data: {} });
+      mockSheets.spreadsheets.values.update.mockResolvedValue({ data: {} });
+
+      const result = await handleInsertRows(input);
+
+      expect(mockSheets.spreadsheets.values.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          range: expect.not.stringContaining("'"),
+        })
+      );
+      expect(result).toMatchObject({
+        content: [expect.objectContaining({ text: expect.stringContaining('cells') })],
+      });
+    });
+
+    it('should use "Sheet" fallback when sheetName is null and no values provided', async () => {
+      vi.mocked(rangeHelpers.extractSheetName).mockReturnValue({
+        sheetName: null as any,
+        range: 'A5',
+      });
+
+      const input = {
+        spreadsheetId: 'test-id',
+        range: 'A5',
+        // no values — takes the no-values return path
+      };
+
+      mockSheets.spreadsheets.batchUpdate.mockResolvedValue({ data: {} });
+
+      const result = await handleInsertRows(input);
+
+      expect(result).toMatchObject({
+        content: [expect.objectContaining({ text: expect.stringContaining('"Sheet"') })],
+      });
+    });
+  });
 });
