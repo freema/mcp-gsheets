@@ -7,6 +7,7 @@ import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
 import { gridRangeToA1, findSheetOrThrow } from '../utils/range-helpers.js';
 import { extractFormatFields, compactifyCellFormatting } from '../utils/compact-format.js';
+import { normalizeConditionalFormatFormulas } from '../utils/formula-locale.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
@@ -14,7 +15,8 @@ const inputSchema = z.object({
   includeFormattingRange: z.string().optional(),
   useEffectiveFormat: z.boolean().optional().default(false),
   fields: z.array(z.string()).optional(),
-  compactMode: z.boolean().optional().default(false),
+  compactMode: z.boolean().optional().default(true),
+  includeConditionalFormatting: z.boolean().optional().default(true),
 });
 
 export const getFullSheetSnapshotTool: Tool = {
@@ -22,9 +24,10 @@ export const getFullSheetSnapshotTool: Tool = {
   description:
     'One-shot tool: reads all structural and formatting metadata for a sheet in a single API call. ' +
     'Returns: sheet properties (frozen rows/cols, dimensions, tab color), ' +
-    'merged cells, column widths, row heights, conditional formatting, banded ranges, ' +
+    'merged cells, column widths, row heights, banded ranges, ' +
     'and optionally cell-level formatting for a specified range (includeFormattingRange). ' +
-    'Use compactMode:true to collapse identical adjacent cells into range descriptors (90%+ smaller output). ' +
+    'compactMode is ON by default — adjacent cells with identical formatting are collapsed into range descriptors (90%+ smaller output). Set compactMode:false only for full per-cell detail. ' +
+    'Conditional formatting rules are included by default (includeConditionalFormatting:true); set to false to exclude them. CF formulas are normalized to English locale (commas). ' +
     'Use fields to limit which format properties are returned. ' +
     'Use this before programmatically recreating a sheet.',
   inputSchema: {
@@ -59,9 +62,16 @@ export const getFullSheetSnapshotTool: Tool = {
       compactMode: {
         type: 'boolean',
         description:
-          'When true, adjacent cells with identical formatting are collapsed into range descriptors ' +
+          'Default: true. Adjacent cells with identical formatting are collapsed into range descriptors ' +
           '(run-length encoded). Reduces cell formatting output by 90%+ for typical formatted sheets. ' +
-          'Only applies when includeFormattingRange is set.',
+          'Set to false only when you need full per-cell detail. Only applies when includeFormattingRange is set.',
+      },
+      includeConditionalFormatting: {
+        type: 'boolean',
+        description:
+          'Default: true. Include conditional formatting rules and banded ranges in the snapshot. ' +
+          'CF formulas are normalized to English locale (semicolons → commas). ' +
+          'Set to false to reduce output size when CF rules are not needed.',
       },
     },
     required: ['spreadsheetId', 'sheetName'],
@@ -77,6 +87,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       useEffectiveFormat,
       fields: formatFields,
       compactMode,
+      includeConditionalFormatting,
     } = inputSchema.parse(input);
 
     const sheets = await getAuthenticatedClient();
@@ -180,6 +191,14 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       }
     }
 
+    const rawConditionalFormats: any[] = sheetData.conditionalFormats ?? [];
+    const cfSection = includeConditionalFormatting
+      ? {
+          conditionalFormats: rawConditionalFormats.map(normalizeConditionalFormatFormulas),
+          bandedRanges: sheetData.bandedRanges ?? [],
+        }
+      : {};
+
     const snapshot = {
       sheetName,
       sheetId: props.sheetId,
@@ -193,8 +212,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       merges,
       columns,
       rows,
-      conditionalFormats: sheetData.conditionalFormats ?? [],
-      bandedRanges: sheetData.bandedRanges ?? [],
+      ...cfSection,
       ...(cellFormatting !== null
         ? {
             cellFormatting: {

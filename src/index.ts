@@ -82,6 +82,9 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_get_formatting_compact', tools.handleGetFormattingCompact],
   ['sheets_get_data_validation', tools.handleGetDataValidation],
   ['sheets_get_basic_filter', tools.handleGetBasicFilter],
+  // Border and comparison tools
+  ['sheets_get_border_map', tools.handleGetBorderMap],
+  ['sheets_compare_ranges', tools.handleCompareRanges],
 ]);
 
 // All tools
@@ -127,6 +130,9 @@ const allTools = [
   tools.getFormattingCompactTool,
   tools.getDataValidationTool,
   tools.getBasicFilterTool,
+  // Border and comparison tools
+  tools.getBorderMapTool,
+  tools.compareRangesTool,
 ];
 
 async function main() {

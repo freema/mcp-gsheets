@@ -121,6 +121,16 @@ describe('formatValuesResponse', () => {
     const parsed = JSON.parse(result.content[0].text!);
     expect(parsed.columnCount).toBe(0);
   });
+
+  it('should handle null first row (columnCount = 0)', () => {
+    // values[0] is null/falsy — hits `: 0` branch in columnCount
+    const values = [null as any, ['A2', 'B2']];
+    const result = formatValuesResponse(values);
+    
+    const parsed = JSON.parse(result.content[0].text!);
+    expect(parsed.columnCount).toBe(0);
+    expect(parsed.rowCount).toBe(2);
+  });
 });
 
 describe('formatBatchValuesResponse', () => {
