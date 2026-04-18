@@ -23,6 +23,7 @@ import {
   DeleteChartInput,
   ChartType,
   DeleteColumnsInput,
+  DeleteRowsInput,
 } from '../types/tools.js';
 import { ERROR_MESSAGES } from './error-messages.js';
 import {
@@ -542,6 +543,21 @@ export function validateDeleteColumnsInput(input: any): DeleteColumnsInput {
   const { range } = extractSheetName(input.range);
   if (!/^[A-Z]+:[A-Z]+$/i.test(range)) {
     throw new Error(ERROR_MESSAGES.INVALID_COLUMN_RANGE);
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
+  };
+}
+
+export function validateDeleteRowsInput(input: any): DeleteRowsInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+
+  const { range } = extractSheetName(input.range);
+  if (!/^\d+:\d+$/.test(range)) {
+    throw new Error(ERROR_MESSAGES.INVALID_ROW_RANGE);
   }
 
   return {

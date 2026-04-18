@@ -4,6 +4,7 @@ import { updateValuesTool } from '../../../src/tools/update-values';
 import { batchUpdateValuesTool } from '../../../src/tools/batch-update-values';
 import { insertRowsTool } from '../../../src/tools/insert-rows';
 import { deleteColumnsTool } from '../../../src/tools/delete-columns';
+import { deleteRowsTool } from '../../../src/tools/delete-rows';
 
 describe('tool input schemas', () => {
   it('defines items for nested 2D values arrays', () => {
@@ -48,6 +49,10 @@ describe('tool input schemas', () => {
     });
 
     expect(deleteColumnsTool.inputSchema.properties?.range).toMatchObject({
+      type: 'string',
+    });
+
+    expect(deleteRowsTool.inputSchema.properties?.range).toMatchObject({
       type: 'string',
     });
   });

@@ -331,6 +331,7 @@ npm run dev  # Watch mode with auto-reload
 | `sheets_clear_values` | Clear all values in a range (preserves formatting) | `spreadsheetId`, `range` |
 | `sheets_insert_rows` | Insert blank or pre-filled rows at a specific position | `spreadsheetId`, `range` (anchor), `rows`, `position` (BEFORE/AFTER), `values` |
 | `sheets_delete_columns` | Delete one or more columns using a full-column A1 range | `spreadsheetId`, `range` (e.g. `Sheet1!B:D`) |
+| `sheets_delete_rows` | Delete one or more rows using a full-row A1 range | `spreadsheetId`, `range` (e.g. `Sheet1!2:4`) |
 | `sheets_insert_link` | Insert a hyperlink formula into a cell | `spreadsheetId`, `range`, `url`, `label` |
 | `sheets_insert_date` | Insert a date/datetime value formatted correctly into a cell | `spreadsheetId`, `range`, `date`, `format` |
 
@@ -559,6 +560,30 @@ Delete one or more columns from a sheet using a full-column A1 range.
 {
   "spreadsheetId": "your-spreadsheet-id",
   "range": "C:C"
+}
+```
+
+### sheets_delete_rows
+
+Delete one or more rows from a sheet using a full-row A1 range.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `range` (required): Full-row A1 range to delete (e.g., "Sheet1!2:4" or "Sheet1!3:3")
+
+**Examples:**
+
+```javascript
+// Delete rows 2 through 4 from Sheet1
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "Sheet1!2:4"
+}
+
+// Delete a single row from the first sheet
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "3:3"
 }
 ```
 

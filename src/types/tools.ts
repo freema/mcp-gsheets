@@ -223,6 +223,11 @@ export interface DeleteColumnsInput {
   range: string;
 }
 
+export interface DeleteRowsInput {
+  spreadsheetId: string;
+  range: string;
+}
+
 // Chart types
 export type ChartType =
   | 'COLUMN'

@@ -21,6 +21,7 @@ import {
   validateAddConditionalFormattingInput,
   validateInsertRowsInput,
   validateDeleteColumnsInput,
+  validateDeleteRowsInput,
 } from '../../../src/utils/validators';
 import { testSpreadsheetIds, testRanges, testValues, testInputs, testErrors } from '../../fixtures/test-data';
 
@@ -270,6 +271,29 @@ describe('validateDeleteColumnsInput', () => {
         range: 'Sheet1!B2:D4',
       })
     ).toThrow('Invalid column range format');
+  });
+});
+
+describe('validateDeleteRowsInput', () => {
+  it('should accept full-row ranges', () => {
+    const result = validateDeleteRowsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!2:4',
+    });
+
+    expect(result).toEqual({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!2:4',
+    });
+  });
+
+  it('should reject non-row ranges', () => {
+    expect(() =>
+      validateDeleteRowsInput({
+        spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+        range: 'Sheet1!B2:D4',
+      })
+    ).toThrow('Invalid row range format');
   });
 });
 
