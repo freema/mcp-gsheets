@@ -330,6 +330,7 @@ npm run dev  # Watch mode with auto-reload
 | `sheets_append_values` | Append rows after the last row of an existing table. **Default `insertDataOption` is `OVERWRITE`** — set `INSERT_ROWS` to push existing rows down | `spreadsheetId`, `range`, `values`, `valueInputOption`, `insertDataOption` |
 | `sheets_clear_values` | Clear all values in a range (preserves formatting) | `spreadsheetId`, `range` |
 | `sheets_insert_rows` | Insert blank or pre-filled rows at a specific position | `spreadsheetId`, `range` (anchor), `rows`, `position` (BEFORE/AFTER), `values` |
+| `sheets_delete_columns` | Delete one or more columns using a full-column A1 range | `spreadsheetId`, `range` (e.g. `Sheet1!B:D`) |
 | `sheets_insert_link` | Insert a hyperlink formula into a cell | `spreadsheetId`, `range`, `url`, `label` |
 | `sheets_insert_date` | Insert a date/datetime value formatted correctly into a cell | `spreadsheetId`, `range`, `date`, `format` |
 
@@ -534,6 +535,30 @@ Insert new rows at a specific position in a spreadsheet with optional data.
     ["Jane", "Smith", "jane@example.com"],
     ["Bob", "Johnson", "bob@example.com"]
   ]
+}
+```
+
+### sheets_delete_columns
+
+Delete one or more columns from a sheet using a full-column A1 range.
+
+**Parameters:**
+- `spreadsheetId` (required): The ID of the spreadsheet
+- `range` (required): Full-column A1 range to delete (e.g., "Sheet1!B:D" or "Sheet1!C:C")
+
+**Examples:**
+
+```javascript
+// Delete columns B through D from Sheet1
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "Sheet1!B:D"
+}
+
+// Delete a single column from the first sheet
+{
+  "spreadsheetId": "your-spreadsheet-id",
+  "range": "C:C"
 }
 ```
 

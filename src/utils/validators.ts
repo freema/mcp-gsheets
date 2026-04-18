@@ -22,6 +22,7 @@ import {
   UpdateChartInput,
   DeleteChartInput,
   ChartType,
+  DeleteColumnsInput,
 } from '../types/tools.js';
 import { ERROR_MESSAGES } from './error-messages.js';
 import {
@@ -29,6 +30,7 @@ import {
   createSheetValidator,
   COMMON_DEFAULTS,
 } from './validation-helpers.js';
+import { extractSheetName } from './range-helpers.js';
 
 // Helper validation functions to eliminate duplication
 function validateRequiredString(value: any, fieldName: string): void {
@@ -530,5 +532,20 @@ export function validateInsertRowsInput(input: any): any {
     inheritFromBefore,
     values: input.values,
     valueInputOption,
+  };
+}
+
+export function validateDeleteColumnsInput(input: any): DeleteColumnsInput {
+  validateSpreadsheetIdField(input.spreadsheetId);
+  validateRangeField(input.range);
+
+  const { range } = extractSheetName(input.range);
+  if (!/^[A-Z]+:[A-Z]+$/i.test(range)) {
+    throw new Error(ERROR_MESSAGES.INVALID_COLUMN_RANGE);
+  }
+
+  return {
+    spreadsheetId: input.spreadsheetId,
+    range: input.range,
   };
 }

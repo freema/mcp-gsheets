@@ -9,6 +9,8 @@ export const ERROR_MESSAGES = {
 
   // Range errors
   INVALID_RANGE: 'Invalid range format. Use A1 notation (e.g., "Sheet1!A1:B10")',
+  INVALID_COLUMN_RANGE:
+    'Invalid column range format. Use a full-column A1 range (e.g., "Sheet1!B:D" or "Sheet1!C:C")',
   RANGE_REQUIRED: 'range is required and must be a string',
 
   // Spreadsheet errors

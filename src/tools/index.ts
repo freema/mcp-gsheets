@@ -33,6 +33,7 @@ export * from './insert-date.js';
 
 // Row operations
 export * from './insert-rows.js';
+export * from './delete-columns.js';
 
 // READ / Snapshot tools
 export * from './get-merged-cells.js';

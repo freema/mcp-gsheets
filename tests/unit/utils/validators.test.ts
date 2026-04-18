@@ -20,6 +20,7 @@ import {
   validateUnmergeCellsInput,
   validateAddConditionalFormattingInput,
   validateInsertRowsInput,
+  validateDeleteColumnsInput,
 } from '../../../src/utils/validators';
 import { testSpreadsheetIds, testRanges, testValues, testInputs, testErrors } from '../../fixtures/test-data';
 
@@ -246,6 +247,29 @@ describe('validateClearValuesInput', () => {
   it('should throw error for missing fields', () => {
     expect(() => validateClearValuesInput({})).toThrow('spreadsheetId is required');
     expect(() => validateClearValuesInput({ spreadsheetId: 'test' })).toThrow('range is required');
+  });
+});
+
+describe('validateDeleteColumnsInput', () => {
+  it('should accept full-column ranges', () => {
+    const result = validateDeleteColumnsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!B:D',
+    });
+
+    expect(result).toEqual({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      range: 'Sheet1!B:D',
+    });
+  });
+
+  it('should reject non-column ranges', () => {
+    expect(() =>
+      validateDeleteColumnsInput({
+        spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+        range: 'Sheet1!B2:D4',
+      })
+    ).toThrow('Invalid column range format');
   });
 });
 
