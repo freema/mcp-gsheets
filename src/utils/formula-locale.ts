@@ -56,9 +56,7 @@ export function normalizeFormulaLocale(formula: string): {
  * Normalizes all formula strings found in a conditional format rule.
  * Returns an augmented rule with normalized formulas and raw originals.
  */
-export function normalizeConditionalFormatFormulas(
-  rule: Record<string, any>
-): Record<string, any> {
+export function normalizeConditionalFormatFormulas(rule: Record<string, any>): Record<string, any> {
   const result = { ...rule };
 
   // BooleanRule condition — may contain formula values

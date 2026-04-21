@@ -99,7 +99,7 @@ function parseRangeParts(range: string): {
     startCol: columnToIndex(match[1]!.toUpperCase()),
     startRow: parseInt(match[2]!) - 1,
     endCol: columnToIndex(match[3]!.toUpperCase()) + 1, // exclusive
-    endRow: parseInt(match[4]!),           // exclusive
+    endRow: parseInt(match[4]!), // exclusive
   };
 }
 
@@ -144,8 +144,13 @@ function deepDiffProperties(
 
 export async function handleCompareRanges(input: any): Promise<ToolResponse> {
   try {
-    const { spreadsheetId, rangeA, rangeB, fields: formatFields, useEffectiveFormat } =
-      inputSchema.parse(input);
+    const {
+      spreadsheetId,
+      rangeA,
+      rangeB,
+      fields: formatFields,
+      useEffectiveFormat,
+    } = inputSchema.parse(input);
 
     const parsedA = parseRangeParts(rangeA);
     const parsedB = parseRangeParts(rangeB);

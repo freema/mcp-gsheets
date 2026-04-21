@@ -87,7 +87,7 @@ export async function handleGetBorderMap(input: any): Promise<ToolResponse> {
     const startCol = columnToIndex(rangeMatch[1]!.toUpperCase());
     const startRow = parseInt(rangeMatch[2]!) - 1;
     const endCol = columnToIndex(rangeMatch[3]!.toUpperCase()) + 1; // exclusive
-    const endRow = parseInt(rangeMatch[4]!);           // exclusive
+    const endRow = parseInt(rangeMatch[4]!); // exclusive
 
     const numRows = endRow - startRow;
     const numCols = endCol - startCol;
