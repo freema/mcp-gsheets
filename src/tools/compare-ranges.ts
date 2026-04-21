@@ -6,6 +6,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
 import { columnToIndex, colIndexToLetter } from '../utils/range-helpers.js';
+import { extractSheetName } from '../utils/range-helpers.js';
 import { extractFormatFields } from '../utils/compact-format.js';
 
 const inputSchema = z.object({
@@ -84,19 +85,20 @@ function parseRangeParts(range: string): {
   if (!range.includes('!')) {
     throw new Error(`Range must include sheet name prefix, e.g. "Sheet1!A1:F10". Got: "${range}"`);
   }
-  const bangIdx = range.indexOf('!');
-  const sheetName = range.slice(0, bangIdx);
-  const rangeOnly = range.slice(bangIdx + 1);
+  const { sheetName, range: rangeOnly } = extractSheetName(range);
+  if (!sheetName) {
+    throw new Error(`Range must include sheet name prefix, e.g. "Sheet1!A1:F10". Got: "${range}"`);
+  }
 
-  const match = rangeOnly.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+  const match = rangeOnly.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/i);
   if (!match) {
     throw new Error(`Invalid range format: "${rangeOnly}". Expected e.g. "A1:F10".`);
   }
   return {
     sheetName,
-    startCol: columnToIndex(match[1]!),
+    startCol: columnToIndex(match[1]!.toUpperCase()),
     startRow: parseInt(match[2]!) - 1,
-    endCol: columnToIndex(match[3]!) + 1, // exclusive
+    endCol: columnToIndex(match[3]!.toUpperCase()) + 1, // exclusive
     endRow: parseInt(match[4]!),           // exclusive
   };
 }
@@ -110,10 +112,10 @@ function getFmtKey(
 ): { key: string; fmt: Record<string, unknown> } {
   const row = rowData[rowOffset];
   const cell = row?.values?.[colOffset];
-  const rawFmt = useEffectiveFormat
-    ? cell?.effectiveFormat
-    : cell?.userEnteredFormat;
-  if (!rawFmt) return { key: '{}', fmt: {} };
+  const rawFmt = useEffectiveFormat ? cell?.effectiveFormat : cell?.userEnteredFormat;
+  if (!rawFmt) {
+    return { key: '{}', fmt: {} };
+  }
   const fmt = extractFormatFields(rawFmt, fields);
   return { key: JSON.stringify(fmt), fmt };
 }
@@ -142,7 +144,7 @@ function deepDiffProperties(
 
 export async function handleCompareRanges(input: any): Promise<ToolResponse> {
   try {
-    const { spreadsheetId, rangeA, rangeB, fields: formatFields, useEffectiveFormat, mode } =
+    const { spreadsheetId, rangeA, rangeB, fields: formatFields, useEffectiveFormat } =
       inputSchema.parse(input);
 
     const parsedA = parseRangeParts(rangeA);
@@ -188,11 +190,15 @@ export async function handleCompareRanges(input: any): Promise<ToolResponse> {
       rangeStr: string
     ): sheets_v4.Schema$GridData {
       for (const s of allSheets) {
-        if (s.properties?.title !== parsed.sheetName) continue;
+        if (s.properties?.title !== parsed.sheetName) {
+          continue;
+        }
         for (const gd of s.data ?? []) {
           const gdStartRow = gd.startRow ?? 0;
           const gdStartCol = gd.startColumn ?? 0;
-          if (gdStartRow === parsed.startRow && gdStartCol === parsed.startCol) return gd;
+          if (gdStartRow === parsed.startRow && gdStartCol === parsed.startCol) {
+            return gd;
+          }
         }
       }
       throw new Error(`Could not locate grid data for range "${rangeStr}". Check the sheet name.`);

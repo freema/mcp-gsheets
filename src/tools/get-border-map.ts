@@ -6,6 +6,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatSuccessResponse } from '../utils/formatters.js';
 import { ToolResponse } from '../types/tools.js';
 import { colIndexToLetter, columnToIndex } from '../utils/range-helpers.js';
+import { extractSheetName } from '../utils/range-helpers.js';
 
 const inputSchema = z.object({
   spreadsheetId: z.string(),
@@ -51,8 +52,12 @@ function encodeBorder(
   border: sheets_v4.Schema$Border | null | undefined,
   includeStyle: boolean
 ): any {
-  if (!border || border.style === 'NONE' || !border.style) return null;
-  if (!includeStyle) return border.style;
+  if (!border || border.style === 'NONE' || !border.style) {
+    return null;
+  }
+  if (!includeStyle) {
+    return border.style;
+  }
   return {
     style: border.style,
     ...(border.colorStyle ? { colorStyle: border.colorStyle } : {}),
@@ -69,18 +74,19 @@ export async function handleGetBorderMap(input: any): Promise<ToolResponse> {
     if (!range.includes('!')) {
       throw new Error('Range must include sheet name prefix, e.g. "Sheet1!A1:F10"');
     }
-    const bangIdx = range.indexOf('!');
-    const sheetName = range.slice(0, bangIdx);
-    const rangeOnly = range.slice(bangIdx + 1);
+    const { sheetName, range: rangeOnly } = extractSheetName(range);
+    if (!sheetName) {
+      throw new Error('Range must include sheet name prefix, e.g. "Sheet1!A1:F10"');
+    }
 
     // Parse range bounds
-    const rangeMatch = rangeOnly.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    const rangeMatch = rangeOnly.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/i);
     if (!rangeMatch) {
       throw new Error(`Invalid range format: "${rangeOnly}". Expected e.g. "A1:F10".`);
     }
-    const startCol = columnToIndex(rangeMatch[1]!);
+    const startCol = columnToIndex(rangeMatch[1]!.toUpperCase());
     const startRow = parseInt(rangeMatch[2]!) - 1;
-    const endCol = columnToIndex(rangeMatch[3]!) + 1; // exclusive
+    const endCol = columnToIndex(rangeMatch[3]!.toUpperCase()) + 1; // exclusive
     const endRow = parseInt(rangeMatch[4]!);           // exclusive
 
     const numRows = endRow - startRow;
@@ -138,16 +144,19 @@ export async function handleGetBorderMap(input: any): Promise<ToolResponse> {
       const row: any[] = [];
       for (let c = 0; c < numCols; c++) {
         let line: any = null;
-        if (r < numRows) {
-          // top border of current cell
-          const [top] = getBorder(r, c);
-          if (top && top.style && top.style !== 'NONE') line = encodeBorder(top, includeStyle);
-        }
-        if (r > 0 && line === null) {
+        if (r > 0) {
           // bottom border of cell above
           const [, bottom] = getBorder(r - 1, c);
-          if (bottom && bottom.style && bottom.style !== 'NONE')
+          if (bottom?.style && bottom.style !== 'NONE') {
             line = encodeBorder(bottom, includeStyle);
+          }
+        }
+        if (r < numRows && line === null) {
+          // top border of current cell
+          const [top] = getBorder(r, c);
+          if (top?.style && top.style !== 'NONE') {
+            line = encodeBorder(top, includeStyle);
+          }
         }
         row.push(line);
       }
@@ -165,13 +174,16 @@ export async function handleGetBorderMap(input: any): Promise<ToolResponse> {
         if (c < numCols) {
           // left border of current cell
           const [, , left] = getBorder(r, c);
-          if (left && left.style && left.style !== 'NONE') line = encodeBorder(left, includeStyle);
+          if (left?.style && left.style !== 'NONE') {
+            line = encodeBorder(left, includeStyle);
+          }
         }
         if (c > 0 && line === null) {
           // right border of cell to the left
           const [, , , right] = getBorder(r, c - 1);
-          if (right && right.style && right.style !== 'NONE')
+          if (right?.style && right.style !== 'NONE') {
             line = encodeBorder(right, includeStyle);
+          }
         }
         row.push(line);
       }

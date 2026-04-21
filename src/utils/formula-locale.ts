@@ -19,7 +19,7 @@ export function normalizeFormulaLocale(formula: string): {
   raw: string;
   localeDetected: 'semicolon' | 'comma' | 'unknown';
 } {
-  if (!formula || !formula.startsWith('=')) {
+  if (!formula?.startsWith('=')) {
     return { normalized: formula, raw: formula, localeDetected: 'unknown' };
   }
 
@@ -87,7 +87,9 @@ export function normalizeConditionalFormatFormulas(
   if (result.gradientRule) {
     const rawFormulas: string[] = [];
     const normalizeThreshold = (threshold: any) => {
-      if (!threshold) return threshold;
+      if (!threshold) {
+        return threshold;
+      }
       if (threshold.value?.startsWith?.('=')) {
         const { normalized, raw } = normalizeFormulaLocale(threshold.value);
         rawFormulas.push(raw);
