@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-04-21
+
+### Added
+- **2 new formatting-analysis tools** (contributed by @marcin-uliasz in #125):
+  - `sheets_get_border_map` — compact 2D map of horizontal/vertical border lines for a range (resolves the "right border of N vs left border of N+1" ambiguity)
+  - `sheets_compare_ranges` — position-by-position formatting diff between two equally-sized ranges, optionally filtered by field
+- **2 new structural tools** (contributed by @master-nevi in #126):
+  - `sheets_delete_columns` — delete columns via a full-column A1 range (e.g. `Sheet1!B:D`)
+  - `sheets_delete_rows` — delete rows via a full-row A1 range (e.g. `Sheet1!2:4`)
+- `normalizeFormulas` option (default: true) for `sheets_get_conditional_formatting` and `sheets_get_full_sheet_snapshot` — normalizes non-English locale formulas (e.g. Polish `;` separators) to canonical English form, with the original preserved under `_formulaLocaleRaw`
+- `includeConditionalFormatting` option (default: true) for `sheets_get_full_sheet_snapshot`
+- Major test-coverage expansion: `google-auth`, `validation-helpers`, `response-helpers`, `formula-locale`, `json-parser`, `error-messages`, plus edge cases for `append-values`, `batch-update-values`, `create-chart`, `update-values`, `insert-rows`, and `range-helpers`
+
+### Changed
+- `sheets_compare_ranges`: removed unused `mode` parameter from the input schema (the tool always compared position-by-position)
+- `create-chart`: simplify axis title assignment (outer truthy check already implies inner non-undefined)
+
+### Fixed
+- Polish and other non-English locales: conditional formatting formulas are now returned with English-locale separators by default, making them directly usable across MCP clients
+- Server version string bumped to match package version
+
 ## [1.7.1] - 2026-04-16
 
 ### Fixed

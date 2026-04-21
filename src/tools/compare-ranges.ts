@@ -15,25 +15,16 @@ const inputSchema = z.object({
   rangeB: z.string().describe('Second range with sheet prefix, e.g. "Sheet1!A7:Z7"'),
   fields: z.array(z.string()).optional(),
   useEffectiveFormat: z.boolean().optional().default(false),
-  mode: z
-    .enum(['row-by-row', 'full'])
-    .optional()
-    .default('row-by-row')
-    .describe(
-      '"row-by-row": compare each row in rangeA against corresponding row in rangeB. ' +
-        '"full": compare the entire formatting of rangeA against rangeB as blocks.'
-    ),
 });
 
 export const compareRangesTool: Tool = {
   name: 'sheets_compare_ranges',
   description:
-    'Compare cell formatting between two ranges. ' +
+    'Compare cell formatting between two ranges of identical dimensions. ' +
     'Useful for verifying repeated patterns, e.g. "do all data rows 6–85 have identical formatting?" ' +
     'or "is row 10 formatted identically to the template row 5?". ' +
     'Returns a diff listing only the cells and properties that differ between the two ranges. ' +
-    'When ranges have the same dimensions, cells are compared position-by-position. ' +
-    'Use mode:"row-by-row" to compare row N of rangeA with row N of rangeB (default). ' +
+    'Cells are compared position-by-position; rangeA and rangeB must have the same number of rows and columns. ' +
     'Use fields to restrict comparison to specific format properties.',
   inputSchema: {
     type: 'object',
@@ -62,13 +53,6 @@ export const compareRangesTool: Tool = {
         description:
           'Default: false. Compare effectiveFormat (true) or userEnteredFormat (false). ' +
           'effectiveFormat includes conditional formatting overlays.',
-      },
-      mode: {
-        type: 'string',
-        enum: ['row-by-row', 'full'],
-        description:
-          '"row-by-row" (default): compare row 1 of rangeA with row 1 of rangeB, etc. ' +
-          '"full": flatten both ranges and compare cell by cell in reading order.',
       },
     },
     required: ['spreadsheetId', 'rangeA', 'rangeB'],
