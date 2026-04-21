@@ -274,30 +274,24 @@ export async function handleCreateChart(input: any): Promise<ToolResponse> {
       if (validatedInput.domainAxis?.title) {
         const axis: sheets_v4.Schema$BasicChartAxis = {
           position: 'BOTTOM_AXIS',
+          title: validatedInput.domainAxis.title,
         };
-        if (validatedInput.domainAxis.title !== undefined) {
-          axis.title = validatedInput.domainAxis.title;
-        }
         axes.push(axis);
       }
 
       if (validatedInput.leftAxis?.title) {
         const axis: sheets_v4.Schema$BasicChartAxis = {
           position: 'LEFT_AXIS',
+          title: validatedInput.leftAxis.title,
         };
-        if (validatedInput.leftAxis.title !== undefined) {
-          axis.title = validatedInput.leftAxis.title;
-        }
         axes.push(axis);
       }
 
       if (validatedInput.rightAxis?.title) {
         const axis: sheets_v4.Schema$BasicChartAxis = {
           position: 'RIGHT_AXIS',
+          title: validatedInput.rightAxis.title,
         };
-        if (validatedInput.rightAxis.title !== undefined) {
-          axis.title = validatedInput.rightAxis.title;
-        }
         axes.push(axis);
       }
 
@@ -315,6 +309,7 @@ export async function handleCreateChart(input: any): Promise<ToolResponse> {
       // First, we need to identify domain (usually first column)
       // For now, we'll assume domain is in the same sheet as first series
       const firstSeries = validatedInput.series[0];
+      /* v8 ignore next 3 */
       if (!firstSeries) {
         throw new Error('At least one series is required');
       }
@@ -402,6 +397,7 @@ export async function handleCreateChart(input: any): Promise<ToolResponse> {
     ) {
       // For pie charts, parse the first series range
       const firstSeries = validatedInput.series[0];
+      /* v8 ignore next 3 */
       if (!firstSeries) {
         throw new Error('At least one series is required for pie chart');
       }

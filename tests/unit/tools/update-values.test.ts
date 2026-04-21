@@ -249,5 +249,30 @@ describe('handleUpdateValues', () => {
         isError: true,
       });
     });
+
+    it('should use 0 fallback when updatedCells is undefined', async () => {
+      const input = {
+        spreadsheetId: 'test-id',
+        range: 'A1',
+        values: [['test']],
+      };
+
+      mockSheets.spreadsheets.values.update.mockResolvedValue({
+        data: {
+          updatedRange: 'Sheet1!A1',
+          // updatedCells intentionally omitted
+        },
+      });
+
+      const result = await handleUpdateValues(input);
+
+      expect(result).toMatchObject({
+        content: [
+          expect.objectContaining({
+            text: expect.stringContaining('0 cells'),
+          }),
+        ],
+      });
+    });
   });
 });

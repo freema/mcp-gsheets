@@ -20,6 +20,11 @@ import {
   validateUnmergeCellsInput,
   validateAddConditionalFormattingInput,
   validateInsertRowsInput,
+  validateBatchDeleteSheetsInput,
+  validateBatchFormatCellsInput,
+  validateCreateChartInput,
+  validateUpdateChartInput,
+  validateDeleteChartInput,
 } from '../../../src/utils/validators';
 import { testSpreadsheetIds, testRanges, testValues, testInputs, testErrors } from '../../fixtures/test-data';
 
@@ -101,6 +106,16 @@ describe('validateRange', () => {
       expect(validateRange('Sheet1!ABC')).toBe(false); // no row number
       expect(validateRange('Sheet1!123')).toBe(false); // no column letter
       expect(validateRange('Sheet1!1A')).toBe(false); // wrong order
+    });
+
+    it('should reject range with sheet name but empty cell range', () => {
+      // parts = ['Sheet1', ''] — cellRange is '' (falsy) → false
+      expect(validateRange('Sheet1!')).toBe(false);
+    });
+
+    it('should reject empty string range', () => {
+      // parts = [''] — else block, cellRange is '' (falsy) → false
+      expect(validateRange('')).toBe(false);
     });
   });
 
@@ -325,6 +340,13 @@ describe('validateBatchUpdateValuesInput', () => {
       data: [{ values: [['test']] }], // missing range
     })).toThrow('Each data item must have range and values properties');
   });
+
+  it('should throw error for invalid range format in data item', () => {
+    expect(() => validateBatchUpdateValuesInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      data: [{ range: 'invalid!!range', values: [[]] }],
+    })).toThrow('Invalid range format');
+  });
 });
 
 describe('validateCreateSpreadsheetInput', () => {
@@ -454,6 +476,12 @@ describe('validateUpdateSheetPropertiesInput', () => {
     const result = validateUpdateSheetPropertiesInput(input);
     expect(result).toEqual(input);
   });
+
+  it('should throw for missing sheetId', () => {
+    expect(() => validateUpdateSheetPropertiesInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+    })).toThrow('sheetId is required');
+  });
 });
 
 describe('validateCopyToInput', () => {
@@ -580,6 +608,13 @@ describe('validateMergeCellsInput', () => {
       spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
       range: 'A1:B2',
     })).toThrow('mergeType is required');
+  });
+
+  it('should throw error for missing range', () => {
+    expect(() => validateMergeCellsInput({
+      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+      mergeType: 'MERGE_ALL',
+    })).toThrow('range is required');
   });
 });
 
@@ -798,5 +833,361 @@ describe('validateInsertRowsInput', () => {
     expect(result.position).toBe('BEFORE');
     expect(result.inheritFromBefore).toBe(false);
     expect(result.valueInputOption).toBe('USER_ENTERED');
+  });
+});
+
+const VALID_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
+
+describe('validateBatchDeleteSheetsInput', () => {
+  it('should accept valid input', () => {
+    const result = validateBatchDeleteSheetsInput({
+      spreadsheetId: VALID_ID,
+      sheetIds: [0, 1, 2],
+    });
+    expect(result.sheetIds).toEqual([0, 1, 2]);
+  });
+
+  it('should throw when sheetIds is missing', () => {
+    expect(() => validateBatchDeleteSheetsInput({ spreadsheetId: VALID_ID })).toThrow();
+  });
+
+  it('should throw when sheetIds is empty array', () => {
+    expect(() => validateBatchDeleteSheetsInput({ spreadsheetId: VALID_ID, sheetIds: [] })).toThrow();
+  });
+
+  it('should throw when sheetIds contains non-number', () => {
+    expect(() =>
+      validateBatchDeleteSheetsInput({ spreadsheetId: VALID_ID, sheetIds: ['a'] })
+    ).toThrow('Each sheetId must be a number');
+  });
+});
+
+describe('validateBatchFormatCellsInput', () => {
+  it('should accept valid input', () => {
+    const result = validateBatchFormatCellsInput({
+      spreadsheetId: VALID_ID,
+      formatRequests: [{ range: 'Sheet1!A1', format: { bold: true } }],
+    });
+    expect(result.formatRequests).toHaveLength(1);
+  });
+
+  it('should throw when formatRequests is missing', () => {
+    expect(() => validateBatchFormatCellsInput({ spreadsheetId: VALID_ID })).toThrow();
+  });
+
+  it('should throw when formatRequests is empty', () => {
+    expect(() => validateBatchFormatCellsInput({ spreadsheetId: VALID_ID, formatRequests: [] })).toThrow();
+  });
+
+  it('should throw when a request is missing range', () => {
+    expect(() =>
+      validateBatchFormatCellsInput({
+        spreadsheetId: VALID_ID,
+        formatRequests: [{ format: {} }],
+      })
+    ).toThrow('Each format request must have a range property');
+  });
+
+  it('should throw when a request range is invalid', () => {
+    expect(() =>
+      validateBatchFormatCellsInput({
+        spreadsheetId: VALID_ID,
+        formatRequests: [{ range: 'invalid range', format: {} }],
+      })
+    ).toThrow('Invalid range format');
+  });
+
+  it('should throw when a request is missing format', () => {
+    expect(() =>
+      validateBatchFormatCellsInput({
+        spreadsheetId: VALID_ID,
+        formatRequests: [{ range: 'Sheet1!A1' }],
+      })
+    ).toThrow('Each format request must have a format property');
+  });
+});
+
+const VALID_POSITION = {
+  overlayPosition: {
+    anchorCell: { sheetId: 0, rowIndex: 0, columnIndex: 0 },
+  },
+};
+
+const VALID_SERIES = [{ sourceRange: 'Sheet1!A1:A10' }];
+
+describe('validateCreateChartInput', () => {
+  it('should accept a valid minimal input', () => {
+    const result = validateCreateChartInput({
+      spreadsheetId: VALID_ID,
+      position: VALID_POSITION,
+      chartType: 'LINE',
+      series: VALID_SERIES,
+    });
+    expect(result.chartType).toBe('LINE');
+  });
+
+  it('should throw when position is missing', () => {
+    expect(() =>
+      validateCreateChartInput({ spreadsheetId: VALID_ID, chartType: 'LINE', series: VALID_SERIES })
+    ).toThrow();
+  });
+
+  it('should throw when chartType is missing', () => {
+    expect(() =>
+      validateCreateChartInput({ spreadsheetId: VALID_ID, position: VALID_POSITION, series: VALID_SERIES })
+    ).toThrow();
+  });
+
+  it('should throw when chartType is invalid', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'UNKNOWN',
+        series: VALID_SERIES,
+      })
+    ).toThrow();
+  });
+
+  it('should throw when series is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+      })
+    ).toThrow();
+  });
+
+  it('should throw when series is empty', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+        series: [],
+      })
+    ).toThrow();
+  });
+
+  it('should throw when overlayPosition is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: {},
+        chartType: 'LINE',
+        series: VALID_SERIES,
+      })
+    ).toThrow('position.overlayPosition is required');
+  });
+
+  it('should throw when anchorCell is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: { overlayPosition: {} },
+        chartType: 'LINE',
+        series: VALID_SERIES,
+      })
+    ).toThrow('position.overlayPosition.anchorCell is required');
+  });
+
+  it('should throw when anchorCell.sheetId is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: { overlayPosition: { anchorCell: { rowIndex: 0, columnIndex: 0 } } },
+        chartType: 'LINE',
+        series: VALID_SERIES,
+      })
+    ).toThrow('position.overlayPosition.anchorCell.sheetId');
+  });
+
+  it('should throw when anchorCell.rowIndex is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: { overlayPosition: { anchorCell: { sheetId: 0, columnIndex: 0 } } },
+        chartType: 'LINE',
+        series: VALID_SERIES,
+      })
+    ).toThrow('position.overlayPosition.anchorCell.rowIndex');
+  });
+
+  it('should throw when anchorCell.columnIndex is missing', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: { overlayPosition: { anchorCell: { sheetId: 0, rowIndex: 0 } } },
+        chartType: 'LINE',
+        series: VALID_SERIES,
+      })
+    ).toThrow('position.overlayPosition.anchorCell.columnIndex');
+  });
+
+  it('should throw when series item is missing sourceRange', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+        series: [{}],
+      })
+    ).toThrow('Each series must have a sourceRange property');
+  });
+
+  it('should throw when series sourceRange is invalid', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+        series: [{ sourceRange: 'invalid range' }],
+      })
+    ).toThrow('Invalid series range format');
+  });
+
+  it('should throw when series targetAxis is invalid', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+        series: [{ sourceRange: 'Sheet1!A1:A10', targetAxis: 'INVALID' }],
+      })
+    ).toThrow();
+  });
+
+  it('should accept valid targetAxis LEFT_AXIS', () => {
+    const result = validateCreateChartInput({
+      spreadsheetId: VALID_ID,
+      position: VALID_POSITION,
+      chartType: 'LINE',
+      series: [{ sourceRange: 'Sheet1!A1:A10', targetAxis: 'LEFT_AXIS' }],
+    });
+    expect(result.series[0].targetAxis).toBe('LEFT_AXIS');
+  });
+
+  it('should accept valid targetAxis RIGHT_AXIS', () => {
+    const result = validateCreateChartInput({
+      spreadsheetId: VALID_ID,
+      position: VALID_POSITION,
+      chartType: 'LINE',
+      series: [{ sourceRange: 'Sheet1!A1:A10', targetAxis: 'RIGHT_AXIS' }],
+    });
+    expect(result.series[0].targetAxis).toBe('RIGHT_AXIS');
+  });
+
+  it('should throw when domainRange is invalid', () => {
+    expect(() =>
+      validateCreateChartInput({
+        spreadsheetId: VALID_ID,
+        position: VALID_POSITION,
+        chartType: 'LINE',
+        series: VALID_SERIES,
+        domainRange: 'invalid',
+      })
+    ).toThrow('Invalid domain range format');
+  });
+
+  it('should accept valid domainRange', () => {
+    const result = validateCreateChartInput({
+      spreadsheetId: VALID_ID,
+      position: VALID_POSITION,
+      chartType: 'LINE',
+      series: VALID_SERIES,
+      domainRange: 'Sheet1!A1:A10',
+    });
+    expect(result.domainRange).toBe('Sheet1!A1:A10');
+  });
+});
+
+describe('validateUpdateChartInput', () => {
+  it('should accept valid minimal input', () => {
+    const result = validateUpdateChartInput({
+      spreadsheetId: VALID_ID,
+      chartId: 123,
+    });
+    expect(result.chartId).toBe(123);
+  });
+
+  it('should throw when chartId is missing', () => {
+    expect(() => validateUpdateChartInput({ spreadsheetId: VALID_ID })).toThrow();
+  });
+
+  it('should throw when chartId is not a number', () => {
+    expect(() => validateUpdateChartInput({ spreadsheetId: VALID_ID, chartId: 'abc' })).toThrow();
+  });
+
+  it('should throw when chartType is invalid', () => {
+    expect(() =>
+      validateUpdateChartInput({ spreadsheetId: VALID_ID, chartId: 1, chartType: 'UNKNOWN' })
+    ).toThrow();
+  });
+
+  it('should accept valid optional chartType', () => {
+    const result = validateUpdateChartInput({
+      spreadsheetId: VALID_ID,
+      chartId: 1,
+      chartType: 'BAR',
+    });
+    expect(result.chartType).toBe('BAR');
+  });
+
+  it('should throw when series is empty array', () => {
+    expect(() =>
+      validateUpdateChartInput({ spreadsheetId: VALID_ID, chartId: 1, series: [] })
+    ).toThrow();
+  });
+
+  it('should throw when series item is missing sourceRange', () => {
+    expect(() =>
+      validateUpdateChartInput({ spreadsheetId: VALID_ID, chartId: 1, series: [{}] })
+    ).toThrow('Each series must have a sourceRange property');
+  });
+
+  it('should throw when series sourceRange is invalid', () => {
+    expect(() =>
+      validateUpdateChartInput({
+        spreadsheetId: VALID_ID,
+        chartId: 1,
+        series: [{ sourceRange: 'bad range' }],
+      })
+    ).toThrow('Invalid series range format');
+  });
+
+  it('should throw when series targetAxis is invalid', () => {
+    expect(() =>
+      validateUpdateChartInput({
+        spreadsheetId: VALID_ID,
+        chartId: 1,
+        series: [{ sourceRange: 'Sheet1!A1:A10', targetAxis: 'INVALID' }],
+      })
+    ).toThrow();
+  });
+
+  it('should accept series with valid targetAxis', () => {
+    // Covers the branch where targetAxis is truthy but IS in valid list → no throw
+    const result = validateUpdateChartInput({
+      spreadsheetId: VALID_ID,
+      chartId: 1,
+      series: [{ sourceRange: 'Sheet1!A1:A10', targetAxis: 'LEFT_AXIS' }],
+    });
+    expect(result.series).toBeDefined();
+  });
+});
+
+describe('validateDeleteChartInput', () => {
+  it('should accept valid input', () => {
+    const result = validateDeleteChartInput({ spreadsheetId: VALID_ID, chartId: 42 });
+    expect(result.chartId).toBe(42);
+  });
+
+  it('should throw when chartId is missing', () => {
+    expect(() => validateDeleteChartInput({ spreadsheetId: VALID_ID })).toThrow();
+  });
+
+  it('should throw when chartId is not a number', () => {
+    expect(() => validateDeleteChartInput({ spreadsheetId: VALID_ID, chartId: 'abc' })).toThrow();
   });
 });
