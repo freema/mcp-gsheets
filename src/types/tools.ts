@@ -218,6 +218,16 @@ export interface BatchFormatCellsInput {
   }>;
 }
 
+export interface DeleteColumnsInput {
+  spreadsheetId: string;
+  range: string;
+}
+
+export interface DeleteRowsInput {
+  spreadsheetId: string;
+  range: string;
+}
+
 // Chart types
 export type ChartType =
   | 'COLUMN'
