@@ -15,7 +15,7 @@ const inputSchema = z.object({
   includeFormattingRange: z.string().optional(),
   useEffectiveFormat: z.boolean().optional().default(false),
   fields: z.array(z.string()).optional(),
-  compactMode: z.boolean().optional().default(true),
+  compactMode: z.boolean().optional().default(false),
   includeConditionalFormatting: z.boolean().optional().default(true),
 });
 
@@ -26,7 +26,8 @@ export const getFullSheetSnapshotTool: Tool = {
     'Returns: sheet properties (frozen rows/cols, dimensions, tab color), ' +
     'merged cells, column widths, row heights, banded ranges, ' +
     'and optionally cell-level formatting for a specified range (includeFormattingRange). ' +
-    'compactMode is ON by default — adjacent cells with identical formatting are collapsed into range descriptors (90%+ smaller output). Set compactMode:false only for full per-cell detail. ' +
+    'compactMode is OFF by default — full per-cell detail is returned unless compactMode:true is provided. ' +
+    'When compactMode is ON, adjacent cells with identical formatting are collapsed into range descriptors (90%+ smaller output). ' +
     'Conditional formatting rules are included by default (includeConditionalFormatting:true); set to false to exclude them. CF formulas are normalized to English locale (commas). ' +
     'Use fields to limit which format properties are returned. ' +
     'Use this before programmatically recreating a sheet.',
@@ -62,9 +63,10 @@ export const getFullSheetSnapshotTool: Tool = {
       compactMode: {
         type: 'boolean',
         description:
-          'Default: true. Adjacent cells with identical formatting are collapsed into range descriptors ' +
-          '(run-length encoded). Reduces cell formatting output by 90%+ for typical formatted sheets. ' +
-          'Set to false only when you need full per-cell detail. Only applies when includeFormattingRange is set.',
+          'Default: false. Full per-cell formatting is returned unless compactMode:true is set. ' +
+          'When true, adjacent cells with identical formatting are collapsed into range descriptors ' +
+          '(run-length encoded), reducing output by 90%+ for typical formatted sheets. ' +
+          'Only applies when includeFormattingRange is set.',
       },
       includeConditionalFormatting: {
         type: 'boolean',
@@ -101,6 +103,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       'sheets.bandedRanges';
 
     const formatField = useEffectiveFormat ? 'effectiveFormat' : 'userEnteredFormat';
+    const compact = compactMode === true;
 
     // Build cell-level fields mask — use per-field paths when caller specifies a filter
     let cellDataFields: string;
@@ -165,7 +168,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
       const startRow = gridData.startRow ?? 0;
       const startColumn = gridData.startColumn ?? 0;
 
-      if (compactMode) {
+      if (compact) {
         cellFormatting = compactifyCellFormatting(
           gridData.rowData,
           startRow,
@@ -218,7 +221,7 @@ export async function handleGetFullSheetSnapshot(input: any): Promise<ToolRespon
             cellFormatting: {
               range: `${sheetName}!${includeFormattingRange}`,
               formatType: formatField,
-              compact: compactMode,
+              compact,
               data: cellFormatting,
             },
           }
