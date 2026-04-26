@@ -1,0 +1,51 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.freema/mcp-gsheets",
+  "description": "MCP server for Google Sheets API — read, write, format, batch operations.",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/freema/mcp-gsheets",
+    "source": "github"
+  },
+  "version": "1.8.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "mcp-gsheets",
+      "version": "1.8.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GOOGLE_PROJECT_ID",
+          "description": "Google Cloud project ID",
+          "isRequired": true
+        },
+        {
+          "name": "GOOGLE_APPLICATION_CREDENTIALS",
+          "description": "Path to service account key JSON file (auth method 1)",
+          "isRequired": false
+        },
+        {
+          "name": "GOOGLE_SERVICE_ACCOUNT_KEY",
+          "description": "Service account key as JSON string (auth method 2)",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_PRIVATE_KEY",
+          "description": "Service account private key in PEM format (auth method 3)",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_CLIENT_EMAIL",
+          "description": "Service account email (auth method 3)",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

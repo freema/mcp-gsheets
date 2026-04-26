@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.freema/mcp-gsheets -->
+
 # MCP Google Sheets Server
 
 <a href="https://glama.ai/mcp/servers/@freema/mcp-gsheets">
