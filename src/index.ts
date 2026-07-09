@@ -60,6 +60,10 @@ const toolHandlers = new Map<string, (input: any) => Promise<any>>([
   ['sheets_merge_cells', tools.mergeCellsHandler],
   ['sheets_unmerge_cells', tools.unmergeCellsHandler],
   ['sheets_add_conditional_formatting', tools.addConditionalFormattingHandler],
+  ['sheets_add_table', tools.addTableHandler],
+  ['sheets_update_table', tools.updateTableHandler],
+  ['sheets_delete_table', tools.deleteTableHandler],
+  ['sheets_get_tables', tools.getTablesHandler],
   // Batch operations
   ['sheets_batch_delete_sheets', tools.handleBatchDeleteSheets],
   ['sheets_batch_format_cells', tools.handleBatchFormatCells],
@@ -110,6 +114,10 @@ const allTools = [
   tools.mergeCellsTool,
   tools.unmergeCellsTool,
   tools.addConditionalFormattingTool,
+  tools.addTableTool,
+  tools.updateTableTool,
+  tools.deleteTableTool,
+  tools.getTablesTool,
   // Batch operations
   tools.batchDeleteSheetsTool,
   tools.batchFormatCellsTool,
