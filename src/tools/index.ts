@@ -16,6 +16,10 @@ export * from './format-cells.js';
 export * from './update-borders.js';
 export * from './merge-cells.js';
 export * from './conditional-formatting.js';
+export * from './add-table.js';
+export * from './update-table.js';
+export * from './delete-table.js';
+export * from './get-tables.js';
 export * from './check-access.js';
 
 // Batch operations

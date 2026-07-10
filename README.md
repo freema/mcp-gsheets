@@ -360,6 +360,15 @@ npm run dev  # Watch mode with auto-reload
 | `sheets_unmerge_cells` | Unmerge previously merged cells in a range | `spreadsheetId`, `range` |
 | `sheets_add_conditional_formatting` | Add a conditional formatting rule (gradient or boolean) to a range | `spreadsheetId`, `range`, `rule` |
 
+### Native Tables
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `sheets_add_table` | Create a native Google Sheets table with typed columns and optional dropdown values | `spreadsheetId`, `sheetName`, `range`, `name`, `columns` |
+| `sheets_update_table` | Update an existing native Google Sheets table by table ID using an explicit field mask | `spreadsheetId`, `tableId`, `fields`, `name`, `range`, `columns` |
+| `sheets_delete_table` | Delete a native Google Sheets table by table ID | `spreadsheetId`, `tableId` |
+| `sheets_get_tables` | Read native tables for a spreadsheet or a specific sheet | `spreadsheetId`, `sheetName` |
+
 ### Charts
 
 | Tool | Description | Key Parameters |

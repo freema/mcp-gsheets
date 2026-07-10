@@ -185,7 +185,6 @@ describe('parseRange', () => {
       expect(() => parseRange('A1:b2')).toThrow('Invalid range format: A1:b2');
     });
 
-
     it('should throw error for mixed formats', () => {
       expect(() => parseRange('A1B2')).toThrow('Invalid range format: A1B2');
       expect(() => parseRange('1A')).toThrow('Invalid range format: 1A');
@@ -260,8 +259,9 @@ describe('getSheetId', () => {
       },
     });
 
-    await expect(getSheetId(mockSheets, 'spreadsheet-id', 'NonExistent'))
-      .rejects.toThrow('Sheet "NonExistent" not found');
+    await expect(getSheetId(mockSheets, 'spreadsheet-id', 'NonExistent')).rejects.toThrow(
+      'Sheet "NonExistent" not found'
+    );
   });
 
   it('should throw error when no sheets in spreadsheet', async () => {
@@ -271,21 +271,30 @@ describe('getSheetId', () => {
       },
     });
 
-    await expect(getSheetId(mockSheets, 'spreadsheet-id'))
-      .rejects.toThrow('No sheets found in spreadsheet');
+    await expect(getSheetId(mockSheets, 'spreadsheet-id')).rejects.toThrow(
+      'No sheets found in spreadsheet'
+    );
   });
-
 
   it('should handle sheet with ID 0', async () => {
     (mockSheets.spreadsheets.get as any).mockResolvedValue({
       data: {
-        sheets: [
-          { properties: { sheetId: 0, title: 'Sheet1' } },
-        ],
+        sheets: [{ properties: { sheetId: 0, title: 'Sheet1' } }],
       },
     });
 
     const result = await getSheetId(mockSheets, 'spreadsheet-id');
+    expect(result).toBe(0);
+  });
+
+  it('should return sheet ID 0 when resolving by name', async () => {
+    (mockSheets.spreadsheets.get as any).mockResolvedValue({
+      data: {
+        sheets: [{ properties: { sheetId: 0, title: 'Sheet1' } }],
+      },
+    });
+
+    const result = await getSheetId(mockSheets, 'spreadsheet-id', 'Sheet1');
     expect(result).toBe(0);
   });
 
@@ -294,8 +303,9 @@ describe('getSheetId', () => {
       data: {},
     });
 
-    await expect(getSheetId(mockSheets, 'spreadsheet-id'))
-      .rejects.toThrow('No sheets found in spreadsheet');
+    await expect(getSheetId(mockSheets, 'spreadsheet-id')).rejects.toThrow(
+      'No sheets found in spreadsheet'
+    );
   });
 
   it('should throw when first sheet has undefined sheetId', async () => {
@@ -306,8 +316,9 @@ describe('getSheetId', () => {
       },
     });
 
-    await expect(getSheetId(mockSheets, 'spreadsheet-id'))
-      .rejects.toThrow('No sheets found in spreadsheet');
+    await expect(getSheetId(mockSheets, 'spreadsheet-id')).rejects.toThrow(
+      'No sheets found in spreadsheet'
+    );
   });
 
   it('should handle case-sensitive sheet names', async () => {
@@ -429,9 +440,7 @@ describe('findSheetOrThrow', () => {
   });
 
   it('should throw when sheets array is empty', () => {
-    expect(() => findSheetOrThrow([], 'Sheet1')).toThrow(
-      'Sheet "Sheet1" not found. Available: '
-    );
+    expect(() => findSheetOrThrow([], 'Sheet1')).toThrow('Sheet "Sheet1" not found. Available: ');
   });
 
   it('should be case-sensitive', () => {

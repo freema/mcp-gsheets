@@ -99,7 +99,7 @@ export async function getSheetId(
 
   if (sheetName) {
     const sheet = sheetsData.find((s) => s.properties?.title === sheetName);
-    if (!sheet?.properties?.sheetId) {
+    if (sheet?.properties?.sheetId === undefined || sheet.properties.sheetId === null) {
       const availableSheets = sheetsData
         .map((s) => s.properties?.title)
         .filter((title) => title)
