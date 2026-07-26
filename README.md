@@ -312,6 +312,62 @@ cp .env.example .env
 npm run dev  # Watch mode with auto-reload
 ```
 
+## 🎚️ Reducing context cost with toolsets
+
+All 44 tools together cost about **9,900 tokens of context in every session**,
+before the model does anything. Most workflows need a fraction of that.
+`GSHEETS_TOOLSETS` limits which tools the server exposes:
+
+```json
+{
+  "mcpServers": {
+    "gsheets": {
+      "command": "npx",
+      "args": ["mcp-gsheets"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "your-project-id",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/key.json",
+        "GSHEETS_TOOLSETS": "core,charts"
+      }
+    }
+  }
+}
+```
+
+| Toolset | Tools | What it covers |
+|---|---|---|
+| `core` | 11 | Read/write values, metadata, sheet structure, create spreadsheet |
+| `sheets` | 9 | Sheet lifecycle, rows and columns |
+| `formatting` | 15 | Colours, borders, merges, conditional rules, links, dates |
+| `charts` | 3 | Create, update, delete charts |
+| `tables` | 4 | Native tables |
+| `analysis` | 2 | Full-sheet snapshot, range comparison |
+
+Measured `tools/list` cost:
+
+| Configuration | Tools | ≈ Tokens |
+|---|---|---|
+| _unset_ (default, all toolsets) | 44 | 9,875 |
+| `GSHEETS_TOOLSETS=core` | 11 | 1,986 |
+| `GSHEETS_TOOLSETS=core,sheets` | 20 | 3,548 |
+| `GSHEETS_READ_ONLY=true` | 16 | 3,599 |
+| `GSHEETS_TOOLSETS=core` + read-only | 6 | 912 |
+
+Notes:
+
+- **The default is unchanged** — leave `GSHEETS_TOOLSETS` unset and you get
+  every tool, exactly as before.
+- **`core` is always included.** `GSHEETS_TOOLSETS=charts` means "charts as
+  well as core", not "charts only" — without core the server cannot read a cell.
+- **A typo is a startup error**, not a silently smaller tool list.
+- `GSHEETS_READ_ONLY=true` drops every writing tool and can be combined with
+  `GSHEETS_TOOLSETS`. It is enforced when a tool is called, not just when the
+  list is built, so a client cannot write by naming a hidden tool.
+
+All tools also carry MCP annotations (`readOnlyHint`, `destructiveHint`,
+`idempotentHint`), so clients can skip confirmation prompts on reads and warn
+before destructive operations.
+
 ## 📋 Available Tools
 
 ### Reading Data

@@ -29,6 +29,12 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { validateAuth } from './utils/google-auth.js';
+import {
+  resolveToolsets,
+  annotationsFor,
+  ToolsetConfigError,
+  TOOLSETS,
+} from './config/toolsets.js';
 
 // Import all tools
 import * as tools from './tools/index.js';
@@ -156,6 +162,31 @@ async function main() {
     process.exit(1);
   }
 
+  // Resolve which tools this process exposes. Fails fast on a bad toolset
+  // name rather than silently serving a smaller set than the user expects.
+  let toolsetConfig;
+  try {
+    toolsetConfig = resolveToolsets();
+  } catch (error) {
+    if (error instanceof ToolsetConfigError) {
+      console.error(`Configuration Error: ${error.message}`);
+      process.exit(1);
+    }
+    throw error;
+  }
+
+  const { enabled, readOnly, allowed } = toolsetConfig;
+  const exposedTools = allTools
+    .filter((tool) => allowed.has(tool.name))
+    .map((tool) => ({ ...tool, annotations: annotationsFor(tool.name) }));
+
+  if (enabled.length < Object.keys(TOOLSETS).length || readOnly) {
+    console.error(
+      `Toolsets: ${enabled.join(', ')}${readOnly ? ' (read-only)' : ''} — ` +
+        `${exposedTools.length}/${allTools.length} tools`
+    );
+  }
+
   const server = new Server(
     {
       name: 'spreadsheet',
@@ -173,13 +204,24 @@ async function main() {
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
-      tools: allTools,
+      tools: exposedTools,
     };
   });
 
   // Handle tool execution
   server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
     const { name, arguments: args } = request.params;
+
+    // Enforce the filter on the call path too. Hiding a tool from tools/list
+    // is a context optimisation, not a guarantee — read-only mode in
+    // particular has to hold even if a client calls a write tool by name.
+    if (!allowed.has(name)) {
+      throw new Error(
+        toolHandlers.has(name)
+          ? `Tool ${name} is disabled by the current GSHEETS_TOOLSETS/GSHEETS_READ_ONLY configuration`
+          : `Unknown tool: ${name}`
+      );
+    }
 
     const handler = toolHandlers.get(name);
     if (!handler) {
