@@ -134,7 +134,8 @@ export function validateAuth(): void {
       if (error instanceof SyntaxError) {
         throw new Error(
           'GOOGLE_SERVICE_ACCOUNT_KEY contains invalid JSON. ' +
-            'Please ensure it is a valid JSON string.'
+            'Please ensure it is a valid JSON string.',
+          { cause: error }
         );
       }
       throw error;

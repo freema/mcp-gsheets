@@ -87,7 +87,7 @@ export async function readSpreadsheetInfo(
   } catch (error) {
     const errorResponse = handleError(error);
     const errorText = errorResponse.content[0]?.text ?? 'Unknown error';
-    throw new Error(errorText);
+    throw new Error(errorText, { cause: error });
   }
 }
 
@@ -130,7 +130,7 @@ export async function readSheetList(
   } catch (error) {
     const errorResponse = handleError(error);
     const errorText = errorResponse.content[0]?.text ?? 'Unknown error';
-    throw new Error(errorText);
+    throw new Error(errorText, { cause: error });
   }
 }
 
@@ -172,7 +172,7 @@ export async function readSheetData(
   } catch (error) {
     const errorResponse = handleError(error);
     const errorText = errorResponse.content[0]?.text ?? 'Unknown error';
-    throw new Error(errorText);
+    throw new Error(errorText, { cause: error });
   }
 }
 
