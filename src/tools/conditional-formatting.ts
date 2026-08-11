@@ -7,6 +7,7 @@ import { formatToolResponse } from '../utils/formatters.js';
 import { AddConditionalFormattingInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
 import { parseJsonInput } from '../utils/json-parser.js';
+import { toInputSchema } from '../utils/tool-schema.js';
 
 // Schema definitions
 const colorSchema = z.object({
@@ -115,11 +116,7 @@ const addConditionalFormattingInputSchema = z.object({
 export const addConditionalFormattingTool: Tool = {
   name: 'sheets_add_conditional_formatting',
   description: 'Add conditional formatting rules to a Google Sheet',
-  inputSchema: {
-    type: 'object',
-    properties: addConditionalFormattingInputSchema.shape,
-    required: ['spreadsheetId', 'rules'],
-  },
+  inputSchema: toInputSchema(addConditionalFormattingInputSchema),
 };
 
 export async function addConditionalFormattingHandler(input: any): Promise<ToolResponse> {
