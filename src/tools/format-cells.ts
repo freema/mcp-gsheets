@@ -7,6 +7,7 @@ import { formatToolResponse } from '../utils/formatters.js';
 import { FormatCellsInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
 import { parseJsonInput } from '../utils/json-parser.js';
+import { toInputSchema } from '../utils/tool-schema.js';
 
 // Schema definitions
 const colorSchema = z
@@ -72,11 +73,7 @@ const formatCellsInputSchema = z.object({
 export const formatCellsTool: Tool = {
   name: 'sheets_format_cells',
   description: 'Format cells in a Google Sheet (colors, fonts, alignment, number formats)',
-  inputSchema: {
-    type: 'object',
-    properties: formatCellsInputSchema.shape,
-    required: ['spreadsheetId', 'range', 'format'],
-  },
+  inputSchema: toInputSchema(formatCellsInputSchema),
 };
 
 export async function formatCellsHandler(input: any): Promise<ToolResponse> {

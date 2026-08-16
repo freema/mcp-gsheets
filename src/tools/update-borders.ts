@@ -7,6 +7,7 @@ import { formatToolResponse } from '../utils/formatters.js';
 import { UpdateBordersInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
 import { parseJsonInput } from '../utils/json-parser.js';
+import { toInputSchema } from '../utils/tool-schema.js';
 
 // Schema definitions
 const colorSchema = z
@@ -44,11 +45,7 @@ const updateBordersInputSchema = z.object({
 export const updateBordersTool: Tool = {
   name: 'sheets_update_borders',
   description: 'Update borders of cells in a Google Sheet',
-  inputSchema: {
-    type: 'object',
-    properties: updateBordersInputSchema.shape,
-    required: ['spreadsheetId', 'range', 'borders'],
-  },
+  inputSchema: toInputSchema(updateBordersInputSchema),
 };
 
 export async function updateBordersHandler(input: any): Promise<ToolResponse> {

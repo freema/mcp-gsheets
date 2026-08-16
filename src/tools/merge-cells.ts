@@ -5,6 +5,7 @@ import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
 import { MergeCellsInput, UnmergeCellsInput, ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
+import { toInputSchema } from '../utils/tool-schema.js';
 
 // Schema definitions
 const mergeCellsInputSchema = z.object({
@@ -21,21 +22,13 @@ const unmergeCellsInputSchema = z.object({
 export const mergeCellsTool: Tool = {
   name: 'sheets_merge_cells',
   description: 'Merge cells in a Google Sheet',
-  inputSchema: {
-    type: 'object',
-    properties: mergeCellsInputSchema.shape,
-    required: ['spreadsheetId', 'range', 'mergeType'],
-  },
+  inputSchema: toInputSchema(mergeCellsInputSchema),
 };
 
 export const unmergeCellsTool: Tool = {
   name: 'sheets_unmerge_cells',
   description: 'Unmerge cells in a Google Sheet',
-  inputSchema: {
-    type: 'object',
-    properties: unmergeCellsInputSchema.shape,
-    required: ['spreadsheetId', 'range'],
-  },
+  inputSchema: toInputSchema(unmergeCellsInputSchema),
 };
 
 export async function mergeCellsHandler(input: any): Promise<ToolResponse> {
