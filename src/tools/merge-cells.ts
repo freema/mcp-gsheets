@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getAuthenticatedClient } from '../utils/google-auth.js';
 import { handleError } from '../utils/error-handler.js';
 import { formatToolResponse } from '../utils/formatters.js';
-import { MergeCellsInput, UnmergeCellsInput, ToolResponse } from '../types/tools.js';
+import { ToolResponse } from '../types/tools.js';
 import { parseRange, getSheetId, extractSheetName } from '../utils/range-helpers.js';
 import { toInputSchema } from '../utils/tool-schema.js';
 
@@ -33,7 +33,7 @@ export const unmergeCellsTool: Tool = {
 
 export async function mergeCellsHandler(input: any): Promise<ToolResponse> {
   try {
-    const validatedInput = mergeCellsInputSchema.parse(input) as MergeCellsInput;
+    const validatedInput = mergeCellsInputSchema.parse(input);
     const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID
@@ -71,7 +71,7 @@ export async function mergeCellsHandler(input: any): Promise<ToolResponse> {
 
 export async function unmergeCellsHandler(input: any): Promise<ToolResponse> {
   try {
-    const validatedInput = unmergeCellsInputSchema.parse(input) as UnmergeCellsInput;
+    const validatedInput = unmergeCellsInputSchema.parse(input);
     const sheets = await getAuthenticatedClient();
 
     // Extract sheet name and get sheet ID

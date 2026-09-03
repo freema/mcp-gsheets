@@ -259,7 +259,7 @@ export async function handleCreateChart(input: any): Promise<ToolResponse> {
         break;
       default:
         chartSpec.basicChart = {
-          chartType: validatedInput.chartType as any,
+          chartType: validatedInput.chartType,
           legendPosition: legendPosition,
           axis: [],
           domains: [],
