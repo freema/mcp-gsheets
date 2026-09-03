@@ -6,3 +6,12 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "deps:"
+    ignore:
+      # TypeScript 7 is the current `latest`, but every released
+      # typescript-eslint — including the canary — peers on
+      # `typescript: >=4.8.4 <6.1.0`, so a major bump makes `npm ci` fail
+      # with ERESOLVE. Remove this entry once typescript-eslint ships
+      # TypeScript 7 support.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
