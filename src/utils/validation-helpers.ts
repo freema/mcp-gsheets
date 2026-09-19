@@ -5,13 +5,7 @@ import { validateSpreadsheetId, validateRange } from './validators.js';
  * Common validation fields that can be used with withCommonValidation
  */
 export type ValidationField =
-  | 'spreadsheetId'
-  | 'range'
-  | 'sheetId'
-  | 'values'
-  | 'title'
-  | 'ranges'
-  | 'data';
+  'spreadsheetId' | 'range' | 'sheetId' | 'values' | 'title' | 'ranges' | 'data';
 
 /**
  * Interface for validation configuration
