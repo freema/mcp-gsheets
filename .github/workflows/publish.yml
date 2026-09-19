@@ -18,19 +18,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22.x
+      # Trusted publishing needs npm >= 11.5.1, which ships with Node 24.
+      # No NPM_TOKEN: the publish authenticates over GitHub OIDC, and npm
+      # attaches the provenance attestation on its own.
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: 'https://registry.npmjs.org/'
           cache: 'npm'
-          always-auth: true
 
-      - name: Configure npm auth
+      - name: Verify npm supports trusted publishing
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_VERSION=$(npm --version)
+          echo "npm $NPM_VERSION"
+          REQUIRED=11.5.1
+          if [ "$(printf '%s\n' "$REQUIRED" "$NPM_VERSION" | sort -V | head -1)" != "$REQUIRED" ]; then
+            echo "npm >= $REQUIRED required for trusted publishing, got $NPM_VERSION" >&2
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci
@@ -43,7 +49,18 @@ jobs:
           npm run test:run
           npm run build
 
+      # Both the tag push and a published release trigger this workflow
+      - name: Check if version already published
+        id: check
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if npm view mcp-gsheets@${PACKAGE_VERSION} version 2>/dev/null; then
+            echo "already_published=true" >> $GITHUB_OUTPUT
+            echo "Version ${PACKAGE_VERSION} already published, skipping"
+          else
+            echo "already_published=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: steps.check.outputs.already_published != 'true'
+        run: npm publish --access public
