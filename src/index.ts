@@ -13,6 +13,7 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
+import { createRequire } from 'node:module';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -44,6 +45,11 @@ import { resourceTemplates, handleResourceRead } from './resources/index.js';
 
 // Import prompts
 import { allPrompts, handleGetPrompt } from './prompts/index.js';
+
+// Resolves from both src/ (tsx) and dist/ (published build) to the package root
+const { version: SERVER_VERSION } = createRequire(import.meta.url)('../package.json') as {
+  version: string;
+};
 
 // Tool handler mapping
 const toolHandlers = new Map<string, (input: any) => Promise<any>>([
@@ -190,7 +196,7 @@ async function main() {
   const server = new Server(
     {
       name: 'spreadsheet',
-      version: '1.8.0',
+      version: SERVER_VERSION,
     },
     {
       capabilities: {
