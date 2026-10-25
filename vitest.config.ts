@@ -13,8 +13,8 @@ export default defineConfig({
       // Measure every source file, not just the ones some test happened to
       // import. Without this the denominator tracks the import graph: the
       // suite reported 95% while a third of src/ was never looked at, and the
-      // number moved whenever a test added an import.
-      all: true,
+      // number moved whenever a test added an import. Since Vitest 4 the
+      // `include` glob alone does this (the old `all` option is gone).
       include: ['src/**/*.ts'],
       exclude: [
         'node_modules/**',
@@ -41,7 +41,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
 });

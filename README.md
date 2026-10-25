@@ -11,7 +11,7 @@
 ![Coverage](https://codecov.io/gh/freema/mcp-gsheets/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-007ACC?logo=typescript&logoColor=white)
-![Node](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)
 ![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white)
 
 A Model Context Protocol (MCP) server for Google Sheets API integration. Enables reading, writing, and managing Google Sheets documents directly from your MCP client (e.g., Claude Code, Claude Desktop, Cursor, etc.).
@@ -25,7 +25,7 @@ A Model Context Protocol (MCP) server for Google Sheets API integration. Enables
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) v20 or higher
+- [Node.js](https://nodejs.org/) v22 or higher
 - [Google Cloud Project](https://console.cloud.google.com) with Sheets API enabled
 - Service Account with JSON key file
 - [npm](https://www.npmjs.com/)
