@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-10-25
+
+### Changed
+- **Breaking:** Node.js 22 or newer is now required (`engines.node >=22.0.0`).
+  Node.js 20 reached end of life in April 2026, and `googleapis` 182 no longer
+  supports it. CI tests Node 22 and 24.
+- Docker image moved from `node:18-alpine` to `node:24-alpine`.
+- Dependencies: `googleapis` 176 → 182, `prettier` 3.9.10, `vitest`,
+  `@vitest/ui` and `@vitest/coverage-v8` 4 → 5.
+
+The tool definitions returned by `tools/list` are byte-for-byte identical to
+1.10.3.
+
+Releases 1.9.0 – 1.10.3 are documented in the
+[GitHub releases](https://github.com/freema/mcp-gsheets/releases).
+
 ## [1.8.0] - 2026-04-21
 
 ### Added

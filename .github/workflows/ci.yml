@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20, 22]
+        node-version: [22, 24]
     
     steps:
       - name: Checkout
@@ -47,7 +47,7 @@ jobs:
         run: npm run build
 
       - name: Upload coverage
-        if: matrix.node-version == 20
+        if: matrix.node-version == 22
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
           fail_ci_if_error: false
       
       - name: Upload artifacts
-        if: matrix.node-version == 20
+        if: matrix.node-version == 22
         uses: actions/upload-artifact@v4
         with:
           name: dist
