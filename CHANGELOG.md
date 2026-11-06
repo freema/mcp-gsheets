@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.1] - 2026-11-06
+
+### Security
+`dist/index.js` is a single bundle: `zod`, the stdio server part of
+`@modelcontextprotocol/sdk` and the SDK's JSON Schema validator (`ajv`,
+`fast-uri`) are compiled into it and are not loaded from `node_modules` at
+runtime. The published 1.11.0 artifact therefore contains zod 4.6.5,
+SDK 1.30.0 and fast-uri 3.1.0, and only a new release replaces them.
+
+- Bundled `zod` 4.6.5 → 4.6.7. Fixes
+  [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)
+  (memory exhaustion while validating an oversized array). The affected code
+  validates tool arguments, so it was present and in use in 1.11.0. The server
+  only speaks stdio, so that input comes from the MCP client that started it,
+  not from the network.
+- Bundled `@modelcontextprotocol/sdk` 1.30.0 → 1.32.2. The SDK advisories
+  fixed in that range (GHSA-f897-62hf-6gxq, GHSA-6qxp-vccf-f47h,
+  GHSA-22jm-h49p-29qw, GHSA-46jr-4wx8-v453) concern servers reachable over
+  HTTP, the OAuth client and the experimental task store. The bundle contains
+  no HTTP transport and no OAuth client, and this server does not use the task
+  store, so 1.11.0 was not exposed to them, but `npm audit` reported them for
+  every install.
+- Bundled `fast-uri` 3.1.0 → 3.1.9.
+- Dependency floors raised to `@modelcontextprotocol/sdk ^1.32.2` and
+  `zod ^4.6.7`, so the copies npm installs next to the bundle are the fixed
+  versions as well.
+- Lockfile: `hono`, `@hono/node-server`, `proxy-addr`, `body-parser`, `qs`,
+  `express-rate-limit` and `ip-address` updated to patched versions. These are
+  dependencies of the SDK's HTTP transports; npm installs them, but they are
+  not part of the bundle and this server never loads them.
+
+`npm audit --omit=dev` reports 0 vulnerabilities.
+
+### Changed
+- Dev dependencies: `tsup` 8.5.1 → 9.0.0 (esbuild 0.27 → 0.28), `eslint`
+  10.8.1 → 10.14.0, `typescript-eslint` 8.71.0 → 8.72.1. tsup 9 needs
+  Node.js 22.18+, 24.11+ or 26+ to build from source; the runtime requirement
+  is unchanged (Node.js 22+).
+
+The tool definitions returned by `tools/list` are byte-for-byte identical to
+1.11.0.
+
 ## [1.11.0] - 2026-10-25
 
 ### Changed
