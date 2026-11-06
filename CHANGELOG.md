@@ -22,10 +22,11 @@ SDK 1.30.0 and fast-uri 3.1.0, and only a new release replaces them.
   not from the network.
 - Bundled `@modelcontextprotocol/sdk` 1.30.0 → 1.32.2. The SDK advisories
   fixed in that range (GHSA-f897-62hf-6gxq, GHSA-6qxp-vccf-f47h,
-  GHSA-22jm-h49p-29qw, GHSA-46jr-4wx8-v453) concern the HTTP transports, the
-  OAuth client and the experimental task store. None of that code is in the
-  bundle or used by this server, so 1.11.0 was not exposed to them, but
-  `npm audit` reported them for every install.
+  GHSA-22jm-h49p-29qw, GHSA-46jr-4wx8-v453) concern servers reachable over
+  HTTP, the OAuth client and the experimental task store. The bundle contains
+  no HTTP transport and no OAuth client, and this server does not use the task
+  store, so 1.11.0 was not exposed to them, but `npm audit` reported them for
+  every install.
 - Bundled `fast-uri` 3.1.0 → 3.1.9.
 - Dependency floors raised to `@modelcontextprotocol/sdk ^1.32.2` and
   `zod ^4.6.7`, so the copies npm installs next to the bundle are the fixed
