@@ -56,6 +56,16 @@ Add the following config to your MCP client:
 
 ### MCP Client Configuration
 
+**Quick setup with Agent Add**
+
+Complete [Google Cloud Setup](#google-cloud-setup), then replace the project ID and credentials file path:
+
+```bash
+npx -y agent-add --global --mcp '{"mcp-gsheets":{"command":"npx","args":["-y","mcp-gsheets@latest"],"env":{"GOOGLE_PROJECT_ID":"your-project-id","GOOGLE_APPLICATION_CREDENTIALS":"/absolute/path/to/service-account-key.json"}}}'
+```
+
+Choose your client in [Agent Add](https://github.com/pea3nut/agent-add), then restart it.
+
 <details>
   <summary>Claude Code</summary>
   Use the Claude Code CLI to add the MCP Google Sheets server (<a href="https://docs.anthropic.com/en/docs/claude-code/mcp">guide</a>):
