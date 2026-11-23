@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.2] - 2026-11-23
+
+### Changed
+- `googleapis` 182.0.0 → 189.0.0 (runtime dependency, not bundled; the
+  `package.json` range moves from `^182.0.0` to `^189.0.0`, so installs pick
+  up the new client).
+- Dev dependencies: `globals` 17.14.0, `eslint-plugin-prettier` 5.5.7,
+  `@vitest/ui` 5.1.0, `tsx` 4.23.15.
+
 ## [1.11.1] - 2026-11-06
 
 ### Security
